@@ -11,15 +11,19 @@ func NewBasicSprite(img image) Sprite {
 
 type Sprite struct {
 	image
-	x, y float64
+	x, y, rot float32
 }
 
-func (s *Sprite) Move(x, y float64) {
+func (s *Sprite) Move(x, y float32) {
 	s.x += x
 	s.y += y
 }
 
-func (s *Sprite) SetLocation(x, y float64) {
+func (s *Sprite) Rotate(r float32) {
+	s.rot = r
+}
+
+func (s *Sprite) SetLocation(x, y float32) {
 	s.x = x
 	s.y = y
 }
@@ -31,7 +35,9 @@ func (s Sprite) Draw() {
 
 	gl.LoadIdentity()
 
-	gl.Translated(gl.Double(s.x), gl.Double(s.y), 0)
+	gl.Translatef(gl.Float(s.x), gl.Float(s.y), 0)
+
+	gl.Rotatef(gl.Float(s.rot), 0.0, 0.0, 1.0)
 
 	s.image.Draw()
 

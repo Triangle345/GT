@@ -49,13 +49,13 @@ func (img image) Draw() {
 
 	// need to flip v coord because of opengl texture rendering
 	gl.TexCoord2f(0, 1)
-	gl.Vertex3f(-0, -0, 0)
+	gl.Vertex3f(-w/2, -h/2, 0)
 	gl.TexCoord2f(1, 1)
-	gl.Vertex3f(w, -0, 0)
+	gl.Vertex3f(w/2, -h/2, 0)
 	gl.TexCoord2f(1, 0)
-	gl.Vertex3f(w, h, 0)
+	gl.Vertex3f(w/2, h/2, 0)
 	gl.TexCoord2f(0, 0)
-	gl.Vertex3f(-0, h, 0)
+	gl.Vertex3f(-w/2, h/2, 0)
 
 	gl.End()
 	gl.Disable(gl.TEXTURE_2D)
