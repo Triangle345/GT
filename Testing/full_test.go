@@ -35,6 +35,9 @@ func Test_Graphics(t *testing.T) {
 		s := Graphics.NewBasicSprite(img2)
 		s.SetLocation(float32(x), float32(y))
 
+		scale := random(2, 6)
+		fmt.Println("scale", float32(scale)/10.0)
+		s.Scale(float32(scale)/10.0, float32(scale)/10.0)
 		sprites = append(sprites, &s)
 	}
 
@@ -45,7 +48,7 @@ func Test_Graphics(t *testing.T) {
 		w.Clear()
 		s1.Move(.1, .2)
 		s2.Move(-.1, -.2)
-		s2.Rotate(60.0)
+		s2.Rotate(20.0)
 
 		w.Draw(s1)
 		w.Draw(s2)
@@ -55,7 +58,7 @@ func Test_Graphics(t *testing.T) {
 			dy := random(0, 20) / 10
 
 			mys.Move(float32(dx), float32(dy))
-			mys.Rotate(float32(dx) * 10)
+			mys.Rotate(float32(dx))
 
 			w.Draw(mys)
 		}
