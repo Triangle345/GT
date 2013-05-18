@@ -5,14 +5,46 @@ import (
 	"Graphics"
 	"Window"
 	"fmt"
+	gl "github.com/chsc/gogl/gl21"
 	"math/rand"
 	"testing"
-	//"time"
+	"time"
 )
 
 func random(min, max int) int {
 	//srand.Seed(time.Now().Unix())
 	return rand.Intn(max-min) + min
+}
+
+func Test_VBO(t *testing.T) {
+	w := Window.NewWindowedWindow("test", 800, 600)
+
+	w.Open()
+
+	w.Clear()
+	w.Refresh()
+
+	ID := make([]gl.Uint, 1)
+	data := make([]float32, 6)
+	data[0] = 50
+	data[1] = 50
+	data[2] = 100
+	data[3] = 50
+	data[4] = 74
+	data[5] = 100
+	gl.GenBuffers(1, &ID[0])
+	gl.BindBuffer(gl.ARRAY_BUFFER, ID[0])
+	gl.BufferData(gl.ARRAY_BUFFER, gl.Sizeiptr(4*len(data)), gl.Pointer(&data), gl.STATIC_DRAW)
+
+	gl.Clear(gl.COLOR_BUFFER_BIT)
+	gl.Color3f(0.0, 0.0, 0.0)
+	gl.BindBuffer(gl.ARRAY_BUFFER, ID[0])
+	// 4 is size of our float, but 2 objects each
+	gl.VertexPointer(2, gl.FLOAT, 2*4, gl.Offset(nil, 0))
+	gl.DrawArrays(gl.POLYGON, 0, 3)
+	gl.Flush()
+	w.Refresh()
+	time.Sleep(3 * 10e8)
 }
 
 func Test_Graphics(t *testing.T) {
