@@ -32,16 +32,25 @@ func Test_VBO(t *testing.T) {
 	data[3] = 50
 	data[4] = 74
 	data[5] = 100
+
+	//gl.GenVertexArrays(1, &ID[0]) // Create our Vertex Array Object
+	//gl.BindVertexArray(ID[0])     // Bind our Vertex Array Object so we can use it
+
 	gl.GenBuffers(1, &ID[0])
 	gl.BindBuffer(gl.ARRAY_BUFFER, ID[0])
-	gl.BufferData(gl.ARRAY_BUFFER, gl.Sizeiptr(4*len(data)), gl.Pointer(&data), gl.STATIC_DRAW)
+	gl.BufferData(gl.ARRAY_BUFFER, gl.Sizeiptr(4*len(data)), gl.Pointer(&data[0]), gl.STATIC_DRAW)
 
 	gl.Clear(gl.COLOR_BUFFER_BIT)
 	gl.Color3f(0.0, 0.0, 0.0)
 	gl.BindBuffer(gl.ARRAY_BUFFER, ID[0])
 	// 4 is size of our float, but 2 objects each
+	gl.EnableClientState(gl.VERTEX_ARRAY)
+	gl.VertexAttribPointer(0, 2, gl.FLOAT, gl.FALSE, 0, gl.Pointer(&data[0]))
+
 	gl.VertexPointer(2, gl.FLOAT, 2*4, gl.Offset(nil, 0))
-	gl.DrawArrays(gl.POLYGON, 0, 3)
+	//glEnableVertexAttribArray(0); // Disable our Vertex Array Object
+	//glBindVertexArray(0); // Disable our Vertex Buffer Object
+	gl.DrawArrays(gl.TRIANGLES, 0, 3)
 	gl.Flush()
 	w.Refresh()
 	time.Sleep(3 * 10e8)
