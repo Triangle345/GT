@@ -4,8 +4,6 @@ package Graphics
 import (
 	"Window"
 	"fmt"
-	gl "github.com/chsc/gogl/gl21"
-	"github.com/jteeuwen/glfw"
 	"testing"
 	"time"
 )

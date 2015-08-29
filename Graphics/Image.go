@@ -2,17 +2,22 @@
 package Graphics
 
 import (
-	"errors"
-	gl "github.com/chsc/gogl/gl21"
+	// "errors"
+	"fmt"
+	// gl "github.com/chsc/gogl/gl21"
+	// "github.com/Jragonmiris/mathgl"
+	"github.com/go-gl/gl/v3.2-core/gl"
 	Image "image"
+	"image/draw"
 	_ "image/jpeg"
 	_ "image/png"
 	"os"
 )
 
 type image struct {
-	data      Image.Image
-	textureId gl.Uint
+	data          *Image.Image
+	height, width int
+	textureId     uint32
 }
 
 type Drawable interface {
@@ -25,81 +30,53 @@ func (img image) Draw() {
 		return
 	}
 
-	// transparency
-	gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
-	gl.Enable(gl.BLEND)
-
-	gl.Enable(gl.TEXTURE_2D)
-
-	gl.MatrixMode(gl.MODELVIEW)
-
-	gl.PushMatrix()
-
-	//gl.LoadIdentity()
+	// gl.ActiveTexture(texId2)
 
 	gl.BindTexture(gl.TEXTURE_2D, img.textureId)
 
-	//gl.Translatef(400, 400, 0)
-	w := gl.Float(img.data.Bounds().Dx())
-	h := gl.Float(img.data.Bounds().Dy())
+}
 
-	gl.Begin(gl.QUADS)
+func (img image) GetUVFromPosition(x, y float32) (u, v float32) {
 
-	gl.Color3f(1.0, 1.0, 1.0)
+	u = x / float32(img.width)
+	v = y / float32(img.height)
 
-	// need to flip v coord because of opengl texture rendering
-	gl.TexCoord2f(0, 1)
-	gl.Vertex3f(-w/2, -h/2, 0)
-	gl.TexCoord2f(1, 1)
-	gl.Vertex3f(w/2, -h/2, 0)
-	gl.TexCoord2f(1, 0)
-	gl.Vertex3f(w/2, h/2, 0)
-	gl.TexCoord2f(0, 0)
-	gl.Vertex3f(-w/2, h/2, 0)
-
-	gl.End()
-	gl.Disable(gl.TEXTURE_2D)
-
-	gl.PopMatrix()
-
+	return
 }
 
 func NewImage(path string) (retImg image, err error) {
-	f, e := os.Open(path)
-	if e != nil {
-		return retImg, e
+
+	imgFile, err := os.Open(path)
+	if err != nil {
+		return image{}, err
+	}
+	img, _, err := Image.Decode(imgFile)
+	if err != nil {
+		return image{}, err
 	}
 
-	img, _, e := Image.Decode(f)
+	rgba := Image.NewRGBA(img.Bounds())
+	if rgba.Stride != rgba.Rect.Size().X*4 {
+		return image{}, fmt.Errorf("unsupported stride")
+	}
+	draw.Draw(rgba, rgba.Bounds(), img, Image.Point{0, 0}, draw.Src)
 
-	retImg.data = img
-	retImg.textureId = 0
-	if e != nil {
-		return retImg, e
+	var texture uint32
+
+	gl.GenTextures(1, &texture)
+	// gl.ActiveTexture(gl.TEXTURE1)
+	gl.BindTexture(gl.TEXTURE_2D, texture)
+	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_R, gl.CLAMP_TO_EDGE)
+	gl.TexImage2D(gl.TEXTURE_2D, 0, gl.RGBA, int32(rgba.Rect.Size().X), int32(rgba.Rect.Size().Y), 0, gl.RGBA, gl.UNSIGNED_BYTE, gl.Ptr(rgba.Pix))
+
+	if gl.GetError() != gl.NO_ERROR {
+
+		return image{}, fmt.Errorf("Failed to load texture: " + path)
 	}
 
-	rgbaImg, ok := img.(*Image.NRGBA)
-	if !ok {
-		return retImg, errors.New("texture must be an NRGBA image")
-	}
-
-	gl.GenTextures(1, &retImg.textureId)
-
-	gl.BindTexture(gl.TEXTURE_2D, retImg.textureId)
-	gl.TexParameterf(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
-	gl.TexParameterf(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
-
-	// taken from github.com/chsc/gogl/examples
-	// flip image: first pixel is lower left corner
-	imgWidth, imgHeight := img.Bounds().Dx(), img.Bounds().Dy()
-	data := make([]byte, imgWidth*imgHeight*4)
-	lineLen := imgWidth * 4
-	dest := len(data) - lineLen
-	for src := 0; src < len(rgbaImg.Pix); src += rgbaImg.Stride {
-		copy(data[dest:dest+lineLen], rgbaImg.Pix[src:src+rgbaImg.Stride])
-		dest -= lineLen
-	}
-
-	gl.TexImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.Sizei(imgWidth), gl.Sizei(imgHeight), 0, gl.RGBA, gl.UNSIGNED_BYTE, gl.Pointer(&data[0]))
-	return retImg, nil
+	return image{data: &img, textureId: texture, width: rgba.Rect.Size().X, height: rgba.Rect.Size().Y}, nil
 }
