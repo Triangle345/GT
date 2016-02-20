@@ -3,9 +3,7 @@ package main
 
 import (
 	"GT/Graphics"
-	// "GT/Scene"
 	"GT/Window"
-	// "fmt"
 	// "github.com/veandco/go-sdl2/sdl"
 	"math/rand"
 	// "time"
@@ -22,33 +20,52 @@ type TestGame struct {
 	*Graphics.BaseScene
 }
 
+var first bool
+var skip bool
+
 func (g *TestGame) Load() {
-	for i := 0; i < 25000; i++ {
-		g.AddSprite("smiley"+string(i), Graphics.NewImageSection(0, 0, 128, 128))
-		g.GetSprite("smiley"+string(i)).SetLocation(float32(0), float32(random(0, 500)))
+	for i := 0; i < 15000; i++ {
+		g.AddSprite("smiley"+string(i), Graphics.NewRectangularArea(0, 0, 128, 128))
+		g.GetSprite("smiley"+string(i)).SetLocation(float32(random(0, 500)), 100.0)
 	}
+
+	// first = true
+	// skip = true
 }
 
 func (g *TestGame) Update() {
-	for i := 0; i < 25000; i++ {
+	// if skip == true {
+	//
+	// 	skip = false
+	// 	return
+	// }
+	// if first == true {
+	// 	for i := 10; i < 2000; i++ {
+	// 		g.AddSprite("smiley"+string(i), Graphics.NewRectangularArea(0, 0, 128, 128))
+	// 		g.GetSprite("smiley"+string(i)).SetLocation(float32(random(0, 500)), 100.0)
+	// 	}
+	// 	first = false
+	// }
+	for i := 0; i < 20; i++ {
 		x, y := g.GetSprite("smiley" + string(i)).GetLocation()
 		x += 1
 		g.GetSprite("smiley"+string(i)).SetLocation(float32(x), y)
 		// fmt.Printf("smileyend %d has y %f\n", i, y)
 	}
+
 }
 
 func main() {
-
-	// defer profile.Start(profile.CPUProfile).Stop()
-	w := Window.NewWindowedWindow("test", 600, 400)
+	fmt.Println("starting")
+	// // defer profile.Start(profile.CPUProfile).Stop()
+	w := Window.NewWindowedWindow("test", 600, 800)
 	s, _ := Graphics.NewBasicScene("smiley.png", &w)
 	g := TestGame{BaseScene: &s}
 
 	g.LoadHandler = g.Load
 	g.UpdateHandler = g.Update
 
-	fmt.Println(g)
+	// fmt.Println(g)
 	// for i := 0; i < 25000; i++ {
 	// s.AddSprite("smiley"+string(i), Graphics.NewImageSection(0, 0, 128, 128))
 	// s.GetSprite("smiley"+string(i)).SetLocation(float32(0), float32(random(0, 500)))

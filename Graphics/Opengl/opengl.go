@@ -3,6 +3,7 @@ package Opengl
 import (
 	"errors"
 	"fmt"
+
 	"github.com/go-gl/gl/v3.2-core/gl"
 	mathgl "github.com/go-gl/mathgl/mgl32"
 
@@ -130,38 +131,14 @@ func CreateBuffers(width, height int) {
 	// var vbo uint32
 	gl.GenBuffers(1, &vbo)
 
-	// var colorvbo uint32
-	gl.GenBuffers(1, &colorvbo)
-
-	// var uvvbo uint32
-	gl.GenBuffers(1, &uvvbo)
-
-	// var tvbo uint32
-	gl.GenBuffers(1, &tvbo)
-
-	// var rvbo uint32
-	gl.GenBuffers(1, &rvbo)
-
-	// var svbo uint32
-	gl.GenBuffers(1, &svbo)
-
-	// element buffer
-	// var elementvbo uint32
 	gl.GenBuffers(1, &elementvbo)
-	// defer elementBuffer.Delete()
-	// gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, elementvbo)
-	// gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(elements)*4, gl.Ptr(elements), gl.STATIC_DRAW)
 
 }
 
 type OpenGLVertexInfo struct {
-	Translations []float32
-	Rotations    []float32
-	Scales       []float32
-	Vertices     []float32
-	Uvs          []float32
-	Colors       []float32
-	Elements     []uint32
+	VertexData []float32
+	Elements   []uint32
+	Stride     int
 }
 
 // func (i OpenGLVertexInfo) GetMaxElement() uint32 {
@@ -185,77 +162,68 @@ func (i *OpenGLVertexInfo) AdjustElements(adj uint32) {
 
 }
 
-func (i *OpenGLVertexInfo) Append(o OpenGLVertexInfo) {
+func (i *OpenGLVertexInfo) Append(o *OpenGLVertexInfo) {
 
-	i.Translations = append(i.Translations, o.Translations...)
-	i.Rotations = append(i.Rotations, o.Rotations...)
-	i.Scales = append(i.Scales, o.Scales...)
-	i.Vertices = append(i.Vertices, o.Vertices...)
-	i.Uvs = append(i.Uvs, o.Uvs...)
-	i.Colors = append(i.Colors, o.Colors...)
+	i.VertexData = append(i.VertexData, o.VertexData...)
 	i.Elements = append(i.Elements, o.Elements...)
+	i.Stride += o.Stride
 
 }
 
 func (i OpenGLVertexInfo) Print() {
 	fmt.Printf("--------------------------------------------------\n")
+	for _, v := range i.VertexData {
+		fmt.Printf("inside data:%f \n", v)
+	}
+
 	for _, v := range i.Elements {
-		fmt.Printf("inside elements:%d \n", v)
+		fmt.Printf("inside element:%f \n", v)
 	}
 
 }
 
-func BindBuffers(data *OpenGLVertexInfo) {
+func BindBuffers(data OpenGLVertexInfo) {
 
 	// fmt.Println(program)
 	gl.UseProgram(program)
 
 	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
-	gl.BufferData(gl.ARRAY_BUFFER, len(data.Vertices)*4, gl.Ptr(data.Vertices), gl.DYNAMIC_DRAW)
+	gl.BufferData(gl.ARRAY_BUFFER, len(data.VertexData)*4, gl.Ptr(data.VertexData), gl.DYNAMIC_DRAW)
+
 	positionAttrib := uint32(gl.GetAttribLocation(program, gl.Str("vertexPosition_modelspace\x00")))
 	gl.EnableVertexAttribArray(positionAttrib)
-	gl.VertexAttribPointer(positionAttrib, 3, gl.FLOAT, false, 0, nil)
-	// defer positionAttrib.DisableArray()
+	gl.VertexAttribPointer(positionAttrib, 3, gl.FLOAT, false, 4*9, gl.PtrOffset(0))
 
-	gl.BindBuffer(gl.ARRAY_BUFFER, colorvbo)
-	gl.BufferData(gl.ARRAY_BUFFER, len(data.Colors)*4, gl.Ptr(data.Colors), gl.DYNAMIC_DRAW)
 	colorAttrib := uint32(gl.GetAttribLocation(program, gl.Str("vertexColor\x00")))
 	gl.EnableVertexAttribArray(colorAttrib)
-	gl.VertexAttribPointer(colorAttrib, 4, gl.FLOAT, false, 0, nil)
+	gl.VertexAttribPointer(colorAttrib, 4, gl.FLOAT, false, 4*9, gl.PtrOffset(3*4))
 
-	// defer colorAttrib.DisableArray()
-
-	gl.BindBuffer(gl.ARRAY_BUFFER, uvvbo)
-	gl.BufferData(gl.ARRAY_BUFFER, len(data.Uvs)*4, gl.Ptr(data.Uvs), gl.DYNAMIC_DRAW)
 	uvAttrib := uint32(gl.GetAttribLocation(program, gl.Str("vertexUV\x00")))
 	gl.EnableVertexAttribArray(uvAttrib)
-	gl.VertexAttribPointer(uvAttrib, 2, gl.FLOAT, false, 0, nil)
-
-	//------------------------------------------------------------------
-	gl.BindBuffer(gl.ARRAY_BUFFER, tvbo)
-	gl.BufferData(gl.ARRAY_BUFFER, len(data.Translations)*4, gl.Ptr(data.Translations), gl.DYNAMIC_DRAW)
-	tAttrib := uint32(gl.GetAttribLocation(program, gl.Str("translation\x00")))
-	gl.EnableVertexAttribArray(tAttrib)
-	gl.VertexAttribPointer(tAttrib, 3, gl.FLOAT, false, 0, nil)
-
-	gl.BindBuffer(gl.ARRAY_BUFFER, rvbo)
-	gl.BufferData(gl.ARRAY_BUFFER, len(data.Rotations)*4, gl.Ptr(data.Rotations), gl.DYNAMIC_DRAW)
-	rAttrib := uint32(gl.GetAttribLocation(program, gl.Str("rotation\x00")))
-	gl.EnableVertexAttribArray(rAttrib)
-	gl.VertexAttribPointer(rAttrib, 4, gl.FLOAT, false, 0, nil)
-
-	gl.BindBuffer(gl.ARRAY_BUFFER, svbo)
-	gl.BufferData(gl.ARRAY_BUFFER, len(data.Scales)*4, gl.Ptr(data.Scales), gl.DYNAMIC_DRAW)
-	sAttrib := uint32(gl.GetAttribLocation(program, gl.Str("scale\x00")))
-	gl.EnableVertexAttribArray(sAttrib)
-	gl.VertexAttribPointer(sAttrib, 3, gl.FLOAT, false, 0, nil)
-	//------------------------------------------------------------------
+	gl.VertexAttribPointer(uvAttrib, 2, gl.FLOAT, false, 4*9, gl.PtrOffset(7*4))
 
 	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, elementvbo)
 	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(data.Elements)*4, gl.Ptr(data.Elements), gl.STATIC_DRAW)
+
 }
 
-func Draw(data *OpenGLVertexInfo) {
+func RepopulateVBO(data OpenGLVertexInfo) {
+
+	//gl.BufferSubData(gl.ARRAY_BUFFER, 0, len(data.VertexData)*4, gl.Ptr(data.VertexData))
+	//data.Print()
+	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
+	gl.BufferData(gl.ARRAY_BUFFER, len(data.VertexData)*4, gl.Ptr(data.VertexData), gl.STATIC_DRAW)
+
+	// update for element array handled in above function for buffers
+	// gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, elementvbo)
+	// gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(data.Elements)*4, gl.Ptr(data.Elements), gl.STATIC_DRAW)
+
+}
+
+func Draw(data OpenGLVertexInfo) {
+	gl.BufferSubData(gl.ARRAY_BUFFER, 0, len(data.VertexData)*4, gl.Ptr(data.VertexData))
+	// gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
+	// gl.BufferData(gl.ARRAY_BUFFER, len(data.VertexData)*4, gl.Ptr(data.VertexData), gl.STATIC_DRAW)
 	MVP := projectionM.Mul4(viewM) //.Mul4(Model)
 
 	gl.UniformMatrix4fv(MVPid, 1, false, &MVP[0])

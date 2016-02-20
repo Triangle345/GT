@@ -11,49 +11,46 @@ import (
 	// "os"
 )
 
-type RectangularArea interface {
-	TopLeft() (x, y float32)
-	TopRight() (x, y float32)
-	BottomLeft() (x, y float32)
-	BottomRight() (x, y float32)
-	GetDimensions() (width, height float32)
-}
-
-type imageSection struct {
+type RectangularArea struct {
 	startPos      mathgl.Vec2
 	height, width float32
+	uvs           []float32
 }
 
-func (i imageSection) TopLeft() (x, y float32) {
+func (i RectangularArea) GetUVs() []float32 {
+	return i.uvs
+}
+
+func (i RectangularArea) TopLeft() (x, y float32) {
 	x, y = i.startPos[0], i.startPos[1]
 
 	return
 }
 
-func (i imageSection) TopRight() (x, y float32) {
+func (i RectangularArea) TopRight() (x, y float32) {
 	x, y = i.startPos[0]+i.width, i.startPos[1]
 
 	return
 }
 
-func (i imageSection) BottomLeft() (x, y float32) {
+func (i RectangularArea) BottomLeft() (x, y float32) {
 	x, y = i.startPos[0], i.startPos[1]+i.height
 
 	return
 }
 
-func (i imageSection) BottomRight() (x, y float32) {
+func (i RectangularArea) BottomRight() (x, y float32) {
 	x, y = i.startPos[0]+i.width, i.startPos[1]+i.height
 
 	return
 }
 
-func (i imageSection) GetDimensions() (width, height float32) {
+func (i RectangularArea) GetDimensions() (width, height float32) {
 	width, height = i.width, i.height
 	return
 }
 
-func NewImageSection(startX, startY, width, height float32) imageSection {
+func NewRectangularArea(startX, startY, width, height float32) RectangularArea {
 
-	return imageSection{startPos: mathgl.Vec2{startX, startY}, width: width, height: height}
+	return RectangularArea{startPos: mathgl.Vec2{startX, startY}, width: width, height: height}
 }

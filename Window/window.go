@@ -2,6 +2,7 @@
 package Window
 
 import (
+	// "GT/Graphics/Opengl"
 	"GT/Graphics/Opengl"
 	"errors"
 	"fmt"
@@ -67,7 +68,6 @@ func (w Window) init() error {
 
 	gl.Viewport(0, 0, int32(w.Width), int32(w.Height))
 	Opengl.CreateBuffers(w.Width, w.Height)
-
 	return nil
 }
 
@@ -77,7 +77,7 @@ func (w Window) Clear() {
 }
 
 func (w Window) Refresh() {
-	sdl.Delay(1)
+	sdl.Delay(0)
 	sdl.GL_SwapWindow(w.windowSDL)
 
 }
@@ -98,7 +98,7 @@ func (w Window) Refresh() {
 // }
 
 func (w Window) Close() {
-	sdl.GL_DeleteContext(w.contextSDL)
-	w.windowSDL.Destroy()
-	sdl.Quit()
+	// sdl.GL_DeleteContext(w.contextSDL)
+	// w.windowSDL.Destroy()
+	// sdl.Quit()
 }

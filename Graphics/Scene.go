@@ -5,8 +5,9 @@ import (
 	"GT/Graphics/Opengl"
 	"GT/Window"
 	"fmt"
-	"github.com/go-gl/gl/v3.2-core/gl"
 	"time"
+
+	"github.com/go-gl/gl/v3.2-core/gl"
 )
 
 var elements = []uint32{
@@ -42,6 +43,7 @@ type BaseScene struct {
 	//TODO can put fps into struct fps counter
 	fps       int
 	timestart int32
+	update    bool
 }
 
 func NewBasicScene(spriteSheet string, window *Window.Window) (BaseScene, error) {
@@ -55,6 +57,7 @@ func NewBasicScene(spriteSheet string, window *Window.Window) (BaseScene, error)
 	s.init()
 	s.fps = 0
 	s.timestart = int32(time.Now().Unix())
+
 	return s, err
 
 }
@@ -70,9 +73,26 @@ func (s *BaseScene) init() {
 func (s *BaseScene) AddSprite(id string, area RectangularArea) {
 
 	if s.entities[id] == nil {
+		fmt.Println("adding sprites: " + id)
 		sprite := NewBasicSprite(area)
 		s.entities[id] = &sprite
+
+		var uvs []float32
+		x, y := s.spriteSheet.GetUVFromPosition(area.BottomLeft())
+		uvs = append(uvs, x, y)
+		x, y = s.spriteSheet.GetUVFromPosition(area.BottomRight())
+		uvs = append(uvs, x, y)
+		x, y = s.spriteSheet.GetUVFromPosition(area.TopRight())
+		uvs = append(uvs, x, y)
+		x, y = s.spriteSheet.GetUVFromPosition(area.TopLeft())
+		uvs = append(uvs, x, y)
+
+		// set uv coords
+		sprite.img.uvs = uvs
+
 		s.spriteDraw = append(s.spriteDraw, &sprite)
+
+		s.update = true
 	}
 
 }
@@ -84,13 +104,12 @@ func (s *BaseScene) GetSprite(id string) *Sprite {
 
 func (s *BaseScene) Start() {
 
-	// TODO load only needs to be done once!
 	s.LoadHandler()
 
 	for true {
 
 		s.window.Clear()
-		s.UpdateHandler()
+		//s.UpdateHandler()
 		s.Draw()
 		s.window.Refresh()
 	}
@@ -103,55 +122,43 @@ func (s *BaseScene) Draw() {
 		return
 	}
 
-	idx := uint32(0)
+	// idx := uint32(0)
 
-	vertexInfo := &Opengl.OpenGLVertexInfo{}
+	data := Opengl.OpenGLVertexInfo{}
+	stride := 0
+	// // clone := &Opengl.OpenGLVertexInfo{}
+	for i := 0; i < len(s.spriteDraw); i++ {
 
-	// clone := &Opengl.OpenGLVertexInfo{}
-	for _, v := range s.spriteDraw {
+		sprite := s.spriteDraw[i]
 
-		//TODO: move this to sprite class and use interface instead.. what if i have "shape"
-		// fmt.Printf("Img name: %s\n", k)
-		// glInfo := v.getGLVertexInfo()
-		w, h := v.GetImageSection().GetDimensions()
+		glInfo := sprite.getGLVertexInfo()
 
-		for i := 0; i < 4; i++ {
-			vertexInfo.Translations = append(vertexInfo.Translations, float32(v.x), float32(v.y), 0)
-			vertexInfo.Rotations = append(vertexInfo.Rotations, 0, 0, 1, v.rot)
-			vertexInfo.Scales = append(vertexInfo.Scales, v.xS, v.yS, 0)
-			vertexInfo.Colors = append(vertexInfo.Colors, v.r, v.g, v.b, v.a)
+		glInfo.AdjustElements(uint32(stride))
+		data.Append(&glInfo)
 
-		}
+		stride += glInfo.Stride
 
-		vertexInfo.Vertices = append(vertexInfo.Vertices, -0.5*w, 0.5*h, 1.0, 0.5*w, 0.5*h, 1.0, 0.5*w, -0.5*h, 1.0, -0.5*w, -0.5*h, 1.0)
-
-		// TODO: maybe put this inside struct to store since this will really never change
-		x, y := s.spriteSheet.GetUVFromPosition(v.GetImageSection().BottomLeft())
-		vertexInfo.Uvs = append(vertexInfo.Uvs, x, y)
-		x, y = s.spriteSheet.GetUVFromPosition(v.GetImageSection().BottomRight())
-		vertexInfo.Uvs = append(vertexInfo.Uvs, x, y)
-		x, y = s.spriteSheet.GetUVFromPosition(v.GetImageSection().TopRight())
-		vertexInfo.Uvs = append(vertexInfo.Uvs, x, y)
-		x, y = s.spriteSheet.GetUVFromPosition(v.GetImageSection().TopLeft())
-		vertexInfo.Uvs = append(vertexInfo.Uvs, x, y)
-
-		vertexInfo.Elements = append(vertexInfo.Elements, uint32(idx*4), uint32(idx*4+1), uint32(idx*4+2), uint32(idx*4), uint32(idx*4+2), uint32(idx*4+3))
-
-		// glInfo.AdjustElements(idx)
-
-		// idx += 4
-		// clone.Append(glInfo)
-		idx = idx + 1
 	}
 
-	// vertexInfo.Print()
-	Opengl.BindBuffers(vertexInfo)
+	// data.Print()
 
-	gl.BindTexture(gl.TEXTURE_2D, s.spriteSheet.textureId)
+	if s.update {
+		fmt.Println("In update")
+		//TODO, remove hard coded resolution
 
-	Opengl.Draw(vertexInfo)
+		gl.BindTexture(gl.TEXTURE_2D, s.spriteSheet.textureId)
 
-	Opengl.Cleanup()
+		Opengl.BindBuffers(data)
+		s.update = false
+	} else {
+
+		//	Opengl.RepopulateVBO(data)
+
+	}
+
+	Opengl.Draw(data)
+
+	// Opengl.Cleanup()
 
 	// calc fps
 	if (int32(time.Now().Unix()) - s.timestart) >= 1 {

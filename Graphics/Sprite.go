@@ -4,6 +4,8 @@ package Graphics
 import (
 	// "github.com/go-gl/gl/v3.2-core/gl"
 	"GT/Graphics/Opengl"
+
+	mathgl "github.com/go-gl/mathgl/mgl32"
 )
 
 func NewBasicSprite(img RectangularArea) Sprite {
@@ -34,24 +36,29 @@ func (s Sprite) getGLVertexInfo() Opengl.OpenGLVertexInfo {
 	// vertexInfo := Opengl.OpenGLVertexInfo{}
 	w, h := s.GetImageSection().GetDimensions()
 
-	vertexInfo := Opengl.OpenGLVertexInfo{
-		Translations: []float32{float32(s.x), float32(s.y), 0, float32(s.x), float32(s.y), 0, float32(s.x), float32(s.y), 0, float32(s.x), float32(s.y), 0},
-		Rotations:    []float32{0, 0, 1, s.rot, 0, 0, 1, s.rot, 0, 0, 1, s.rot, 0, 0, 1, s.rot},
-		Scales:       []float32{s.xS, s.yS, 0, s.xS, s.yS, 0, s.xS, s.yS, 0, s.xS, s.yS, 0},
-		Colors:       []float32{s.r, s.g, s.b, s.a, s.r, s.g, s.b, s.a, s.r, s.g, s.b, s.a, s.r, s.g, s.b, s.a},
+	vertex_data := []float32{-0.5 * w, 0.5 * h, 1.0, 0.5 * w, 0.5 * h, 1.0, 0.5 * w, -0.5 * h, 1.0, -0.5 * w, -0.5 * h, 1.0}
+
+	elements := []uint32{uint32(0), uint32(1), uint32(2), uint32(0), uint32(2), uint32(3)}
+	uvs := s.img.uvs
+
+	Model := mathgl.Ident4()
+	Model = Model.Mul4(mathgl.Translate3D(float32(s.x), float32(s.y), float32(0.0)))
+	Model = Model.Mul4(mathgl.HomogRotate3DZ(float32(s.rot)))
+	Model = Model.Mul4(mathgl.Scale3D(float32(s.xS), float32(s.yS), float32(1)))
+
+	var data []float32
+	for j := 0; j < 4; j++ {
+		transformation := mathgl.Vec4{vertex_data[j*3+0], vertex_data[j*3+1], vertex_data[j*3+2], 1}
+		t := Model.Mul4x1(transformation)
+		data = append(data, t[0], t[1], t[2], s.r, s.g, s.b, s.a, uvs[j*2+0], uvs[j*2+1])
+
 	}
 
-	// for i := 0; i < 4; i = i + 1 {
-	// 	vertexInfo.Translations = append(vertexInfo.Translations, float32(s.x), float32(s.y), 0)
-	// 	vertexInfo.Rotations = append(vertexInfo.Rotations, 0, 0, 1, s.rot)
-	// 	vertexInfo.Scales = append(vertexInfo.Scales, s.xS, s.yS, 0)
-	// 	vertexInfo.Colors = append(vertexInfo.Colors, s.r, s.g, s.b, s.a)
-
-	// }
-
-	vertexInfo.Vertices = []float32{-0.5 * w, 0.5 * h, 1.0, 0.5 * w, 0.5 * h, 1.0, 0.5 * w, -0.5 * h, 1.0, -0.5 * w, -0.5 * h, 1.0}
-
-	vertexInfo.Elements = []uint32{uint32(0), uint32(1), uint32(2), uint32(0), uint32(2), uint32(3)}
+	vertexInfo := Opengl.OpenGLVertexInfo{
+		VertexData: data,
+		Elements:   elements,
+		Stride:     4,
+	}
 
 	return vertexInfo
 }
