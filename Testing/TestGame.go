@@ -7,6 +7,7 @@ import (
 	// "github.com/veandco/go-sdl2/sdl"
 	"math/rand"
 	// "time"
+	"GT/Graphics/Components"
 	"fmt"
 	// "github.com/davecheney/profile"
 )
@@ -24,9 +25,9 @@ var first bool
 var skip bool
 
 func (g *TestGame) Load() {
-	for i := 0; i < 15000; i++ {
+	for i := 0; i < 5; i++ {
 		g.AddSprite("smiley"+string(i), Graphics.NewRectangularArea(0, 0, 128, 128))
-		g.GetSprite("smiley"+string(i)).SetLocation(float32(random(0, 500)), 100.0)
+		g.GetSprite("smiley"+string(i)).SetLocation(float32(random(0, 600)), 100.0)
 	}
 
 	// first = true
@@ -46,7 +47,8 @@ func (g *TestGame) Update() {
 	// 	}
 	// 	first = false
 	// }
-	for i := 0; i < 20; i++ {
+
+	for i := 0; i < 2; i++ {
 		x, y := g.GetSprite("smiley" + string(i)).GetLocation()
 		x += 1
 		g.GetSprite("smiley"+string(i)).SetLocation(float32(x), y)
@@ -65,6 +67,10 @@ func main() {
 	g.LoadHandler = g.Load
 	g.UpdateHandler = g.Update
 
+	node := Components.NewNode("Person")
+	rend := Graphics.NewSpriteRenderer()
+	rend.SetImageSpriteSheet("smiley.png")
+	node.AddComponent(rend)
 	// fmt.Println(g)
 	// for i := 0; i < 25000; i++ {
 	// s.AddSprite("smiley"+string(i), Graphics.NewImageSection(0, 0, 128, 128))
@@ -100,7 +106,7 @@ func main() {
 	// s.Draw()
 	// w.Refresh()
 
-	g.Start()
+	g.Start(node)
 
 	// x += 1
 	// }

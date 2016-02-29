@@ -4,27 +4,38 @@ package Graphics
 import (
 	// "errors"
 	"fmt"
+	"image"
 	// gl "github.com/chsc/gogl/gl21"
 	// "github.com/Jragonmiris/mathgl"
-	"github.com/go-gl/gl/v3.2-core/gl"
-	Image "image"
+
 	"image/draw"
 	_ "image/jpeg"
 	_ "image/png"
 	"os"
+
+	"github.com/go-gl/gl/v3.2-core/gl"
 )
 
-type image struct {
-	data          *Image.Image
+type Image struct {
+	data          *image.Image
 	height, width int
 	textureId     uint32
+	rect          RectangularArea
+}
+
+type SpriteSheetImage struct {
+	*Image
 }
 
 type Drawable interface {
 	Draw()
 }
 
-func (img image) Draw() {
+func (this Image) GetRect() RectangularArea {
+	return this.rect
+}
+
+func (img Image) Draw() {
 
 	if img.data == nil {
 		return
@@ -36,7 +47,7 @@ func (img image) Draw() {
 
 }
 
-func (img image) GetUVFromPosition(x, y float32) (u, v float32) {
+func (img Image) GetUVFromPosition(x, y float32) (u, v float32) {
 
 	u = x / float32(img.width)
 	v = y / float32(img.height)
@@ -44,22 +55,48 @@ func (img image) GetUVFromPosition(x, y float32) (u, v float32) {
 	return
 }
 
-func NewImage(path string) (retImg image, err error) {
+func NewSpriteSheetImage(path string, rect RectangularArea) (retImg SpriteSheetImage, err error) {
+	if newImg, err := NewImage(path); err != nil {
+		//TODO maybe replace with default no-photo image
+		ss := SpriteSheetImage{Image: &newImg}
+		fmt.Println("Error in NewSpriteSheetImage(): cannot create")
+		fmt.Println(err)
+		return ss, err
+	} else {
+		newImg.rect = rect
+		ss := SpriteSheetImage{Image: &newImg}
+		var uvs []float32
+		x, y := ss.GetUVFromPosition(rect.BottomLeft())
+		uvs = append(uvs, x, y)
+		x, y = ss.GetUVFromPosition(rect.BottomRight())
+		uvs = append(uvs, x, y)
+		x, y = ss.GetUVFromPosition(rect.TopRight())
+		uvs = append(uvs, x, y)
+		x, y = ss.GetUVFromPosition(rect.TopLeft())
+		uvs = append(uvs, x, y)
+
+		// set uv coords
+		ss.rect.uvs = uvs
+		return ss, nil
+	}
+}
+
+func NewImage(path string) (retImg Image, err error) {
 
 	imgFile, err := os.Open(path)
 	if err != nil {
-		return image{}, err
+		return Image{}, err
 	}
-	img, _, err := Image.Decode(imgFile)
+	img, _, err := image.Decode(imgFile)
 	if err != nil {
-		return image{}, err
+		return Image{}, err
 	}
 
-	rgba := Image.NewRGBA(img.Bounds())
+	rgba := image.NewRGBA(img.Bounds())
 	if rgba.Stride != rgba.Rect.Size().X*4 {
-		return image{}, fmt.Errorf("unsupported stride")
+		return Image{}, fmt.Errorf("unsupported stride")
 	}
-	draw.Draw(rgba, rgba.Bounds(), img, Image.Point{0, 0}, draw.Src)
+	draw.Draw(rgba, rgba.Bounds(), img, image.Point{0, 0}, draw.Src)
 
 	var texture uint32
 
@@ -75,8 +112,8 @@ func NewImage(path string) (retImg image, err error) {
 
 	if gl.GetError() != gl.NO_ERROR {
 
-		return image{}, fmt.Errorf("Failed to load texture: " + path)
+		return Image{}, fmt.Errorf("Failed to load texture: " + path)
 	}
 
-	return image{data: &img, textureId: texture, width: rgba.Rect.Size().X, height: rgba.Rect.Size().Y}, nil
+	return Image{data: &img, textureId: texture, width: rgba.Rect.Size().X, height: rgba.Rect.Size().Y}, nil
 }

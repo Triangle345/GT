@@ -2,6 +2,7 @@
 package Graphics
 
 import (
+	"GT/Graphics/Components"
 	"GT/Graphics/Opengl"
 	"GT/Window"
 	"fmt"
@@ -34,10 +35,12 @@ type Scene interface {
 }
 
 type BaseScene struct {
+	rootNode Components.GameNode
+
 	entities      map[string]*Sprite
 	spriteDraw    []*Sprite
 	window        *Window.Window
-	spriteSheet   *image
+	spriteSheet   *SpriteSheetImage
 	LoadHandler   func()
 	UpdateHandler func()
 	//TODO can put fps into struct fps counter
@@ -47,7 +50,7 @@ type BaseScene struct {
 }
 
 func NewBasicScene(spriteSheet string, window *Window.Window) (BaseScene, error) {
-	img, err := NewImage(spriteSheet)
+	img, err := NewSpriteSheetImage(spriteSheet, NewRectangularArea(0, 0, 128, 128))
 
 	if err != nil {
 		fmt.Println("Cannot create image: " + err.Error())
@@ -73,22 +76,29 @@ func (s *BaseScene) init() {
 func (s *BaseScene) AddSprite(id string, area RectangularArea) {
 
 	if s.entities[id] == nil {
-		fmt.Println("adding sprites: " + id)
-		sprite := NewBasicSprite(area)
+		// fmt.Println("adding sprites: " + id)
+		// img, err := NewSpriteSheetImage("smiley.png", area)
+		//
+		// if err != nil {
+		// 	fmt.Println("Error creating new SpriteSheet image: AddSprite()")
+		// 	fmt.Println(err)
+		// }
+
+		sprite := NewBasicSprite(s.spriteSheet)
 		s.entities[id] = &sprite
 
-		var uvs []float32
-		x, y := s.spriteSheet.GetUVFromPosition(area.BottomLeft())
-		uvs = append(uvs, x, y)
-		x, y = s.spriteSheet.GetUVFromPosition(area.BottomRight())
-		uvs = append(uvs, x, y)
-		x, y = s.spriteSheet.GetUVFromPosition(area.TopRight())
-		uvs = append(uvs, x, y)
-		x, y = s.spriteSheet.GetUVFromPosition(area.TopLeft())
-		uvs = append(uvs, x, y)
-
-		// set uv coords
-		sprite.img.uvs = uvs
+		// var uvs []float32
+		// x, y := s.spriteSheet.GetUVFromPosition(area.BottomLeft())
+		// uvs = append(uvs, x, y)
+		// x, y = s.spriteSheet.GetUVFromPosition(area.BottomRight())
+		// uvs = append(uvs, x, y)
+		// x, y = s.spriteSheet.GetUVFromPosition(area.TopRight())
+		// uvs = append(uvs, x, y)
+		// x, y = s.spriteSheet.GetUVFromPosition(area.TopLeft())
+		// uvs = append(uvs, x, y)
+		//
+		// // set uv coords
+		// sprite.img.uvs = uvs
 
 		s.spriteDraw = append(s.spriteDraw, &sprite)
 
@@ -102,14 +112,18 @@ func (s *BaseScene) GetSprite(id string) *Sprite {
 	return s.entities[id]
 }
 
-func (s *BaseScene) Start() {
-
+func (s *BaseScene) Start(rootNode Components.GameNode) {
+	s.rootNode = rootNode
+	s.rootNode.InitializeAll()
 	s.LoadHandler()
 
 	for true {
 
 		s.window.Clear()
 		//s.UpdateHandler()
+		//s.Draw()
+		//TODO provide valid delta
+		s.rootNode.UpdateAll(.34)
 		s.Draw()
 		s.window.Refresh()
 	}
@@ -117,28 +131,20 @@ func (s *BaseScene) Start() {
 
 func (s *BaseScene) Draw() {
 
-	if len(s.entities) == 0 {
-		fmt.Println("No Sprites to draw.")
-		return
-	}
-
-	// idx := uint32(0)
-
-	data := Opengl.OpenGLVertexInfo{}
-	stride := 0
-	// // clone := &Opengl.OpenGLVertexInfo{}
-	for i := 0; i < len(s.spriteDraw); i++ {
-
-		sprite := s.spriteDraw[i]
-
-		glInfo := sprite.getGLVertexInfo()
-
-		glInfo.AdjustElements(uint32(stride))
-		data.Append(&glInfo)
-
-		stride += glInfo.Stride
-
-	}
+	// if len(s.entities) == 0 {
+	// 	fmt.Println("No Sprites to draw.")
+	// 	return
+	// }
+	//
+	// for i := 0; i < len(s.spriteDraw); i++ {
+	//
+	// 	sprite := s.spriteDraw[i]
+	//
+	// 	glInfo := sprite.getGLVertexInfo()
+	//
+	// 	Opengl.AddVertexData(&glInfo)
+	//
+	// }
 
 	// data.Print()
 
@@ -148,17 +154,11 @@ func (s *BaseScene) Draw() {
 
 		gl.BindTexture(gl.TEXTURE_2D, s.spriteSheet.textureId)
 
-		Opengl.BindBuffers(data)
+		Opengl.BindBuffers()
 		s.update = false
-	} else {
-
-		//	Opengl.RepopulateVBO(data)
-
 	}
 
-	Opengl.Draw(data)
-
-	// Opengl.Cleanup()
+	Opengl.Draw()
 
 	// calc fps
 	if (int32(time.Now().Unix()) - s.timestart) >= 1 {

@@ -4,12 +4,8 @@ import (
 	mathgl "github.com/go-gl/mathgl/mgl32"
 )
 
-func NewTransformFromTransform(transform Transform) Transform {
-	return Transform{}
-}
-
 func NewTransform() Transform {
-	return Transform{model: mathgl.Ident4()}
+	return Transform{model: mathgl.Ident4(), xS: 1, yS: 1}
 }
 
 type Transform struct {
@@ -41,7 +37,7 @@ func (s *Transform) SetLocation(x, y float32) {
 	s.y = y
 }
 
-func (s Transform) GetModel() mathgl.Mat4 {
+func (s Transform) GetUpdatedModel() mathgl.Mat4 {
 	Model := s.model
 	Model = Model.Mul4(mathgl.Translate3D(float32(s.x), float32(s.y), float32(0.0)))
 	Model = Model.Mul4(mathgl.HomogRotate3DZ(float32(s.rot)))

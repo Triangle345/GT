@@ -4,20 +4,20 @@ package Graphics
 import (
 	// "github.com/go-gl/gl/v3.2-core/gl"
 	"GT/Graphics/Opengl"
+	"fmt"
 
 	mathgl "github.com/go-gl/mathgl/mgl32"
 )
 
-func NewBasicSprite(img RectangularArea) Sprite {
+func NewBasicSprite(img Drawable) Sprite {
 
 	sprite := Sprite{img: img, xS: 1, yS: 1, a: 1}
 	return sprite
 }
 
 type Sprite struct {
-	// img
-	img RectangularArea
-	//TODO: maybe add real image
+	//img
+	img Drawable
 
 	// location
 	x, y float32
@@ -34,12 +34,24 @@ type Sprite struct {
 
 func (s Sprite) getGLVertexInfo() Opengl.OpenGLVertexInfo {
 	// vertexInfo := Opengl.OpenGLVertexInfo{}
-	w, h := s.GetImageSection().GetDimensions()
+
+	var rect RectangularArea
+
+	if img, ok := s.img.(*SpriteSheetImage); ok {
+		rect = img.rect
+	} else {
+		fmt.Println("Cannot get image rect: getGLVertexInfo()")
+	}
+
+	w, h := rect.GetDimensions()
 
 	vertex_data := []float32{-0.5 * w, 0.5 * h, 1.0, 0.5 * w, 0.5 * h, 1.0, 0.5 * w, -0.5 * h, 1.0, -0.5 * w, -0.5 * h, 1.0}
 
 	elements := []uint32{uint32(0), uint32(1), uint32(2), uint32(0), uint32(2), uint32(3)}
-	uvs := s.img.uvs
+
+	uvs := rect.uvs
+
+	//uvs := s.img.uvs
 
 	Model := mathgl.Ident4()
 	Model = Model.Mul4(mathgl.Translate3D(float32(s.x), float32(s.y), float32(0.0)))
@@ -60,6 +72,8 @@ func (s Sprite) getGLVertexInfo() Opengl.OpenGLVertexInfo {
 		Stride:     4,
 	}
 
+	//vertexInfo.Print()
+
 	return vertexInfo
 }
 
@@ -70,7 +84,7 @@ func (s *Sprite) SetColor(r, g, b, a float32) {
 	s.a = a
 }
 
-func (s *Sprite) GetImageSection() RectangularArea {
+func (s *Sprite) GetImage() Drawable {
 	return s.img
 }
 

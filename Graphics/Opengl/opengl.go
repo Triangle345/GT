@@ -10,27 +10,12 @@ import (
 	"strings"
 )
 
-// var elements = []uint32{
-// 	0, 1, 2,
-// 	2, 3, 0,
-// }
-// var quad_colours = []float32{
-// 	0.583, 0.771, 0.014,
-// 	0.609, 0.115, 0.436,
-// 	0.327, 0.483, 0.844,
-// }
-
-// var translations = []float32{}
-// var rotations = []float32{}
-// var scales = []float32{}
-// var vertices = []float32{}
-// var uvs = []float32{}
-// var colors = []float32{}
-
 var program uint32
 var viewM mathgl.Mat4
 var projectionM mathgl.Mat4
 var MVPid int32
+
+var vertexData OpenGLVertexInfo = OpenGLVertexInfo{Stride: 4}
 
 var vao, vbo, colorvbo, uvvbo, tvbo, rvbo, svbo, elementvbo uint32
 
@@ -135,10 +120,22 @@ func CreateBuffers(width, height int) {
 
 }
 
+func AddVertexData(o *OpenGLVertexInfo) {
+	vertexData.append(o)
+
+}
+
+func ClearVertexData() {
+	vertexData.Clear()
+}
+
 type OpenGLVertexInfo struct {
 	VertexData []float32
 	Elements   []uint32
-	Stride     int
+
+	// TODO: make stride private and set it statically using new OpenGLVertexInfo2D or something
+	Stride      int
+	totalStride int
 }
 
 // func (i OpenGLVertexInfo) GetMaxElement() uint32 {
@@ -153,20 +150,32 @@ type OpenGLVertexInfo struct {
 // 	return max
 // }
 
-func (i *OpenGLVertexInfo) AdjustElements(adj uint32) {
+func adjustElements(o *OpenGLVertexInfo) {
 
-	for k, _ := range i.Elements {
-		i.Elements[k] += adj
+	for k, _ := range o.Elements {
+		o.Elements[k] += uint32(vertexData.totalStride)
 		// fmt.Println(i.Elements[k])
 	}
 
+	//TODO: add argument of stride to add stride of other vertexinfo
+	vertexData.totalStride += o.Stride
 }
 
-func (i *OpenGLVertexInfo) Append(o *OpenGLVertexInfo) {
+func (i *OpenGLVertexInfo) append(o *OpenGLVertexInfo) {
+	adjustElements(o)
 
 	i.VertexData = append(i.VertexData, o.VertexData...)
 	i.Elements = append(i.Elements, o.Elements...)
-	i.Stride += o.Stride
+
+	//i.Stride += o.Stride
+
+}
+
+func (i *OpenGLVertexInfo) Clear() {
+
+	i.VertexData = nil
+	i.Elements = nil
+	i.totalStride = 0
 
 }
 
@@ -175,20 +184,22 @@ func (i OpenGLVertexInfo) Print() {
 	for _, v := range i.VertexData {
 		fmt.Printf("inside data:%f \n", v)
 	}
-
+	fmt.Printf("+++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
 	for _, v := range i.Elements {
 		fmt.Printf("inside element:%f \n", v)
 	}
+	fmt.Printf("stride %d \n", i.Stride)
+	fmt.Printf("Total stride %d \n", i.totalStride)
 
 }
 
-func BindBuffers(data OpenGLVertexInfo) {
+func BindBuffers() {
 
 	// fmt.Println(program)
 	gl.UseProgram(program)
 
 	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
-	gl.BufferData(gl.ARRAY_BUFFER, len(data.VertexData)*4, gl.Ptr(data.VertexData), gl.DYNAMIC_DRAW)
+	gl.BufferData(gl.ARRAY_BUFFER, len(vertexData.VertexData)*4, gl.Ptr(vertexData.VertexData), gl.DYNAMIC_DRAW)
 
 	positionAttrib := uint32(gl.GetAttribLocation(program, gl.Str("vertexPosition_modelspace\x00")))
 	gl.EnableVertexAttribArray(positionAttrib)
@@ -203,16 +214,16 @@ func BindBuffers(data OpenGLVertexInfo) {
 	gl.VertexAttribPointer(uvAttrib, 2, gl.FLOAT, false, 4*9, gl.PtrOffset(7*4))
 
 	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, elementvbo)
-	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(data.Elements)*4, gl.Ptr(data.Elements), gl.STATIC_DRAW)
+	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(vertexData.Elements)*4, gl.Ptr(vertexData.Elements), gl.STATIC_DRAW)
 
 }
 
-func RepopulateVBO(data OpenGLVertexInfo) {
+func RepopulateVBO() {
 
 	//gl.BufferSubData(gl.ARRAY_BUFFER, 0, len(data.VertexData)*4, gl.Ptr(data.VertexData))
 	//data.Print()
 	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
-	gl.BufferData(gl.ARRAY_BUFFER, len(data.VertexData)*4, gl.Ptr(data.VertexData), gl.STATIC_DRAW)
+	gl.BufferData(gl.ARRAY_BUFFER, len(vertexData.VertexData)*4, gl.Ptr(vertexData.VertexData), gl.STATIC_DRAW)
 
 	// update for element array handled in above function for buffers
 	// gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, elementvbo)
@@ -220,15 +231,18 @@ func RepopulateVBO(data OpenGLVertexInfo) {
 
 }
 
-func Draw(data OpenGLVertexInfo) {
-	gl.BufferSubData(gl.ARRAY_BUFFER, 0, len(data.VertexData)*4, gl.Ptr(data.VertexData))
+func Draw() {
+	// vertexData.Print()
+	gl.BufferSubData(gl.ARRAY_BUFFER, 0, len(vertexData.VertexData)*4, gl.Ptr(vertexData.VertexData))
 	// gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
 	// gl.BufferData(gl.ARRAY_BUFFER, len(data.VertexData)*4, gl.Ptr(data.VertexData), gl.STATIC_DRAW)
 	MVP := projectionM.Mul4(viewM) //.Mul4(Model)
 
 	gl.UniformMatrix4fv(MVPid, 1, false, &MVP[0])
 
-	gl.DrawElements(gl.TRIANGLES, int32(len(data.Elements)), gl.UNSIGNED_INT, nil)
+	gl.DrawElements(gl.TRIANGLES, int32(len(vertexData.Elements)), gl.UNSIGNED_INT, nil)
+
+	vertexData.Clear()
 }
 
 func Cleanup() {

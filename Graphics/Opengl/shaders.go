@@ -25,7 +25,7 @@ uniform mat4 MVP;
 
 
 void main(){
-    
+
 
 
     gl_Position = MVP * vec4 (vertexPosition_modelspace,1); //* MVP;
@@ -57,7 +57,7 @@ uniform sampler2D myTextureSampler;
 void main()
 {
 
-    // // Output color = red 
+    // // Output color = red
     // color = vec4(fragmentColor,1.0);
 
     // Output color = color of the texture at the specified UV

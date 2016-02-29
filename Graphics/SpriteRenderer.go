@@ -1,10 +1,12 @@
 // Sprite
-package Components
+package Graphics
 
 import (
 	// "github.com/go-gl/gl/v3.2-core/gl"
-	"GT/Graphics"
+
+	"GT/Graphics/Components"
 	"GT/Graphics/Opengl"
+	"fmt"
 
 	mathgl "github.com/go-gl/mathgl/mgl32"
 )
@@ -13,32 +15,59 @@ type Renderer interface {
 	getGLVertexInfo() Opengl.OpenGLVertexInfo
 }
 
-func NewSpriteRenderer(img Graphics.RectangularArea) SpriteRenderer {
+func NewSpriteRenderer() SpriteRenderer {
 
-	sprite := SpriteRenderer{img: img, a: 1}
+	sprite := SpriteRenderer{a: 1, Transform: Components.NewTransform()}
 	return sprite
 }
 
 type SpriteRenderer struct {
-	Node
+	Transform Components.Transform
 	// img
-	img Graphics.RectangularArea
+	//img Graphics.RectangularArea
 	//TODO: maybe add real image
-
+	img Drawable
 	// color
 	r, g, b, a float32
 }
 
-func (s SpriteRenderer) getGLVertexInfo() Opengl.OpenGLVertexInfo {
+func (this *SpriteRenderer) SetImageSpriteSheet(imageLoc string) {
+	img, err := NewSpriteSheetImage(imageLoc, NewRectangularArea(0, 0, 128, 128))
+
+	if err != nil {
+		fmt.Println("Cannot create image: " + err.Error())
+	}
+
+	this.img = img
+}
+func (this *SpriteRenderer) SetImage(imageLoc string) {
+
+}
+
+func (s SpriteRenderer) Initialize() {
+
+}
+
+func (s SpriteRenderer) Update(delta float32) {
+
+	var rect RectangularArea
+
+	//TODO need more elegant way to handle this
+	if img, ok := s.img.(SpriteSheetImage); ok {
+		rect = img.GetRect()
+	} else {
+		fmt.Println("Cannot Get rect: SpriteRenderer:Update()")
+	}
+
 	// vertexInfo := Opengl.OpenGLVertexInfo{}
-	w, h := s.GetImageSection().GetDimensions()
+	w, h := rect.GetDimensions()
 
 	vertex_data := []float32{-0.5 * w, 0.5 * h, 1.0, 0.5 * w, 0.5 * h, 1.0, 0.5 * w, -0.5 * h, 1.0, -0.5 * w, -0.5 * h, 1.0}
 
 	elements := []uint32{uint32(0), uint32(1), uint32(2), uint32(0), uint32(2), uint32(3)}
-	uvs := s.img.GetUVs()
+	uvs := rect.GetUVs()
 
-	Model := s.Transform.GetModel()
+	Model := s.Transform.GetUpdatedModel()
 
 	var data []float32
 	for j := 0; j < 4; j++ {
@@ -53,8 +82,7 @@ func (s SpriteRenderer) getGLVertexInfo() Opengl.OpenGLVertexInfo {
 		Elements:   elements,
 		Stride:     4,
 	}
-
-	return vertexInfo
+	Opengl.AddVertexData(&vertexInfo)
 }
 
 func (s *SpriteRenderer) SetColor(r, g, b, a float32) {
@@ -62,8 +90,4 @@ func (s *SpriteRenderer) SetColor(r, g, b, a float32) {
 	s.g = g
 	s.b = b
 	s.a = a
-}
-
-func (s *SpriteRenderer) GetImageSection() Graphics.RectangularArea {
-	return s.img
 }
