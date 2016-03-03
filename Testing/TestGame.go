@@ -67,75 +67,20 @@ func main() {
 	g.LoadHandler = g.Load
 	g.UpdateHandler = g.Update
 
-	node := Components.NewNode("Person")
+	// TODO maybe get root node from scene because of messup with putting wrong node in start
+
+	nodebak := Components.NewNode("Person")
+	nodebak.Translate(100, 100)
+	node := Components.NewNode("Person2")
+	node.Translate(100, 100)
+	node.AddNode(nodebak)
 	rend := Graphics.NewSpriteRenderer()
 	rend.SetImageSpriteSheet("smiley.png")
-	node.AddComponent(rend)
-	// fmt.Println(g)
-	// for i := 0; i < 25000; i++ {
-	// s.AddSprite("smiley"+string(i), Graphics.NewImageSection(0, 0, 128, 128))
-	// s.GetSprite("smiley"+string(i)).SetLocation(float32(0), float32(random(0, 500)))
-	// _, y := s.GetSprite("smiley" + string(i)).GetLocation()
-	// fmt.Printf("smileystart %d has y %f\n", i, y)
-	// }
+	nodebak.AddComponent(rend)
 
-	// var window *sdl.Window
-	// var context sdl.GLContext
-	// var event sdl.Event
-	// var running bool
-	// var err error
+	g.BaseScene.RootNode.AddNode(node)
 
-	// running = true
-	// // x := 0
-	// for running {
-	// 	for event = sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
-	// 		switch t := event.(type) {
-	// 		case *sdl.QuitEvent:
-	// 			running = false
-	// 		case *sdl.MouseMotionEvent:
-
-	// 			fmt.Println(string(t.Timestamp))
-	// 		}
-	// 	}
-	// w.Clear()
-	// for i := 0; i < 25000; i++ {
-	// 	_, y := s.GetSprite("smiley" + string(i)).GetLocation()
-	// 	s.GetSprite("smiley"+string(i)).SetLocation(float32(x), y)
-	// 	// fmt.Printf("smileyend %d has y %f\n", i, y)
-	// }
-	// s.Draw()
-	// w.Refresh()
-
-	g.Start(node)
-
-	// x += 1
-	// }
-
-	// // e := w.Open()
-
-	// // if e != nil {
-	// //   t.Error("Window open failure: " + e.Error())
-	// // }
-
-	// // if w.isOpen() == false {
-	// //   t.Error("Window should be open but it's not")
-	// // }
-
-	// // if w.Width != 800 {
-	// //   t.Error("Window width should be 800")
-	// // }
-
-	// // if w.Height != 600 {
-	// //   t.Error("Window height should be 600")
-	// // }
-
-	// running := true
-
-	// for running == true {
-
-	//  w.Refresh()
-
-	// }
+	g.Start()
 
 	w.Close()
 

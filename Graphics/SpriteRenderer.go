@@ -11,21 +11,20 @@ import (
 	mathgl "github.com/go-gl/mathgl/mgl32"
 )
 
-type Renderer interface {
-	getGLVertexInfo() Opengl.OpenGLVertexInfo
-}
+func NewSpriteRenderer() *SpriteRenderer {
 
-func NewSpriteRenderer() SpriteRenderer {
+	sprite := SpriteRenderer{a: 1}
+	return &sprite
 
-	sprite := SpriteRenderer{a: 1, Transform: Components.NewTransform()}
-	return sprite
 }
 
 type SpriteRenderer struct {
-	Transform Components.Transform
-	// img
-	//img Graphics.RectangularArea
-	//TODO: maybe add real image
+	//TODO: do not need transform can use parent which must be a node.. since this is component
+	//Transform Components.Transform
+
+	// pointer to parent node TODO: need to maybe use reflection to set this
+	Parent Components.GameNode
+
 	img Drawable
 	// color
 	r, g, b, a float32
@@ -44,11 +43,19 @@ func (this *SpriteRenderer) SetImage(imageLoc string) {
 
 }
 
-func (s SpriteRenderer) Initialize() {
+func (s *SpriteRenderer) Initialize() {
 
 }
 
-func (s SpriteRenderer) Update(delta float32) {
+func (s *SpriteRenderer) SetParent(node Components.GameNode) {
+	s.Parent = node
+}
+
+func (s *SpriteRenderer) GetParent() Components.GameNode {
+	return s.Parent
+}
+
+func (s *SpriteRenderer) Update(delta float32) {
 
 	var rect RectangularArea
 
@@ -67,7 +74,12 @@ func (s SpriteRenderer) Update(delta float32) {
 	elements := []uint32{uint32(0), uint32(1), uint32(2), uint32(0), uint32(2), uint32(3)}
 	uvs := rect.GetUVs()
 
-	Model := s.Transform.GetUpdatedModel()
+	Model := mathgl.Ident4()
+
+	// check to see if its a regular node to get the updated model
+	if n, ok := s.Parent.(*Components.Node); ok {
+		Model = n.GetUpdatedModel()
+	}
 
 	var data []float32
 	for j := 0; j < 4; j++ {

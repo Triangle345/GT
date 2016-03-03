@@ -195,6 +195,10 @@ func (i OpenGLVertexInfo) Print() {
 
 func BindBuffers() {
 
+	if len(vertexData.VertexData) == 0 {
+		return
+	}
+
 	// fmt.Println(program)
 	gl.UseProgram(program)
 
@@ -232,6 +236,11 @@ func RepopulateVBO() {
 }
 
 func Draw() {
+
+	if len(vertexData.VertexData) == 0 {
+		return
+	}
+
 	// vertexData.Print()
 	gl.BufferSubData(gl.ARRAY_BUFFER, 0, len(vertexData.VertexData)*4, gl.Ptr(vertexData.VertexData))
 	// gl.BindBuffer(gl.ARRAY_BUFFER, vbo)

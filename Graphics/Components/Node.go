@@ -1,16 +1,20 @@
 package Components
 
-import (
-	"fmt"
-)
+import "fmt"
 
-func NewNode(name string) Node {
-	return Node{Transform: NewTransform(), Name: name}
+func NewNode(name string) *Node {
+	return &Node{Transform: NewTransform(), Name: name}
+}
+
+type Child interface {
+	SetParent(node GameNode)
+	GetParent() GameNode
 }
 
 type GameNode interface {
-	InitializeAll()
-	UpdateAll(delta float32)
+	Component
+	AddNode(node GameNode)
+	AddComponent(component Component)
 }
 
 type Component interface {
@@ -23,36 +27,61 @@ type Node struct {
 	children   []GameNode
 	components []Component
 	Name       string
+	Parent     GameNode
 }
 
-func (this Node) InitializeAll() {
+func (this *Node) Initialize() {
 	for _, child := range this.children {
-		child.InitializeAll()
+		child.Initialize()
 	}
 }
 
-func (this Node) UpdateAll(delta float32) {
+func (this *Node) SetParent(node GameNode) {
+	this.Parent = node
+}
+
+func (this *Node) GetParent() GameNode {
+	return this.Parent
+}
+
+func (this *Node) Update(delta float32) {
+	if n, ok := this.Parent.(*Node); ok {
+		this.model = n.GetUpdatedModel()
+	}
 
 	for _, component := range this.components {
 		component.Update(delta)
 	}
 
 	for _, child := range this.children {
-		child.UpdateAll(delta)
+		child.Update(delta)
 	}
 }
 
 // TODO make sure each node only has one of each type
 func (this *Node) AddNode(node GameNode) {
-	if n, ok := node.(Node); ok {
-		n.Transform.model = this.GetUpdatedModel()
+
+	if n, ok := node.(Child); ok {
+
+		n.SetParent(this)
 	} else {
-		fmt.Printf("Cannot add node.\n")
+		fmt.Printf("No parent to set for child node: %s.\n", this.Name)
 	}
 
 	this.children = append(this.children, node)
+
+	node.Initialize()
 }
 
 func (this *Node) AddComponent(component Component) {
+	if n, ok := component.(Child); ok {
+
+		n.SetParent(this)
+	} else {
+		fmt.Printf("No parent to set for child component.\n")
+	}
+
 	this.components = append(this.components, component)
+
+	component.Initialize()
 }

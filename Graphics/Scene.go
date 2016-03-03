@@ -35,7 +35,7 @@ type Scene interface {
 }
 
 type BaseScene struct {
-	rootNode Components.GameNode
+	RootNode Components.GameNode
 
 	entities      map[string]*Sprite
 	spriteDraw    []*Sprite
@@ -56,7 +56,7 @@ func NewBasicScene(spriteSheet string, window *Window.Window) (BaseScene, error)
 		fmt.Println("Cannot create image: " + err.Error())
 	}
 
-	s := BaseScene{window: window, spriteSheet: &img}
+	s := BaseScene{RootNode: Components.NewNode("RootNode"), window: window, spriteSheet: &img}
 	s.init()
 	s.fps = 0
 	s.timestart = int32(time.Now().Unix())
@@ -112,9 +112,8 @@ func (s *BaseScene) GetSprite(id string) *Sprite {
 	return s.entities[id]
 }
 
-func (s *BaseScene) Start(rootNode Components.GameNode) {
-	s.rootNode = rootNode
-	s.rootNode.InitializeAll()
+func (s *BaseScene) Start() {
+
 	s.LoadHandler()
 
 	for true {
@@ -123,7 +122,7 @@ func (s *BaseScene) Start(rootNode Components.GameNode) {
 		//s.UpdateHandler()
 		//s.Draw()
 		//TODO provide valid delta
-		s.rootNode.UpdateAll(.34)
+		s.RootNode.Update(.34)
 		s.Draw()
 		s.window.Refresh()
 	}
