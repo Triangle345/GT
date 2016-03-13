@@ -11,6 +11,18 @@ type Child interface {
 	GetParent() GameNode
 }
 
+type GameComponent struct {
+	Parent GameNode
+}
+
+func (this *GameComponent) SetParent(node GameNode) {
+	this.Parent = node
+}
+
+func (this *GameComponent) GetParent() GameNode {
+	return this.Parent
+}
+
 type GameNode interface {
 	Component
 	AddNode(node GameNode)
@@ -18,16 +30,17 @@ type GameNode interface {
 }
 
 type Component interface {
+	Child
 	Initialize()
 	Update(delta float32)
 }
 
 type Node struct {
 	Transform
+	GameComponent
 	children   []GameNode
 	components []Component
 	Name       string
-	Parent     GameNode
 }
 
 func (this *Node) Initialize() {
@@ -36,13 +49,13 @@ func (this *Node) Initialize() {
 	}
 }
 
-func (this *Node) SetParent(node GameNode) {
-	this.Parent = node
-}
-
-func (this *Node) GetParent() GameNode {
-	return this.Parent
-}
+// func (this *Node) SetParent(node GameNode) {
+// 	this.Parent = node
+// }
+//
+// func (this *Node) GetParent() GameNode {
+// 	return this.Parent
+// }
 
 func (this *Node) Update(delta float32) {
 	if n, ok := this.Parent.(*Node); ok {

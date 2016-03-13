@@ -15,7 +15,10 @@ var viewM mathgl.Mat4
 var projectionM mathgl.Mat4
 var MVPid int32
 
-var vertexData OpenGLVertexInfo = OpenGLVertexInfo{Stride: 4}
+var textureHash map[uint32]*OpenGLVertexInfo = make(map[uint32]*OpenGLVertexInfo)
+var layers []uint32 = []uint32{}
+
+var vertexDataTest OpenGLVertexInfo = OpenGLVertexInfo{Stride: 4, Elements: make([]uint32, 0, 9999999), VertexData: make([]float32, 0, 9999999)}
 
 var vao, vbo, colorvbo, uvvbo, tvbo, rvbo, svbo, elementvbo uint32
 
@@ -120,13 +123,32 @@ func CreateBuffers(width, height int) {
 
 }
 
-func AddVertexData(o *OpenGLVertexInfo) {
-	vertexData.append(o)
+func AddVertexData(id uint32, o *OpenGLVertexInfo) {
+	// if val, ok := textureHash[id]; ok {
+	// 	// fmt.Println("ading to  layer")
+	// 	layers = append(layers, id)
+	// 	// vertexData.append(o)
+	// 	val.append(o)
+	// } else {
+	// 	// fmt.Print("creating layer ")
+	// 	// fmt.Println(id)
+	// 	// o.Print()
+	// 	layers = append(layers, id)
+	// 	textureHash[id] = o
+	//
+	// }
+
+	vertexDataTest.append(o)
 
 }
 
 func ClearVertexData() {
-	vertexData.Clear()
+	// vertexData.Clear()
+	// layers = nil
+	// layers = []uint32{}
+	// textureHash = nil
+	// textureHash = make(map[uint32]*OpenGLVertexInfo)
+	vertexDataTest.Clear()
 }
 
 type OpenGLVertexInfo struct {
@@ -138,31 +160,20 @@ type OpenGLVertexInfo struct {
 	totalStride int
 }
 
-// func (i OpenGLVertexInfo) GetMaxElement() uint32 {
-// 	max := uint32(0)
-
-// 	for _, v := range i.Elements {
-// 		if v > max {
-// 			max = v
-// 		}
-// 	}
-
-// 	return max
-// }
-
-func adjustElements(o *OpenGLVertexInfo) {
+// TODO: need to put this in as part of vertex info and into hashhash
+func (this *OpenGLVertexInfo) adjustElements(o *OpenGLVertexInfo) {
 
 	for k, _ := range o.Elements {
-		o.Elements[k] += uint32(vertexData.totalStride)
+		o.Elements[k] += uint32(this.totalStride)
 		// fmt.Println(i.Elements[k])
 	}
 
 	//TODO: add argument of stride to add stride of other vertexinfo
-	vertexData.totalStride += o.Stride
+	this.totalStride += o.Stride
 }
 
 func (i *OpenGLVertexInfo) append(o *OpenGLVertexInfo) {
-	adjustElements(o)
+	i.adjustElements(o)
 
 	i.VertexData = append(i.VertexData, o.VertexData...)
 	i.Elements = append(i.Elements, o.Elements...)
@@ -173,8 +184,8 @@ func (i *OpenGLVertexInfo) append(o *OpenGLVertexInfo) {
 
 func (i *OpenGLVertexInfo) Clear() {
 
-	i.VertexData = nil
-	i.Elements = nil
+	i.VertexData = make([]float32, 0, 1000000)
+	i.Elements = make([]uint32, 0, 1000000)
 	i.totalStride = 0
 
 }
@@ -193,14 +204,16 @@ func (i OpenGLVertexInfo) Print() {
 
 }
 
-func BindBuffers() {
+func BindBuffers() { //vertexData *OpenGLVertexInfo) {
 
-	if len(vertexData.VertexData) == 0 {
-		return
-	}
+	// if len(vertexData.VertexData) == 0 {
+	// 	return
+	// }
 
 	// fmt.Println(program)
 	gl.UseProgram(program)
+
+	vertexData := &vertexDataTest
 
 	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
 	gl.BufferData(gl.ARRAY_BUFFER, len(vertexData.VertexData)*4, gl.Ptr(vertexData.VertexData), gl.DYNAMIC_DRAW)
@@ -220,38 +233,42 @@ func BindBuffers() {
 	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, elementvbo)
 	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(vertexData.Elements)*4, gl.Ptr(vertexData.Elements), gl.STATIC_DRAW)
 
-}
-
-func RepopulateVBO() {
-
-	//gl.BufferSubData(gl.ARRAY_BUFFER, 0, len(data.VertexData)*4, gl.Ptr(data.VertexData))
-	//data.Print()
-	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
-	gl.BufferData(gl.ARRAY_BUFFER, len(vertexData.VertexData)*4, gl.Ptr(vertexData.VertexData), gl.STATIC_DRAW)
-
-	// update for element array handled in above function for buffers
-	// gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, elementvbo)
-	// gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(data.Elements)*4, gl.Ptr(data.Elements), gl.STATIC_DRAW)
-
+	gl.ActiveTexture(gl.TEXTURE0)
+	gl.BindTexture(gl.TEXTURE_2D, 1)
 }
 
 func Draw() {
 
-	if len(vertexData.VertexData) == 0 {
-		return
-	}
+	// if len(layers) == 0 {
+	// 	fmt.Println("layers empty!!!")
+	// 	return
+	// }
 
+	// for _, layer := range layers {
+
+	// vertexData := textureHash[layer]
+	vertexData := &vertexDataTest
+	//	vertexData.Print()
+
+	// vertexData := vertexDataTest
+
+	//vertexData.Print()
+	// BindBuffers(vertexData)
 	// vertexData.Print()
-	gl.BufferSubData(gl.ARRAY_BUFFER, 0, len(vertexData.VertexData)*4, gl.Ptr(vertexData.VertexData))
-	// gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
-	// gl.BufferData(gl.ARRAY_BUFFER, len(data.VertexData)*4, gl.Ptr(data.VertexData), gl.STATIC_DRAW)
+	//gl.BufferSubData(gl.ARRAY_BUFFER, 0, len(vertexData.VertexData)*4, gl.Ptr(vertexData.VertexData))
+	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
+	gl.BufferData(gl.ARRAY_BUFFER, len(vertexData.VertexData)*4, gl.Ptr(vertexData.VertexData), gl.STATIC_DRAW)
+	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, elementvbo)
+	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(vertexData.Elements)*4, gl.Ptr(vertexData.Elements), gl.STATIC_DRAW)
+
 	MVP := projectionM.Mul4(viewM) //.Mul4(Model)
 
 	gl.UniformMatrix4fv(MVPid, 1, false, &MVP[0])
 
 	gl.DrawElements(gl.TRIANGLES, int32(len(vertexData.Elements)), gl.UNSIGNED_INT, nil)
+	// }
+	ClearVertexData()
 
-	vertexData.Clear()
 }
 
 func Cleanup() {

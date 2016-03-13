@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"testing"
 	"time"
+
+	"github.com/go-gl/gl/v2.1/gl"
 )
 
 func Test_Graphics(t *testing.T) {
@@ -27,7 +29,6 @@ func Test_Graphics(t *testing.T) {
 	s2.SetLocation(400, 400)
 	s2.draw()
 
-	//TODO remember to do this
 	glfw.SwapBuffers()
 	time.Sleep(5 * 10e8)
 

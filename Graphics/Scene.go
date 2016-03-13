@@ -7,8 +7,6 @@ import (
 	"GT/Window"
 	"fmt"
 	"time"
-
-	"github.com/go-gl/gl/v3.2-core/gl"
 )
 
 var elements = []uint32{
@@ -37,85 +35,27 @@ type Scene interface {
 type BaseScene struct {
 	RootNode Components.GameNode
 
-	entities      map[string]*Sprite
-	spriteDraw    []*Sprite
-	window        *Window.Window
-	spriteSheet   *SpriteSheetImage
-	LoadHandler   func()
-	UpdateHandler func()
+	window *Window.Window
 	//TODO can put fps into struct fps counter
 	fps       int
 	timestart int32
 	update    bool
 }
 
-func NewBasicScene(spriteSheet string, window *Window.Window) (BaseScene, error) {
-	img, err := NewSpriteSheetImage(spriteSheet, NewRectangularArea(0, 0, 128, 128))
+func NewBasicScene(window *Window.Window) (BaseScene, error) {
 
-	if err != nil {
-		fmt.Println("Cannot create image: " + err.Error())
-	}
-
-	s := BaseScene{RootNode: Components.NewNode("RootNode"), window: window, spriteSheet: &img}
-	s.init()
+	s := BaseScene{RootNode: Components.NewNode("RootNode"), window: window}
 	s.fps = 0
 	s.timestart = int32(time.Now().Unix())
+	s.update = true
+	return s, nil
 
-	return s, err
-
-}
-
-func (s *BaseScene) init() {
-
-	s.entities = make(map[string]*Sprite)
-	s.LoadHandler = func() {}
-	s.UpdateHandler = func() {}
-
-}
-
-func (s *BaseScene) AddSprite(id string, area RectangularArea) {
-
-	if s.entities[id] == nil {
-		// fmt.Println("adding sprites: " + id)
-		// img, err := NewSpriteSheetImage("smiley.png", area)
-		//
-		// if err != nil {
-		// 	fmt.Println("Error creating new SpriteSheet image: AddSprite()")
-		// 	fmt.Println(err)
-		// }
-
-		sprite := NewBasicSprite(s.spriteSheet)
-		s.entities[id] = &sprite
-
-		// var uvs []float32
-		// x, y := s.spriteSheet.GetUVFromPosition(area.BottomLeft())
-		// uvs = append(uvs, x, y)
-		// x, y = s.spriteSheet.GetUVFromPosition(area.BottomRight())
-		// uvs = append(uvs, x, y)
-		// x, y = s.spriteSheet.GetUVFromPosition(area.TopRight())
-		// uvs = append(uvs, x, y)
-		// x, y = s.spriteSheet.GetUVFromPosition(area.TopLeft())
-		// uvs = append(uvs, x, y)
-		//
-		// // set uv coords
-		// sprite.img.uvs = uvs
-
-		s.spriteDraw = append(s.spriteDraw, &sprite)
-
-		s.update = true
-	}
-
-}
-
-func (s *BaseScene) GetSprite(id string) *Sprite {
-	//TODO add error handling if doesnt exist
-	return s.entities[id]
 }
 
 func (s *BaseScene) Start() {
 
-	s.LoadHandler()
-
+	//s.LoadHandler()
+	s.update = true
 	for true {
 
 		s.window.Clear()
@@ -151,7 +91,7 @@ func (s *BaseScene) Draw() {
 		fmt.Println("In update")
 		//TODO, remove hard coded resolution
 
-		gl.BindTexture(gl.TEXTURE_2D, s.spriteSheet.textureId)
+		// gl.BindTexture(gl.TEXTURE_2D, s.spriteSheet.textureId)
 
 		Opengl.BindBuffers()
 		s.update = false

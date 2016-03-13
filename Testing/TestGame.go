@@ -21,39 +21,30 @@ type TestGame struct {
 	*Graphics.BaseScene
 }
 
-var first bool
-var skip bool
-
-func (g *TestGame) Load() {
-	for i := 0; i < 5; i++ {
-		g.AddSprite("smiley"+string(i), Graphics.NewRectangularArea(0, 0, 128, 128))
-		g.GetSprite("smiley"+string(i)).SetLocation(float32(random(0, 600)), 100.0)
-	}
-
-	// first = true
-	// skip = true
+type Bunny struct {
+	Components.GameComponent
+	posX, posY, speedX, speedY float32
 }
 
-func (g *TestGame) Update() {
-	// if skip == true {
-	//
-	// 	skip = false
-	// 	return
-	// }
-	// if first == true {
-	// 	for i := 10; i < 2000; i++ {
-	// 		g.AddSprite("smiley"+string(i), Graphics.NewRectangularArea(0, 0, 128, 128))
-	// 		g.GetSprite("smiley"+string(i)).SetLocation(float32(random(0, 500)), 100.0)
-	// 	}
-	// 	first = false
-	// }
+//TODO: create base class for component and/or node to impelemnt parent stuff because i forgot
 
-	for i := 0; i < 2; i++ {
-		x, y := g.GetSprite("smiley" + string(i)).GetLocation()
-		x += 1
-		g.GetSprite("smiley"+string(i)).SetLocation(float32(x), y)
-		// fmt.Printf("smileyend %d has y %f\n", i, y)
+func (this *Bunny) Initialize() {
+
+}
+
+func (this *Bunny) Update(delta float32) {
+
+	this.posX += this.speedX
+	this.posY += this.speedY
+	this.speedY += 9.8
+
+	if this.posX > 100 {
+		this.speedX *= -1
+		this.posX = 100
 	}
+
+	g := float32(random(0, 10) + 3)
+	g *= .4
 
 }
 
@@ -61,25 +52,30 @@ func main() {
 	fmt.Println("starting")
 	// // defer profile.Start(profile.CPUProfile).Stop()
 	w := Window.NewWindowedWindow("test", 600, 800)
-	s, _ := Graphics.NewBasicScene("smiley.png", &w)
+	s, _ := Graphics.NewBasicScene(&w)
 	g := TestGame{BaseScene: &s}
 
-	g.LoadHandler = g.Load
-	g.UpdateHandler = g.Update
+	for i := 0; i < 14000; i++ {
+		nodebak := Components.NewNode("Person")
+		nodebak.Translate(400, 400)
+		node := Components.NewNode("Person2")
+		node.Translate(100, 100)
+		node.AddNode(nodebak)
+		rend := Graphics.NewSpriteRenderer()
+		rend.SetImageSpriteSheet("test.png")
+		nodebak.AddComponent(rend)
+		nodebak.AddComponent(&Bunny{})
 
-	// TODO maybe get root node from scene because of messup with putting wrong node in start
+		// rend2 := Graphics.NewSpriteRenderer()
+		// rend2.SetImageSpriteSheet("smiley.png")
+		// nodebak2 := Components.NewNode("Person")
+		// nodebak2.Translate(50, 50)
+		// nodebak2.AddComponent(rend2)
 
-	nodebak := Components.NewNode("Person")
-	nodebak.Translate(100, 100)
-	node := Components.NewNode("Person2")
-	node.Translate(100, 100)
-	node.AddNode(nodebak)
-	rend := Graphics.NewSpriteRenderer()
-	rend.SetImageSpriteSheet("smiley.png")
-	nodebak.AddComponent(rend)
+		// node.AddNode(nodebak2)
 
-	g.BaseScene.RootNode.AddNode(node)
-
+		g.BaseScene.RootNode.AddNode(node)
+	}
 	g.Start()
 
 	w.Close()

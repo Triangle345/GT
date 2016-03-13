@@ -16,6 +16,8 @@ import (
 	"github.com/go-gl/gl/v3.2-core/gl"
 )
 
+var imagecache map[string]Image = make(map[string]Image)
+
 type Image struct {
 	data          *image.Image
 	height, width int
@@ -29,6 +31,11 @@ type SpriteSheetImage struct {
 
 type Drawable interface {
 	Draw()
+	GetId() uint32
+}
+
+func (this Image) GetId() uint32 {
+	return this.textureId
 }
 
 func (this Image) GetRect() RectangularArea {
@@ -77,11 +84,17 @@ func NewSpriteSheetImage(path string, rect RectangularArea) (retImg SpriteSheetI
 
 		// set uv coords
 		ss.rect.uvs = uvs
+
 		return ss, nil
 	}
 }
 
 func NewImage(path string) (retImg Image, err error) {
+
+	// first look at cache for image
+	if imgCache, ok := imagecache[path]; ok {
+		return imgCache, nil
+	}
 
 	imgFile, err := os.Open(path)
 	if err != nil {
@@ -115,5 +128,7 @@ func NewImage(path string) (retImg Image, err error) {
 		return Image{}, fmt.Errorf("Failed to load texture: " + path)
 	}
 
-	return Image{data: &img, textureId: texture, width: rgba.Rect.Size().X, height: rgba.Rect.Size().Y}, nil
+	imgRet := Image{data: &img, textureId: texture, width: rgba.Rect.Size().X, height: rgba.Rect.Size().Y}
+	imagecache[path] = imgRet
+	return imgRet, nil
 }

@@ -19,18 +19,18 @@ func NewSpriteRenderer() *SpriteRenderer {
 }
 
 type SpriteRenderer struct {
-	//TODO: do not need transform can use parent which must be a node.. since this is component
-	//Transform Components.Transform
-
-	// pointer to parent node TODO: need to maybe use reflection to set this
+	// the parent node
 	Parent Components.GameNode
 
+	// the image
 	img Drawable
+
 	// color
 	r, g, b, a float32
 }
 
 func (this *SpriteRenderer) SetImageSpriteSheet(imageLoc string) {
+	//TODO: should probably cache this for speed
 	img, err := NewSpriteSheetImage(imageLoc, NewRectangularArea(0, 0, 128, 128))
 
 	if err != nil {
@@ -59,7 +59,7 @@ func (s *SpriteRenderer) Update(delta float32) {
 
 	var rect RectangularArea
 
-	//TODO need more elegant way to handle this
+	//TODO need more elegant way to handle this, what if its regular image?
 	if img, ok := s.img.(SpriteSheetImage); ok {
 		rect = img.GetRect()
 	} else {
@@ -81,6 +81,7 @@ func (s *SpriteRenderer) Update(delta float32) {
 		Model = n.GetUpdatedModel()
 	}
 
+	// transform all vertex data and combine it with other data
 	var data []float32
 	for j := 0; j < 4; j++ {
 		transformation := mathgl.Vec4{vertex_data[j*3+0], vertex_data[j*3+1], vertex_data[j*3+2], 1}
@@ -89,12 +90,19 @@ func (s *SpriteRenderer) Update(delta float32) {
 
 	}
 
+	// package everything up in an OpenGLVertexInfo
 	vertexInfo := Opengl.OpenGLVertexInfo{
 		VertexData: data,
 		Elements:   elements,
 		Stride:     4,
 	}
-	Opengl.AddVertexData(&vertexInfo)
+
+	// send OpenGLVertex info to Opengl module
+	Opengl.AddVertexData(s.img.GetId(), &vertexInfo)
+
+	//TODO: need to fix this, does not draw two images at once, maybe put inside vertex info and have that sorted by texture hash
+	// maybe add an AddVertexData("texture", vertexInfo)
+	// s.img.Draw()
 }
 
 func (s *SpriteRenderer) SetColor(r, g, b, a float32) {
