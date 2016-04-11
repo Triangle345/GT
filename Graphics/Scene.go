@@ -48,6 +48,9 @@ func NewBasicScene(window *Window.Window) (BaseScene, error) {
 	s.fps = 0
 	s.timestart = int32(time.Now().Unix())
 	s.update = true
+
+	//TODO: find a better way to load all images in
+	aggrImg.bind2GL()
 	return s, nil
 
 }
@@ -104,7 +107,6 @@ func (s *BaseScene) Draw() {
 		fmt.Printf("FPS: %d \n", s.fps)
 		s.fps = 0
 		s.timestart = int32(time.Now().Unix())
-
 	}
 
 	s.fps = s.fps + 1

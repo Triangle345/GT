@@ -206,14 +206,15 @@ func (i OpenGLVertexInfo) Print() {
 
 func BindBuffers() { //vertexData *OpenGLVertexInfo) {
 
-	// if len(vertexData.VertexData) == 0 {
-	// 	return
-	// }
-
 	// fmt.Println(program)
 	gl.UseProgram(program)
 
 	vertexData := &vertexDataTest
+
+	// check to see if there are any vertices at all to bind
+	if len(vertexData.VertexData) == 0 {
+		return
+	}
 
 	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
 	gl.BufferData(gl.ARRAY_BUFFER, len(vertexData.VertexData)*4, gl.Ptr(vertexData.VertexData), gl.DYNAMIC_DRAW)
@@ -248,6 +249,12 @@ func Draw() {
 
 	// vertexData := textureHash[layer]
 	vertexData := &vertexDataTest
+
+	// check to see if there are any vertices at all to draw
+	if len(vertexData.VertexData) == 0 {
+		return
+	}
+
 	//	vertexData.Print()
 
 	// vertexData := vertexDataTest
@@ -264,7 +271,7 @@ func Draw() {
 	MVP := projectionM.Mul4(viewM) //.Mul4(Model)
 
 	gl.UniformMatrix4fv(MVPid, 1, false, &MVP[0])
-
+	// vertexData.Print()
 	gl.DrawElements(gl.TRIANGLES, int32(len(vertexData.Elements)), gl.UNSIGNED_INT, nil)
 	// }
 	ClearVertexData()

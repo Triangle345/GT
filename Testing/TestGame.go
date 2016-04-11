@@ -55,24 +55,26 @@ func main() {
 	s, _ := Graphics.NewBasicScene(&w)
 	g := TestGame{BaseScene: &s}
 
-	for i := 0; i < 14000; i++ {
+	//aggrImg := Graphics.NewAggregateImage("./")
+	//aggrImg.Print("./aggregate.png")
+	for i := 0; i < 1; i++ {
 		nodebak := Components.NewNode("Person")
 		nodebak.Translate(400, 400)
 		node := Components.NewNode("Person2")
 		node.Translate(100, 100)
 		node.AddNode(nodebak)
 		rend := Graphics.NewSpriteRenderer()
-		rend.SetImageSpriteSheet("test.png")
+		rend.SetImage("test.png")
 		nodebak.AddComponent(rend)
 		nodebak.AddComponent(&Bunny{})
 
-		// rend2 := Graphics.NewSpriteRenderer()
-		// rend2.SetImageSpriteSheet("smiley.png")
-		// nodebak2 := Components.NewNode("Person")
-		// nodebak2.Translate(50, 50)
-		// nodebak2.AddComponent(rend2)
+		rend2 := Graphics.NewSpriteRenderer()
+		rend2.SetImage("smiley.png")
+		nodebak2 := Components.NewNode("Person")
+		nodebak2.Translate(50, 50)
+		nodebak2.AddComponent(rend2)
 
-		// node.AddNode(nodebak2)
+		node.AddNode(nodebak2)
 
 		g.BaseScene.RootNode.AddNode(node)
 	}
