@@ -1,28 +1,37 @@
 package Components
 
-import "fmt"
+import (
+	"fmt"
+	"reflect"
+)
 
 func NewNode(name string) *Node {
-	return &Node{Transform: NewTransform(), Name: name}
+	return &Node{transform: NewTransform(), Name: name}
 }
 
 type Child interface {
-	SetParent(node GameNode)
-	GetParent() GameNode
+	SetParent(node *Node)
+	GetParent() *Node
 }
 
-type GameNode interface {
-	Component
-	AddNode(node GameNode)
-	AddComponent(component Component)
-}
+// type GameNode interface {
+// 	Component
+// 	Transform() *Transform
+// 	AddNode(node GameNode)
+// 	AddComponent(component Component)
+// 	GetComponent(componentType string) Component
+// }
 
 type Node struct {
-	Transform
-	GameComponent
-	children   []GameNode
+	transform Transform
+	ChildComponent
+	children   []*Node
 	components []Component
 	Name       string
+}
+
+func (this *Node) Transform() *Transform {
+	return &this.transform
 }
 
 func (this *Node) Initialize() {
@@ -32,8 +41,11 @@ func (this *Node) Initialize() {
 }
 
 func (this *Node) Update(delta float32) {
-	if n, ok := this.Parent.(*Node); ok {
-		this.model = n.GetUpdatedModel()
+	// if n, ok := this.Parent.(*Node); ok {
+
+	// need to check if this is the top most node
+	if this.Parent != nil {
+		this.transform.model = this.Parent.transform.GetUpdatedModel()
 	}
 
 	for _, component := range this.components {
@@ -45,15 +57,14 @@ func (this *Node) Update(delta float32) {
 	}
 }
 
-// TODO make sure each node only has one of each type
-func (this *Node) AddNode(node GameNode) {
+func (this *Node) AddNode(node *Node) {
 
-	if n, ok := node.(Child); ok {
+	// if n, ok := node.(Child); ok {
 
-		n.SetParent(this)
-	} else {
-		fmt.Printf("No parent to set for child node: %s.\n", this.Name)
-	}
+	node.SetParent(this)
+	// } else {
+	// 	fmt.Printf("No parent to set for child node: %s.\n", this.Name)
+	// }
 
 	this.children = append(this.children, node)
 
@@ -71,4 +82,25 @@ func (this *Node) AddComponent(component Component) {
 	this.components = append(this.components, component)
 
 	component.Initialize()
+}
+
+func (this *Node) GetComponent(componentType string) Component {
+	for _, c := range this.components {
+		fmt.Println("type:")
+		fmt.Println(reflect.TypeOf(c).Elem().Name())
+
+		cType := reflect.TypeOf(c).Elem().Name()
+
+		// need to handle defer here as reflect may throw panic if type not a pointer
+		defer func() {
+			cType = reflect.TypeOf(c).Name()
+		}()
+
+		if cType == componentType {
+			return c
+		}
+	}
+
+	fmt.Println("Cannot find component: " + componentType)
+	return nil
 }

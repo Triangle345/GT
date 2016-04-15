@@ -33,7 +33,7 @@ type Scene interface {
 }
 
 type BaseScene struct {
-	RootNode Components.GameNode
+	RootNode *Components.Node
 
 	window *Window.Window
 	//TODO can put fps into struct fps counter

@@ -21,7 +21,8 @@ func NewSpriteRenderer() *SpriteRenderer {
 
 type SpriteRenderer struct {
 	// the parent node
-	Parent Components.GameNode
+	//Parent *Components.Node
+	Components.ChildComponent
 
 	// the image
 	img image.Image
@@ -57,13 +58,13 @@ func (s *SpriteRenderer) Initialize() {
 
 }
 
-func (s *SpriteRenderer) SetParent(node Components.GameNode) {
-	s.Parent = node
-}
-
-func (s *SpriteRenderer) GetParent() Components.GameNode {
-	return s.Parent
-}
+// func (s *SpriteRenderer) SetParent(node *Components.Node) {
+// 	s.Parent = node
+// }
+//
+// func (s *SpriteRenderer) GetParent() Components.GameNode {
+// 	return s.Parent
+// }
 
 // var data2 []float32 = make([]float32, 0, 100)
 
@@ -73,20 +74,7 @@ func (s *SpriteRenderer) Update(delta float32) {
 		return
 	}
 
-	//TODO need more elegant way to handle this, what if its regular image?
-	// if img, ok := s.img.(Image); ok {
-	// 	// TODO remove this rect.. why do we need it now?
-	//
-	// 	w = float32(img.data.section.Dx())
-	// 	h = float32(img.data.section.Dy())
-	// 	uvs = img.uvs
-	// } else {
-	// 	fmt.Println("Cannot Get Image from interface: SpriteRenderer:Update()")
-	// }
-
-	// vertexInfo := Opengl.OpenGLVertexInfo{}
-	//	w, h := rect.GetDimensions()
-
+	// this gets teh bounds of the sub image
 	w := float32(s.img.Bounds().Dx())
 	h := float32(s.img.Bounds().Dy())
 
@@ -97,19 +85,16 @@ func (s *SpriteRenderer) Update(delta float32) {
 	Model := mathgl.Ident4()
 
 	// check to see if its a regular node to get the updated model
-	if n, ok := s.Parent.(*Components.Node); ok {
-		Model = n.GetUpdatedModel()
-	}
+	// if n, ok := s.Parent.(*Components.Node); ok {
+
+	Model = s.GetParent().Transform().GetUpdatedModel()
+	// }
 
 	// transform all vertex data and combine it with other data
-
-	// data2 = data2[0:]
 	var data []float32 = make([]float32, 0, 9*4)
 	for j := 0; j < 4; j++ {
 		transformation := mathgl.Vec4{vertex_data[j*3+0], vertex_data[j*3+1], vertex_data[j*3+2], 1}
 		t := Model.Mul4x1(transformation)
-		// z := append(data2, t[0], t[1], t[2], s.r, s.g, s.b, s.a, s.uvs[j*2+0], s.uvs[j*2+1])
-		// z[0] += z[1]
 
 		data = append(data, t[0], t[1], t[2], s.r, s.g, s.b, s.a, s.uvs[j*2+0], s.uvs[j*2+1])
 
@@ -125,9 +110,6 @@ func (s *SpriteRenderer) Update(delta float32) {
 	// send OpenGLVertex info to Opengl module
 	Opengl.AddVertexData(1, &vertexInfo)
 
-	//TODO: need to fix this, does not draw two images at once, maybe put inside vertex info and have that sorted by texture hash
-	// maybe add an AddVertexData("texture", vertexInfo)
-	// s.img.Draw()
 }
 
 func (s *SpriteRenderer) SetColor(r, g, b, a float32) {

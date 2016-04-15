@@ -22,7 +22,7 @@ type TestGame struct {
 }
 
 type Bunny struct {
-	Components.GameComponent
+	Components.ChildComponent
 	posX, posY, speedX, speedY float32
 }
 
@@ -59,20 +59,24 @@ func main() {
 	//aggrImg.Print("./aggregate.png")
 	for i := 0; i < 1; i++ {
 		nodebak := Components.NewNode("Person")
-		nodebak.Translate(400, 400)
+		nodebak.Transform().Translate(400, 400)
 		node := Components.NewNode("Person2")
-		node.Translate(100, 100)
+
+		node.Transform().Translate(100, 100)
 		node.AddNode(nodebak)
 		rend := Graphics.NewSpriteRenderer()
 		rend.SetImage("test.png")
+		nodebak.Transform().Rotate(20)
 		nodebak.AddComponent(rend)
 		nodebak.AddComponent(&Bunny{})
 
 		rend2 := Graphics.NewSpriteRenderer()
 		rend2.SetImage("smiley.png")
 		nodebak2 := Components.NewNode("Person")
-		nodebak2.Translate(50, 50)
+		nodebak2.Transform().Translate(50, 50)
 		nodebak2.AddComponent(rend2)
+		sr := nodebak2.GetComponent("SpriteRenderer")
+		fmt.Println(sr)
 
 		node.AddNode(nodebak2)
 

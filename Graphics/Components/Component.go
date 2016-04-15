@@ -6,22 +6,22 @@ type Component interface {
 	Update(delta float32)
 }
 
-type GameComponent struct {
-	Parent GameNode
+type ChildComponent struct {
+	Parent *Node
 }
 
-func (this *GameComponent) SetParent(node GameNode) {
+func (this *ChildComponent) SetParent(node *Node) {
 	this.Parent = node
 }
 
-func (this *GameComponent) GetParent() GameNode {
+func (this *ChildComponent) GetParent() *Node {
 	return this.Parent
 }
 
-func (this *GameComponent) Intialize() {
+func (this *ChildComponent) Intialize() {
 	//nothing
 }
 
-func (this *GameComponent) Update(delta float32) {
+func (this *ChildComponent) Update(delta float32) {
 	// nothing
 }
