@@ -1,5 +1,4 @@
-// Graphics project Graphics.go
-package Graphics
+package Image
 
 import (
 	// "errors"
@@ -13,7 +12,7 @@ import (
 )
 
 //TODO: create some way of doing this automatically maybe based on some config file
-var aggrImg *AggregateImage = NewAggregateImage("./")
+var AggrImg *AggregateImage = NewAggregateImage("./")
 
 // func Init() {
 // 	if rgba, ok := aggrImg.aggregateImage.(*image.RGBA); ok {
@@ -62,10 +61,30 @@ func (this Image) Bounds() image.Rectangle {
 	return this.section
 }
 
+func (this *Image) SubImage(bounds image.Rectangle) (Image, error) {
+	img, err := NewImage(this.pathName)
+
+	if err != nil {
+		return img, err
+	}
+
+	origB := img.Bounds()
+
+	if origB.Bounds().Dy() < bounds.Dy() {
+		return img, fmt.Errorf("Bounds of sub image exceeds image size, sub %d vs original %d", bounds.Dy(), origB.Dy())
+	}
+
+	// this is actually a sub image within a subimage
+
+	img.section = image.Rectangle{origB.Min.Add(bounds.Min), origB.Min.Add(bounds.Max)}
+	fmt.Println(img.section)
+	return img, nil
+}
+
 func GetUVFromPosition(point image.Point) (u, v float32) {
 
-	u = float32(point.X) / float32(aggrImg.aggregateImage.Bounds().Dx())
-	v = float32(point.Y) / float32(aggrImg.aggregateImage.Bounds().Dy())
+	u = float32(point.X) / float32(AggrImg.aggregateImage.Bounds().Dx())
+	v = float32(point.Y) / float32(AggrImg.aggregateImage.Bounds().Dy())
 
 	return
 }
@@ -114,7 +133,7 @@ func GetUVs(bounds image.Rectangle) []float32 {
 
 func NewImage(path string) (retImg Image, err error) {
 
-	if newImg := aggrImg.GetImageSection(path); newImg != nil {
+	if newImg := AggrImg.GetImageSection(path); newImg != nil {
 
 		imgRet := Image{newImg, GetUVs(newImg.section)}
 

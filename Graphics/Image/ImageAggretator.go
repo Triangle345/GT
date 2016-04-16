@@ -1,4 +1,4 @@
-package Graphics
+package Image
 
 import (
 	"fmt"
@@ -74,7 +74,7 @@ func NewAggregateImage(location string) *AggregateImage {
 	return imgAgg
 }
 
-func (this *AggregateImage) bind2GL() {
+func (this *AggregateImage) Bind2GL() {
 
 	if this.initialized {
 		return

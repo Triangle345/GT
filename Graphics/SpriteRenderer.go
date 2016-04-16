@@ -1,10 +1,11 @@
-// Sprite
+// Package Graphics
 package Graphics
 
 import (
 	// "github.com/go-gl/gl/v3.2-core/gl"
 
 	"GT/Graphics/Components"
+	"GT/Graphics/Image"
 	"GT/Graphics/Opengl"
 	"fmt"
 	"image"
@@ -45,12 +46,33 @@ type SpriteRenderer struct {
 // 	this.img = img
 // }
 func (this *SpriteRenderer) SetImage(imageLoc string) {
-	img, err := NewImage(imageLoc)
+	img, err := Image.NewImage(imageLoc)
 
 	if err != nil {
 		fmt.Println("Cannot create image: " + err.Error())
 	}
-	this.uvs = GetUVs(img.Bounds())
+	this.uvs = Image.GetUVs(img.Bounds())
+	this.img = img
+}
+
+// SetSubImage
+// Sets a designated part of an image for this sprite renderer
+//  @param  {[string]} this *SpriteRenderer [the base image path]
+//  @param  {[image.Rectangle]} this *SpriteRenderer [the rectangular bounds of designated part of image]
+//  @return
+func (this *SpriteRenderer) SetSubImage(imageLoc string, bounds image.Rectangle) {
+	img, err := Image.NewImage(imageLoc)
+
+	if err != nil {
+		fmt.Println("Cannot create image: " + err.Error())
+	}
+
+	img, err = img.SubImage(bounds)
+	if err != nil {
+		fmt.Println("Cannot create sub image: " + err.Error())
+	}
+
+	this.uvs = Image.GetUVs(img.Bounds())
 	this.img = img
 }
 

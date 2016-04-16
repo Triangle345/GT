@@ -3,28 +3,12 @@ package Graphics
 
 import (
 	"GT/Graphics/Components"
+	"GT/Graphics/Image"
 	"GT/Graphics/Opengl"
 	"GT/Window"
 	"fmt"
 	"time"
 )
-
-var elements = []uint32{
-	0, 1, 2,
-	2, 3, 0,
-}
-var quad_colours = []float32{
-	0.583, 0.771, 0.014, 1,
-	0.609, 0.115, 0.436, 1,
-	0.327, 0.483, 0.844, 1,
-	0.327, 0.483, 0.844, 1,
-}
-var quad_uvs = []float32{
-	0.0, 0.0,
-	1.0, 0.0,
-	1.0, 1.0,
-	0.0, 1.0,
-}
 
 type Scene interface {
 	Load()
@@ -50,7 +34,7 @@ func NewBasicScene(window *Window.Window) (BaseScene, error) {
 	s.update = true
 
 	//TODO: find a better way to load all images in
-	aggrImg.bind2GL()
+	Image.AggrImg.Bind2GL()
 	return s, nil
 
 }

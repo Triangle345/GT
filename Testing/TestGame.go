@@ -9,6 +9,7 @@ import (
 	// "time"
 	"GT/Graphics/Components"
 	"fmt"
+	"image"
 	// "github.com/davecheney/profile"
 )
 
@@ -71,7 +72,7 @@ func main() {
 		nodebak.AddComponent(&Bunny{})
 
 		rend2 := Graphics.NewSpriteRenderer()
-		rend2.SetImage("smiley.png")
+		rend2.SetSubImage("smiley.png", image.Rectangle{image.Point{30, 30}, image.Point{50, 50}})
 		nodebak2 := Components.NewNode("Person")
 		nodebak2.Transform().Translate(50, 50)
 		nodebak2.AddComponent(rend2)
