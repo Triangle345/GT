@@ -265,9 +265,9 @@ func Draw() {
 	//gl.BufferSubData(gl.ARRAY_BUFFER, 0, len(vertexData.VertexData)*4, gl.Ptr(vertexData.VertexData))
 
 	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
-	gl.BufferData(gl.ARRAY_BUFFER, len(vertexData.VertexData)*4, gl.Ptr(vertexData.VertexData), gl.STATIC_DRAW)
+	gl.BufferData(gl.ARRAY_BUFFER, len(vertexData.VertexData)*4, gl.Ptr(vertexData.VertexData), gl.DYNAMIC_DRAW)
 	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, elementvbo)
-	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(vertexData.Elements)*4, gl.Ptr(vertexData.Elements), gl.STATIC_DRAW)
+	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(vertexData.Elements)*4, gl.Ptr(vertexData.Elements), gl.DYNAMIC_DRAW)
 
 	MVP := projectionM.Mul4(viewM) //.Mul4(Model)
 

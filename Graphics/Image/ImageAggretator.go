@@ -20,8 +20,13 @@ type AggregateImageSection struct {
 }
 
 type AggregateImage struct {
-	images         []*AggregateImageSection
-	sectionMap     map[string]*AggregateImageSection
+	images     []*AggregateImageSection
+	sectionMap map[string]*AggregateImageSection
+
+	// font sections
+	fontImages     []*AggregateImageSection
+	fontSectionMap map[string]*AggregateImageSection
+
 	aggregateImage image.Image
 	textureId      uint32
 	initialized    bool
@@ -29,6 +34,11 @@ type AggregateImage struct {
 
 //var images []image.Image = []image.Image{}
 
+/** NewAggregateImage
+ *
+ * Walk the directory and aggregate all images to one image and store in meemory
+ * @param {[type]} location string [description]
+ */
 func NewAggregateImage(location string) *AggregateImage {
 	imgAgg := &AggregateImage{sectionMap: map[string]*AggregateImageSection{}, initialized: false}
 	imgAgg.fileWalker(location)
@@ -72,6 +82,14 @@ func NewAggregateImage(location string) *AggregateImage {
 	imgAgg.aggregateImage = rgbaFinal
 
 	return imgAgg
+}
+
+func (this * AggregateImage) AppendImage (image.Image img) {
+	newDim := image.Rectangle{image.Point{0, 0}, this.Bounds().Max().Add(img.Bounds().Max())}
+
+	rgbaFinal := image.NewRGBA(finalImg)
+
+	draw.Draw(rgbaFinal, img.Bounds().Max(), imgSec, image.Point{0, 0}, draw.Src) // draw first image
 }
 
 func (this *AggregateImage) Bind2GL() {
