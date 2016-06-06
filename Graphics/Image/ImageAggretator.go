@@ -84,12 +84,13 @@ func NewAggregateImage(location string) *AggregateImage {
 	return imgAgg
 }
 
-func (this * AggregateImage) AppendImage (image.Image img) {
-	newDim := image.Rectangle{image.Point{0, 0}, this.Bounds().Max().Add(img.Bounds().Max())}
+func (this *AggregateImage) AppendImage(img image.Image) {
+	newDim := image.Rectangle{image.Point{0, 0}, this.aggregateImage.Bounds().Max.Add(img.Bounds().Max)}
 
-	rgbaFinal := image.NewRGBA(finalImg)
+	rgbaFinal := image.NewRGBA(newDim)
 
-	draw.Draw(rgbaFinal, img.Bounds().Max(), imgSec, image.Point{0, 0}, draw.Src) // draw first image
+	//TODO need to check this...
+	draw.Draw(rgbaFinal, newDim, img, image.Point{0, 0}, draw.Src) // draw first image
 }
 
 func (this *AggregateImage) Bind2GL() {
