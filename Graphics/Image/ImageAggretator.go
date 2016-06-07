@@ -24,8 +24,8 @@ type AggregateImage struct {
 	sectionMap map[string]*AggregateImageSection
 
 	// font sections
-	fontImages     []*AggregateImageSection
-	fontSectionMap map[string]*AggregateImageSection
+	// fontImages     []*AggregateImageSection
+	// fontSectionMap map[string]*AggregateImageSection
 
 	aggregateImage image.Image
 	textureId      uint32
@@ -40,6 +40,7 @@ type AggregateImage struct {
  * @param {[type]} location string [description]
  */
 func NewAggregateImage(location string) *AggregateImage {
+	fmt.Println("new aggr image")
 	imgAgg := &AggregateImage{sectionMap: map[string]*AggregateImageSection{}, initialized: false}
 	imgAgg.fileWalker(location)
 
@@ -84,13 +85,20 @@ func NewAggregateImage(location string) *AggregateImage {
 	return imgAgg
 }
 
-func (this *AggregateImage) AppendImage(img image.Image) {
-	newDim := image.Rectangle{image.Point{0, 0}, this.aggregateImage.Bounds().Max.Add(img.Bounds().Max)}
+func (this *AggregateImage) AppendImage(img image.Image, imgTag string) {
+	fmt.Println("append img")
+	newDim := image.Rectangle{image.Point{0, 0}, this.aggregateImage.Bounds().Size().Add(img.Bounds().Size())}
 
 	rgbaFinal := image.NewRGBA(newDim)
 
 	//TODO need to check this...
-	draw.Draw(rgbaFinal, newDim, img, image.Point{0, 0}, draw.Src) // draw first image
+	draw.Draw(rgbaFinal, image.Rectangle{image.Point{0, 0}, this.aggregateImage.Bounds().Size()}, this.aggregateImage, image.Point{0, 0}, draw.Src)                                          // draw first image
+	draw.Draw(rgbaFinal, image.Rectangle{image.Point{0, this.aggregateImage.Bounds().Dy()}, this.aggregateImage.Bounds().Size().Add(img.Bounds().Size())}, img, image.Point{0, 0}, draw.Src) // draw first image
+
+	sec := image.Rectangle{image.Point{0, this.aggregateImage.Bounds().Dy()}, image.Point{img.Bounds().Dx(), this.aggregateImage.Bounds().Dy() + img.Bounds().Dy()}}
+	this.sectionMap[imgTag] = &AggregateImageSection{img, "", sec}
+	this.images = append(this.images, this.sectionMap[imgTag])
+	this.aggregateImage = rgbaFinal
 }
 
 func (this *AggregateImage) Bind2GL() {

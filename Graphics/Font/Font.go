@@ -1,47 +1,18 @@
 package Font
 
 import (
-	"encoding/json"
+	"GT/Graphics/Image"
 	"fmt"
 	"image"
 	"image/draw"
 	"io/ioutil"
 	"log"
 	"math"
-	"os"
 
 	"github.com/golang/freetype/truetype"
 	"golang.org/x/image/font"
 	"golang.org/x/image/math/fixed"
 )
-
-type Fonts struct {
-	Size    int                `json:"size"`
-	Dx      int                `json:"dx"`
-	Dy      int                `json:"dy"`
-	Indices map[string]FontIdx `json:"indices"`
-}
-
-type FontIdx struct {
-	X int `json:"x"`
-	Y int `json:"y"`
-}
-
-func ReadJson() {
-
-	file, e := ioutil.ReadFile("../Graphics/Font/consolas/info.json")
-	if e != nil {
-		fmt.Printf("File error: %v\n", e)
-		os.Exit(1)
-	}
-	fmt.Printf("%s\n", string(file))
-
-	//m := new(Dispatch)
-	//var m interface{}
-	var fonts Fonts
-	json.Unmarshal(file, &fonts)
-	fmt.Printf("Results: %v\n", fonts)
-}
 
 var (
 	dpi float64 = 72
@@ -58,7 +29,7 @@ var (
 	//wonb     = flag.Bool("whiteonblack", false, "white text on a black background")
 )
 
-func loadFont() {
+func loadFont() image.Image {
 
 	var text = []string{
 		"ACDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz`0123456789-=~!@#$%^&*()_+[]\\{}|;':\",./<>?",
@@ -68,12 +39,12 @@ func loadFont() {
 	fontBytes, err := ioutil.ReadFile(fontfile)
 	if err != nil {
 		log.Println(err)
-		return
+		return nil
 	}
 	f, err := truetype.Parse(fontBytes)
 	if err != nil {
 		log.Println(err)
-		return
+		return nil
 	}
 
 	i := f.Index('l')
@@ -89,6 +60,15 @@ func loadFont() {
 	fmt.Println("vmetric: ")
 	fmt.Println(vmet)
 	fmt.Println(int(vmet.AdvanceHeight))
+
+	totalWidth := 0
+	for _, val := range text[0] {
+		i := f.Index(val)
+		hmet := f.HMetric(100, i)
+		totalWidth += int(hmet.AdvanceWidth)
+	}
+
+	fmt.Printf("total width: %d\n", totalWidth)
 	// Draw the background and the guidelines.
 	fg, bg := image.Black, image.Transparent
 	// ruler := color.RGBA{0xdd, 0xdd, 0xdd, 0xff}
@@ -97,7 +77,7 @@ func loadFont() {
 	// 	ruler = color.RGBA{0x22, 0x22, 0x22, 0xff}
 	// }
 	const imgW, imgH = 640, 480
-	rgba := image.NewRGBA(image.Rect(0, 0, len(text[0])*int(math.Abs(float64(f.Bounds(100).Max.X))), int(math.Abs(float64(f.Bounds(100).Min.Y)-float64(f.Bounds(100).Max.Y)))))
+	rgba := image.NewRGBA(image.Rect(0, 0, totalWidth, int(math.Abs(float64(f.Bounds(100).Min.Y)-float64(f.Bounds(100).Max.Y)))))
 	draw.Draw(rgba, rgba.Bounds(), bg, image.ZP, draw.Src)
 
 	// draw the ruler
@@ -134,4 +114,11 @@ func loadFont() {
 		d.DrawString(s)
 		y += dy
 	}
+
+	return rgba
+}
+
+func ReadFonts(path string) {
+	Image.AggrImg.AppendImage(loadFont(), "TimesNewRoman")
+	Image.AggrImg.Print("./aggr.png")
 }

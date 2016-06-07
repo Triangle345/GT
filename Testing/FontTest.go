@@ -24,8 +24,10 @@ type TestGame struct {
 
 func main() {
 
-	Font.ReadJson()
+	Font.ReadFonts("./")
+
 	fmt.Println("starting")
+
 	// // defer profile.Start(profile.CPUProfile).Stop()
 	w := Window.NewWindowedWindow("test", 600, 800)
 	s, _ := Graphics.NewBasicScene(&w)

@@ -8,7 +8,6 @@ import (
 	"math/rand"
 	// "time"
 	"GT/Graphics/Components"
-	"GT/Graphics/Font"
 	"fmt"
 	"image"
 	// "github.com/davecheney/profile"
@@ -52,7 +51,6 @@ func (this *Bunny) Update(delta float32) {
 
 func main() {
 
-	Font.ReadJson()
 	fmt.Println("starting")
 	// // defer profile.Start(profile.CPUProfile).Stop()
 	w := Window.NewWindowedWindow("test", 600, 800)
