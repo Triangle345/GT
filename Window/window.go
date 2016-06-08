@@ -4,7 +4,6 @@ package Window
 import (
 	// "GT/Graphics/Opengl"
 
-	"GT/Graphics/Image"
 	"GT/Graphics/Opengl"
 	"fmt"
 	"runtime"
@@ -78,7 +77,8 @@ func (w Window) init() error {
 
 	//TODO: find a better way to load all images in
 	//however; this has logic to handle more than one call
-	Image.AggrImg.Bind2GL()
+	//// TODO: put this in opengl along with aggregate image
+	//Image.AggrImg.Bind2GL()
 
 	return nil
 }

@@ -3,10 +3,12 @@ package Opengl
 import (
 	"errors"
 	"fmt"
+	"os"
 
 	"github.com/go-gl/gl/v3.2-core/gl"
 	mathgl "github.com/go-gl/mathgl/mgl32"
 
+	"image"
 	"strings"
 )
 
@@ -15,12 +17,45 @@ var viewM mathgl.Mat4
 var projectionM mathgl.Mat4
 var MVPid int32
 
-var textureHash map[uint32]*OpenGLVertexInfo = make(map[uint32]*OpenGLVertexInfo)
-var layers []uint32 = []uint32{}
-
 var vertexDataTest OpenGLVertexInfo = OpenGLVertexInfo{Stride: 4, Elements: make([]uint32, 0, 9999999), VertexData: make([]float32, 0, 9999999)}
 
+var aggregateImage image.Image
+
 var vao, vbo, colorvbo, uvvbo, tvbo, rvbo, svbo, elementvbo uint32
+
+func SetAggregateImage(img image.Image) {
+	aggregateImage = img
+}
+
+func bindAggregateImage() uint32 {
+
+	if rgba, ok := aggregateImage.(*image.RGBA); ok {
+		var texture uint32
+
+		gl.GenTextures(1, &texture)
+		// gl.ActiveTexture(gl.TEXTURE1)
+		gl.BindTexture(gl.TEXTURE_2D, texture)
+		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_R, gl.CLAMP_TO_EDGE)
+
+		gl.TexImage2D(gl.TEXTURE_2D, 0, gl.RGBA, int32(rgba.Rect.Size().X), int32(rgba.Rect.Size().Y), 0, gl.RGBA, gl.UNSIGNED_BYTE, gl.Ptr(rgba.Pix))
+		if gl.GetError() != gl.NO_ERROR {
+
+			fmt.Println("Cannot load Image in location: ./")
+			os.Exit(-1)
+		}
+
+		return texture
+	} else {
+		fmt.Println("Image not RGBA at location: ./")
+		os.Exit(-1)
+	}
+
+	return 0
+}
 
 func compileShader(source string, shaderType uint32) (uint32, error) {
 	shader := gl.CreateShader(shaderType)
@@ -122,6 +157,8 @@ func CreateBuffers() {
 	gl.GenBuffers(1, &vbo)
 
 	gl.GenBuffers(1, &elementvbo)
+
+	bindAggregateImage()
 
 }
 

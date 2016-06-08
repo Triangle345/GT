@@ -11,8 +11,7 @@ import (
 	"path/filepath"
 
 	"GT/Graphics/Font"
-
-	"github.com/go-gl/gl/v3.2-core/gl"
+	"GT/Graphics/Opengl"
 )
 
 //TODO: create some way of doing this automatically maybe based on some config file
@@ -30,6 +29,7 @@ func init() {
 		AggrImg.AppendImage(f.GetImage(), f.GetName())
 	}
 
+	Opengl.SetAggregateImage(AggrImg.aggregateImage)
 	// for debug
 	// AggrImg.Print("./aggr.png")
 }
@@ -49,16 +49,9 @@ type AggregateImageSection struct {
 }
 
 type AggregateImage struct {
-	images     []*AggregateImageSection
-	sectionMap map[string]*AggregateImageSection
-
-	// font sections
-	// fontImages     []*AggregateImageSection
-	// fontSectionMap map[string]*AggregateImageSection
-
+	images         []*AggregateImageSection
+	sectionMap     map[string]*AggregateImageSection
 	aggregateImage image.Image
-	textureId      uint32
-	initialized    bool
 }
 
 //var images []image.Image = []image.Image{}
@@ -70,7 +63,7 @@ type AggregateImage struct {
  */
 func NewAggregateImage(location string) *AggregateImage {
 	fmt.Println("new aggr image")
-	imgAgg := &AggregateImage{sectionMap: map[string]*AggregateImageSection{}, initialized: false}
+	imgAgg := &AggregateImage{sectionMap: map[string]*AggregateImageSection{}}
 	imgAgg.fileWalker(location)
 
 	height := 0
@@ -128,41 +121,6 @@ func (this *AggregateImage) AppendImage(img image.Image, imgTag string) {
 	this.sectionMap[imgTag] = &AggregateImageSection{img, "", sec}
 	this.images = append(this.images, this.sectionMap[imgTag])
 	this.aggregateImage = rgbaFinal
-}
-
-func (this *AggregateImage) Bind2GL() {
-
-	if this.initialized {
-		return
-	}
-
-	if rgba, ok := this.aggregateImage.(*image.RGBA); ok {
-		var texture uint32
-
-		gl.GenTextures(1, &texture)
-		// gl.ActiveTexture(gl.TEXTURE1)
-		gl.BindTexture(gl.TEXTURE_2D, texture)
-		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
-		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
-		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
-		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
-		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_R, gl.CLAMP_TO_EDGE)
-
-		gl.TexImage2D(gl.TEXTURE_2D, 0, gl.RGBA, int32(rgba.Rect.Size().X), int32(rgba.Rect.Size().Y), 0, gl.RGBA, gl.UNSIGNED_BYTE, gl.Ptr(rgba.Pix))
-		if gl.GetError() != gl.NO_ERROR {
-
-			fmt.Println("Cannot load Image in location: ./")
-			os.Exit(-1)
-		}
-
-		this.textureId = texture
-	} else {
-		fmt.Println("Image not RGBA at location: ./")
-		os.Exit(-1)
-	}
-
-	this.initialized = true
-
 }
 
 func (this *AggregateImage) loadImage(imgPath string) error {
