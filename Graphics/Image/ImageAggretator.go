@@ -10,8 +10,36 @@ import (
 
 	"path/filepath"
 
+	"GT/Graphics/Font"
+
 	"github.com/go-gl/gl/v3.2-core/gl"
 )
+
+//TODO: create some way of doing this automatically maybe based on some config file
+var AggrImg *AggregateImage
+
+//TODO maybe not the best place for this? need to init somewhere else?
+func init() {
+	LoadImages("./")
+	Font.LoadFonts("../Assets/Fonts")
+
+	fonts := Font.GetFonts()
+
+	for _, f := range fonts {
+		AggrImg.AppendImage(f.GetImage(), f.GetName())
+	}
+
+	// for debug
+	// AggrImg.Print("./aggr.png")
+}
+
+/**
+ * Where to load all images from.
+ * @param {[type]} path string [description]
+ */
+func LoadImages(path string) {
+	AggrImg = NewAggregateImage("./")
+}
 
 type AggregateImageSection struct {
 	image.Image

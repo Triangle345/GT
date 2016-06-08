@@ -11,9 +11,6 @@ import (
 	_ "image/png"
 )
 
-//TODO: create some way of doing this automatically maybe based on some config file
-var AggrImg *AggregateImage = NewAggregateImage("./")
-
 // func Init() {
 // 	if rgba, ok := aggrImg.aggregateImage.(*image.RGBA); ok {
 // 		var texture uint32

@@ -8,7 +8,6 @@ import (
 	"math/rand"
 	// "time"
 	"GT/Graphics/Components"
-	"GT/Graphics/Font"
 	"fmt"
 	// "github.com/davecheney/profile"
 )
@@ -23,8 +22,6 @@ type TestGame struct {
 }
 
 func main() {
-
-	Font.ReadFonts("./")
 
 	fmt.Println("starting")
 

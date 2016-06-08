@@ -1,23 +1,33 @@
 package Font
 
 import (
-	"GT/Graphics/Image"
 	"fmt"
 	"image"
 	"image/draw"
 	"io/ioutil"
 	"log"
 	"math"
+	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/golang/freetype/truetype"
 	"golang.org/x/image/font"
 	"golang.org/x/image/math/fixed"
 )
 
+var fonts []*FontInfo = []*FontInfo{}
+
+type FontInfo truetype.Font
+
+func GetFonts() []*FontInfo {
+	return fonts
+}
+
 var (
 	dpi float64 = 72
 	//dpi      = flag.Float64("dpi", 72, "screen resolution in Dots Per Inch")
-	fontfile string = "../Graphics/Font/Times_New_Roman_Normal.ttf"
+	// fontfile string = "../Graphics/Font/Times_New_Roman_Normal.ttf"
 	//fontfile = flag.String("fontfile", "./Times_New_Roman_Normal.ttf", "filename of the ttf font")
 	hinting string = "none"
 	//hinting  = flag.String("hinting", "none", "none | full")
@@ -29,23 +39,18 @@ var (
 	//wonb     = flag.Bool("whiteonblack", false, "white text on a black background")
 )
 
-func loadFont() image.Image {
+func (this FontInfo) GetName() string {
+	f := truetype.Font(this)
+	return f.Name(truetype.NameIDFontFullName)
+}
+
+func (this FontInfo) GetImage() image.Image {
 
 	var text = []string{
 		"ACDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz`0123456789-=~!@#$%^&*()_+[]\\{}|;':\",./<>?",
 	}
 
-	// Read the font data.
-	fontBytes, err := ioutil.ReadFile(fontfile)
-	if err != nil {
-		log.Println(err)
-		return nil
-	}
-	f, err := truetype.Parse(fontBytes)
-	if err != nil {
-		log.Println(err)
-		return nil
-	}
+	f := truetype.Font(this)
 
 	i := f.Index('l')
 	hmet := f.HMetric(100, i)
@@ -95,7 +100,7 @@ func loadFont() image.Image {
 	d := &font.Drawer{
 		Dst: rgba,
 		Src: fg,
-		Face: truetype.NewFace(f, &truetype.Options{
+		Face: truetype.NewFace(&f, &truetype.Options{
 			Size:    size,
 			DPI:     dpi,
 			Hinting: h,
@@ -118,7 +123,39 @@ func loadFont() image.Image {
 	return rgba
 }
 
-func ReadFonts(path string) {
-	Image.AggrImg.AppendImage(loadFont(), "TimesNewRoman")
-	Image.AggrImg.Print("./aggr.png")
+func loadFont(fontFile string) FontInfo {
+
+	// Read the font data.
+	fontBytes, err := ioutil.ReadFile(fontFile)
+	if err != nil {
+		log.Println(err)
+		return FontInfo{}
+	}
+	f, err := truetype.Parse(fontBytes)
+	if err != nil {
+		log.Println(err)
+		return FontInfo{}
+	}
+
+	return FontInfo(*f)
+}
+
+func fileVisitor(path string, f os.FileInfo, err error) error {
+	if strings.Contains(path, ".ttf") {
+		fmt.Printf("Processing font: %s\n", path)
+		fInfo := loadFont(path)
+		fonts = append(fonts, &fInfo)
+	}
+
+	return nil
+}
+
+/**
+ * ReadFonts
+ * Read fonts from directory
+ * @param {[string]} path string [the directory where fonts are located]
+ */
+func LoadFonts(path string) {
+
+	filepath.Walk(path, fileVisitor)
 }
