@@ -3,7 +3,6 @@ package Graphics
 
 import (
 	"GT/Graphics/Components"
-	"GT/Graphics/Image"
 	"GT/Graphics/Opengl"
 	"GT/Window"
 	"fmt"
@@ -26,6 +25,7 @@ type BaseScene struct {
 	update    bool
 }
 
+// orthographic scene
 func NewBasicScene(window *Window.Window) (BaseScene, error) {
 
 	s := BaseScene{RootNode: Components.NewNode("RootNode"), window: window}
@@ -33,8 +33,8 @@ func NewBasicScene(window *Window.Window) (BaseScene, error) {
 	s.timestart = int32(time.Now().Unix())
 	s.update = true
 
-	//TODO: find a better way to load all images in
-	Image.AggrImg.Bind2GL()
+	Opengl.SetOrthographic(window.Width, window.Height)
+
 	return s, nil
 
 }
@@ -46,8 +46,7 @@ func (s *BaseScene) Start() {
 	for true {
 
 		s.window.Clear()
-		//s.UpdateHandler()
-		//s.Draw()
+
 		//TODO provide valid delta
 		s.RootNode.Update(.34)
 		s.Draw()

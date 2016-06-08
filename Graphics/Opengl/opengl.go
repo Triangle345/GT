@@ -79,7 +79,16 @@ func MakeProgram(vert, frag string) (uint32, error) {
 	return program, nil
 }
 
-func CreateBuffers(width, height int) {
+func SetOrthographic(width, height int) {
+	// Projection := mathgl.Perspective(45.0, winWidth/winHeight, 0.1, 100.0)
+	// Projection := mathgl.Ortho2D(0.0, winWidth, winHeight, 0.0)
+	// aspect := float32(s.width / s.height)
+	Projection := mathgl.Ortho(0.0, float32(width), float32(height), 0.0, -5.0, 5.0)
+
+	projectionM = Projection
+}
+
+func CreateBuffers() {
 
 	var err error
 	program, err = MakeProgram(vertexShaderSource, fragmentShaderSource)
@@ -95,13 +104,6 @@ func CreateBuffers(width, height int) {
 
 	matrixID := gl.GetUniformLocation(program, gl.Str("MVP\x00"))
 	MVPid = matrixID
-
-	// Projection := mathgl.Perspective(45.0, winWidth/winHeight, 0.1, 100.0)
-	// Projection := mathgl.Ortho2D(0.0, winWidth, winHeight, 0.0)
-	// aspect := float32(s.width / s.height)
-	Projection := mathgl.Ortho(0.0, float32(width), float32(height), 0.0, -5.0, 5.0)
-
-	projectionM = Projection
 
 	View := mathgl.LookAt(0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0)
 

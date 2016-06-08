@@ -3,12 +3,14 @@ package Window
 
 import (
 	// "GT/Graphics/Opengl"
+
+	"GT/Graphics/Image"
 	"GT/Graphics/Opengl"
-	"errors"
 	"fmt"
+	"runtime"
+
 	"github.com/go-gl/gl/v3.2-core/gl"
 	"github.com/veandco/go-sdl2/sdl"
-	"runtime"
 )
 
 type Window struct {
@@ -36,6 +38,15 @@ func NewWindowedWindow(title string, width, height int) Window {
 	}
 
 	context, err := sdl.GL_CreateContext(windowSDL)
+
+	// call init right after creating context
+	if err := gl.Init(); err != nil {
+		fmt.Println("Cannot initialize OGL: " + err.Error())
+	}
+
+	// set viewport for window
+	gl.Viewport(0, 0, int32(width), int32(height))
+
 	sdl.GL_MakeCurrent(windowSDL, context)
 
 	if err != nil {
@@ -62,12 +73,13 @@ func (w Window) init() error {
 	sdl.GL_SetAttribute(sdl.GL_BLUE_SIZE, 8)
 	sdl.GL_SetAttribute(sdl.GL_ALPHA_SIZE, 8)
 
-	if err := gl.Init(); err != nil {
-		return errors.New("Cannot initialize OGL: ")
-	}
+	// this only needs to be called once
+	Opengl.CreateBuffers()
 
-	gl.Viewport(0, 0, int32(w.Width), int32(w.Height))
-	Opengl.CreateBuffers(w.Width, w.Height)
+	//TODO: find a better way to load all images in
+	//however; this has logic to handle more than one call
+	Image.AggrImg.Bind2GL()
+
 	return nil
 }
 

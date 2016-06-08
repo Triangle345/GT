@@ -20,6 +20,7 @@ var AggrImg *AggregateImage
 
 //TODO maybe not the best place for this? need to init somewhere else?
 func init() {
+
 	LoadImages("./")
 	Font.LoadFonts("../Assets/Fonts")
 
