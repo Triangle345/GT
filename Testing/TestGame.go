@@ -77,8 +77,8 @@ func main() {
 		nodebak2 := Components.NewNode("Person")
 		nodebak2.Transform().Translate(50, 50)
 		nodebak2.AddComponent(rend2)
-		sr := nodebak2.GetComponent("SpriteRenderer")
-		fmt.Println(sr)
+		// sr := nodebak2.GetComponent("SpriteRenderer")
+		// fmt.Println(sr)
 
 		node.AddNode(nodebak2)
 

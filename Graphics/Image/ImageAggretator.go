@@ -26,10 +26,14 @@ func init() {
 	fonts := Font.GetFonts()
 
 	for _, f := range fonts {
-		AggrImg.AppendImage(f.GetImage(), f.GetName())
+		fontSec := f.GetImage()
+		AggrImg.fonts = append(AggrImg.fonts, fontSec)
+		AggrImg.fontsSectionMap[f.Name()] = fontSec
+		AggrImg.AppendImage(fontSec.Image, f.Name())
 	}
 
 	Opengl.SetAggregateImage(AggrImg.aggregateImage)
+
 	// for debug
 	// AggrImg.Print("./aggr.png")
 }
@@ -49,8 +53,12 @@ type AggregateImageSection struct {
 }
 
 type AggregateImage struct {
-	images         []*AggregateImageSection
-	sectionMap     map[string]*AggregateImageSection
+	images     []*AggregateImageSection
+	sectionMap map[string]*AggregateImageSection
+
+	fonts           []*Font.FontImageSection
+	fontsSectionMap map[string]*Font.FontImageSection
+
 	aggregateImage image.Image
 }
 
@@ -63,7 +71,7 @@ type AggregateImage struct {
  */
 func NewAggregateImage(location string) *AggregateImage {
 	fmt.Println("new aggr image")
-	imgAgg := &AggregateImage{sectionMap: map[string]*AggregateImageSection{}}
+	imgAgg := &AggregateImage{sectionMap: map[string]*AggregateImageSection{}, fontsSectionMap: map[string]*Font.FontImageSection{}}
 	imgAgg.fileWalker(location)
 
 	height := 0
@@ -95,7 +103,7 @@ func NewAggregateImage(location string) *AggregateImage {
 		p1 := image.Point{0, lastLocY}
 		p2 := p1.Add(imgSec.Bounds().Size())
 		imgSec.section = image.Rectangle{p1, p2}
-		fmt.Println(p1.Add(imgSec.Bounds().Size()))
+
 		draw.Draw(rgbaFinal, imgSec.section, imgSec, image.Point{0, 0}, draw.Src) // draw first image
 		lastLocY += imgSec.Bounds().Dy()
 
@@ -109,6 +117,7 @@ func NewAggregateImage(location string) *AggregateImage {
 
 func (this *AggregateImage) AppendImage(img image.Image, imgTag string) {
 	fmt.Println("append img")
+	//TODO : clean this up .. too much repetition of variables
 	newDim := image.Rectangle{image.Point{0, 0}, this.aggregateImage.Bounds().Size().Add(img.Bounds().Size())}
 
 	rgbaFinal := image.NewRGBA(newDim)

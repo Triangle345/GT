@@ -74,7 +74,7 @@ func (this *Image) SubImage(bounds image.Rectangle) (Image, error) {
 	// this is actually a sub image within a subimage
 
 	img.section = image.Rectangle{origB.Min.Add(bounds.Min), origB.Min.Add(bounds.Max)}
-	fmt.Println(img.section)
+
 	return img, nil
 }
 

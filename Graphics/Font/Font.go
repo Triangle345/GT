@@ -20,6 +20,12 @@ var fonts []*FontInfo = []*FontInfo{}
 
 type FontInfo truetype.Font
 
+type FontImageSection struct {
+	image.Image
+	name         string
+	FontSections map[rune]image.Rectangle
+}
+
 func GetFonts() []*FontInfo {
 	return fonts
 }
@@ -37,18 +43,47 @@ var (
 	//spacing  = flag.Float64("spacing", 1.5, "line spacing (e.g. 2 means double spaced)")
 	wonb bool = false
 	//wonb     = flag.Bool("whiteonblack", false, "white text on a black background")
+
+	text string = "ACDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz`0123456789-=~!@#$%^&*()_+[]\\{}|;':\",./<>?"
 )
 
-func (this FontInfo) GetName() string {
+func (this FontInfo) Name() string {
 	f := truetype.Font(this)
 	return f.Name(truetype.NameIDFontFullName)
 }
 
-func (this FontInfo) GetImage() image.Image {
+/**
+ * getSectionMap
+ * Returns section mapping for each letter in ttf in form of image.Rect with y=0
+ * @param  {[type]} this FontInfo      [description]
+ * @return {[type]}      [description]
+ */
+func (this FontInfo) getSectionMap() map[rune]image.Rectangle {
+	f := truetype.Font(this)
 
-	var text = []string{
-		"ACDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz`0123456789-=~!@#$%^&*()_+[]\\{}|;':\",./<>?",
+	secMap := map[rune]image.Rectangle{}
+
+	curW := 0
+
+	for _, v := range text {
+		i := f.Index(v)
+		hmet := f.HMetric(100, i)
+
+		minX := curW
+		minY := 0
+		maxX := curW + int(hmet.AdvanceWidth)
+		maxY := int(f.Bounds(100).Max.Y)
+
+		secMap[v] = image.Rect(minX, minY, maxX, maxY)
+
+		curW = maxX
 	}
+
+	return secMap
+
+}
+
+func (this FontInfo) GetImage() *FontImageSection {
 
 	f := truetype.Font(this)
 
@@ -67,7 +102,7 @@ func (this FontInfo) GetImage() image.Image {
 	fmt.Println(int(vmet.AdvanceHeight))
 
 	totalWidth := 0
-	for _, val := range text[0] {
+	for _, val := range text {
 		i := f.Index(val)
 		hmet := f.HMetric(100, i)
 		totalWidth += int(hmet.AdvanceWidth)
@@ -114,13 +149,13 @@ func (this FontInfo) GetImage() image.Image {
 	// }
 	// d.DrawString(title)
 	// y += dy
-	for _, s := range text {
-		d.Dot = fixed.P(0, y)
-		d.DrawString(s)
-		y += dy
-	}
+	// for _, s := range text {
+	d.Dot = fixed.P(0, y)
+	d.DrawString(text)
+	y += dy
+	// }
 
-	return rgba
+	return &FontImageSection{rgba, this.Name(), this.getSectionMap()}
 }
 
 func loadFont(fontFile string) FontInfo {
