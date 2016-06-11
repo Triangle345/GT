@@ -6,7 +6,6 @@ import (
 	"GT/Graphics/Components"
 	"GT/Window"
 	"fmt"
-	"time"
 )
 
 func main() {
@@ -14,7 +13,7 @@ func main() {
 	fmt.Println("starting")
 
 	// create the foundation: a new window, basic scene, and game component (node)
-	simpleWindow := Window.NewWindowedWindow("test", 600, 800)
+	simpleWindow := Window.NewWindowedWindow("SimpleWindowTitle", 600, 800)
 	simpleScene, _ := Graphics.NewBasicScene(&simpleWindow)
 	node := Components.NewNode("new_image")
 
@@ -30,12 +29,8 @@ func main() {
 	// attach the node to our scene
 	simpleScene.RootNode.AddNode(node)
 
-	// manually draw the scene
-	simpleScene.RootNode.Update(.34)
-	simpleScene.Draw()
-	simpleWindow.Refresh()
-
-	time.Sleep(5 * 10e8)
+	// start the scene to render our setup
+	simpleScene.Start()
 
 	// close the window
 	simpleWindow.Close()

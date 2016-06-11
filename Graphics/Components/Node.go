@@ -40,6 +40,7 @@ func (this *Node) Initialize() {
 	}
 }
 
+// Update ... This function should possibly be private; however, it is designed to be called by the scene, not sure how to accomodate this protected type situation in Go...
 func (this *Node) Update(delta float32) {
 	// if n, ok := this.Parent.(*Node); ok {
 

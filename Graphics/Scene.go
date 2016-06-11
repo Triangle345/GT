@@ -6,13 +6,15 @@ import (
 	"GT/Graphics/Opengl"
 	"GT/Window"
 	"fmt"
+	"github.com/veandco/go-sdl2/sdl"
 	"time"
 )
 
 type Scene interface {
-	Load()
-	Clear()
-	Draw()
+	Start()
+	Load()  // unused?
+	Clear() // unused?
+	Draw()  // draw() to be private
 }
 
 type BaseScene struct {
@@ -42,14 +44,45 @@ func NewBasicScene(window *Window.Window) (BaseScene, error) {
 func (s *BaseScene) Start() {
 
 	//s.LoadHandler()
+	running := true
 	s.update = true
-	for true {
+	drawStart := int(time.Now().Unix())
+	drawEnd := int(time.Now().Unix())
+
+	// continue to render the scene unless signalled for termination
+	for running {
+
+		// poll any current events and handle accordingly
+		// TODO: while implementing Issue #9 abstract this to an input handler
+		var event sdl.Event
+		for event = sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
+			switch t := event.(type) {
+			case *sdl.QuitEvent:
+				running = false
+			case *sdl.KeyDownEvent:
+				if t.Keysym.Sym == sdl.K_ESCAPE {
+					running = false
+				} else {
+					// fmt.Printf("[%d ms] Keyboard\ttype:%d\tsym:%c\tmodifiers:%d\tstate:%d\trepeat:%d\n",
+					// t.Timestamp, t.Type, t.Keysym.Sym, t.Keysym.Mod, t.State, t.Repeat)
+				}
+			default:
+				// fmt.Printf("Some event\n")
+			}
+		}
 
 		s.window.Clear()
+		drawEnd = int(time.Now().Unix())
 
-		//TODO provide valid delta
-		s.RootNode.Update(.34)
+		// TODO: implement or store this data. Delta is currently not being used...
+		delta := float32(drawEnd - drawStart)
+		s.RootNode.Update(delta)
+		drawStart = int(time.Now().Unix())
 		s.Draw()
+
+		// sleep for 1ms to smooth out the image rendering
+		// TODO: consider making this user defined (fps limit)
+		time.Sleep(1000)
 		s.window.Refresh()
 	}
 }
