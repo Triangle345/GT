@@ -1,63 +1,38 @@
 package Image
 
 import (
-	// "errors"
 	"fmt"
 	"image"
-	// gl "github.com/chsc/gogl/gl21"
-	// "github.com/Jragonmiris/mathgl"
 
 	_ "image/jpeg"
 	_ "image/png"
 )
 
-// func Init() {
-// 	if rgba, ok := aggrImg.aggregateImage.(*image.RGBA); ok {
-// 		var texture uint32
-//
-// 		gl.GenTextures(1, &texture)
-// 		// gl.ActiveTexture(gl.TEXTURE1)
-// 		gl.BindTexture(gl.TEXTURE_2D, texture)
-// 		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
-// 		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
-// 		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
-// 		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
-// 		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_R, gl.CLAMP_TO_EDGE)
-//
-// 		gl.TexImage2D(gl.TEXTURE_2D, 0, gl.RGBA, int32(rgba.Rect.Size().X), int32(rgba.Rect.Size().Y), 0, gl.RGBA, gl.UNSIGNED_BYTE, gl.Ptr(rgba.Pix))
-// 		if gl.GetError() != gl.NO_ERROR {
-//
-// 			fmt.Println("Cannot load Image in location: ./")
-// 			os.Exit(-1)
-// 		}
-//
-// 		aggrImg.textureId = texture
-// 	} else {
-// 		fmt.Println("Image not RGBA at location: ./")
-// 		os.Exit(-1)
-// 	}
-//
-// }
-
-// var imagecache map[string]Image = make(map[string]Image)
-
 type Image struct {
 	// data          *image.Image
-	*AggregateImageSection
+	*aggregateImageSection
 
 	// uvs for image
 	uvs []float32
 }
 
+// returns the uv coords for this image (based on aggregate image)
+func (this *Image) UVs() []float32 {
+	return this.uvs
+}
+
+// TODO: maybe need this to impelement sprite sheets? maybe put this in Image?
 type SpriteSheetImage struct {
 	Image
 	section image.Rectangle
 }
 
+// This "overrides" the normal image bounds
 func (this Image) Bounds() image.Rectangle {
 	return this.section
 }
 
+// returns a new image that is just a sub image based on given bounds
 func (this *Image) SubImage(bounds image.Rectangle) (Image, error) {
 	img, err := NewImage(this.pathName)
 
@@ -78,7 +53,7 @@ func (this *Image) SubImage(bounds image.Rectangle) (Image, error) {
 	return img, nil
 }
 
-func GetUVFromPosition(point image.Point) (u, v float32) {
+func getUVFromPosition(point image.Point) (u, v float32) {
 
 	u = float32(point.X) / float32(AggrImg.aggregateImage.Bounds().Dx())
 	v = float32(point.Y) / float32(AggrImg.aggregateImage.Bounds().Dy())
@@ -86,53 +61,34 @@ func GetUVFromPosition(point image.Point) (u, v float32) {
 	return
 }
 
-func GetUVs(bounds image.Rectangle) []float32 {
+func getUVs(bounds image.Rectangle) []float32 {
 	var uvs []float32
 
 	bottomLeft := image.Point{bounds.Min.X, bounds.Max.Y}
-	u, v := GetUVFromPosition(bottomLeft)
+	u, v := getUVFromPosition(bottomLeft)
 	uvs = append(uvs, u, v)
 
 	bottomRight := image.Point{bounds.Max.X, bounds.Max.Y}
-	u, v = GetUVFromPosition(bottomRight)
+	u, v = getUVFromPosition(bottomRight)
 	uvs = append(uvs, u, v)
 
 	topRight := image.Point{bounds.Max.X, bounds.Min.Y}
-	u, v = GetUVFromPosition(topRight)
+	u, v = getUVFromPosition(topRight)
 	uvs = append(uvs, u, v)
 
 	topLeft := image.Point{bounds.Min.X, bounds.Min.Y}
-	u, v = GetUVFromPosition(topLeft)
+	u, v = getUVFromPosition(topLeft)
 	uvs = append(uvs, u, v)
 
 	return uvs
 }
 
-// func NewSpriteSheetImage(path string, rect image.Rectangle) (retImg SpriteSheetImage, err error) {
-//
-// 	if newImg, err := NewImage(path); err == nil {
-//
-// 		// set uv coords
-//
-// 		entireBound := newImg.data.section
-// 		newMin := newImg.data.section.Min.Add(entireBound.Min)
-// 		newMax := newImg.data.section.Max.Sub(entireBound.Max)
-// 		subBound := image.Rectangle{newMin, newMax}
-// 		newImg.uvs = GetUVs(subBound)
-// 		ss := SpriteSheetImage{image: newImg, section: rect}
-// 		// fmt.Println("uvs")
-// 		// fmt.Println(uvs)
-// 		return ss, nil
-// 	}
-//
-// 	return SpriteSheetImage{}, nil
-// }
-
+// creates a new image
 func NewImage(path string) (retImg Image, err error) {
 
 	if newImg := AggrImg.GetImageSection(path); newImg != nil {
 
-		imgRet := Image{newImg, GetUVs(newImg.section)}
+		imgRet := Image{newImg, getUVs(newImg.section)}
 
 		return imgRet, nil
 	}

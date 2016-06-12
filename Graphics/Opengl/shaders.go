@@ -2,7 +2,7 @@ package Opengl
 
 const (
 	vertexShaderSource = `
-#version 330 core
+#version 300 es
 
 // Input vertex data, different for all executions of this shader.
 in vec3 vertexPosition_modelspace;
@@ -40,16 +40,17 @@ void main(){
 }
 ` + "\x00"
 	fragmentShaderSource = `
-#version 330 core
+#version 300 es
+
 
 // Interpolated values from the vertex shaders
-in vec4 fragmentColor;
+in mediump vec4 fragmentColor;
 
 // Interpolated values from the vertex shaders
-in vec2 UV;
+in mediump vec2 UV;
 
 // Ouput data
-out vec4 color;
+out mediump vec4 color;
 
 // Values that stay constant for the whole mesh.
 uniform sampler2D myTextureSampler;
@@ -62,7 +63,7 @@ void main()
 
     // Output color = color of the texture at the specified UV
     //color = texture2D( myTextureSampler, UV ).rgba;
-    vec4 tex = texture2D( myTextureSampler, UV );
+    mediump vec4 tex = texture2D( myTextureSampler, UV );
     tex.a *= fragmentColor[3];
     // color = tex.rgba;
     color =  tex + vec4(fragmentColor[0], fragmentColor[1], fragmentColor[2], 1)*tex.a;

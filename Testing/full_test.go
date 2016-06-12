@@ -21,7 +21,7 @@ func random(min, max int) int {
 func Test_Graphics(t *testing.T) {
 
 	w := Window.NewWindowedWindow("test", 800, 600)
-
+	
 	s, _ := Graphics.NewBasicScene("smiley.png", 800, 600)
 
 	s.AddSprite("smiley", Graphics.NewImageSection(0, 0, 128, 128))

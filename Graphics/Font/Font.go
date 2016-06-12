@@ -47,17 +47,14 @@ var (
 	text string = "ACDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz`0123456789-=~!@#$%^&*()_+[]\\{}|;':\",./<>?"
 )
 
+// returns official font name: eg. "Times New Roman Normal""
 func (this FontInfo) Name() string {
 	f := truetype.Font(this)
 	return f.Name(truetype.NameIDFontFullName)
 }
 
-/**
- * getSectionMap
- * Returns section mapping for each letter in ttf in form of image.Rect with y=0
- * @param  {[type]} this FontInfo      [description]
- * @return {[type]}      [description]
- */
+//getSectionMap
+//Returns section mapping for each letter in ttf in form of image.Rect with y=0
 func (this FontInfo) getSectionMap() map[rune]image.Rectangle {
 	f := truetype.Font(this)
 

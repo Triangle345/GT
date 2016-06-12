@@ -6,8 +6,9 @@ import (
 	"GT/Graphics/Opengl"
 	"GT/Window"
 	"fmt"
-	"github.com/veandco/go-sdl2/sdl"
 	"time"
+
+	"github.com/veandco/go-sdl2/sdl"
 )
 
 type Scene interface {
@@ -82,7 +83,7 @@ func (s *BaseScene) Start() {
 
 		// sleep for 1ms to smooth out the image rendering
 		// TODO: consider making this user defined (fps limit)
-		time.Sleep(1000)
+		time.Sleep(time.Nanosecond)
 		s.window.Refresh()
 	}
 }
@@ -108,7 +109,7 @@ func (s *BaseScene) Draw() {
 
 	if s.update {
 		fmt.Println("In update")
-		//TODO, remove hard coded resolution
+		//TODO: remove hard coded resolution
 
 		// gl.BindTexture(gl.TEXTURE_2D, s.spriteSheet.textureId)
 

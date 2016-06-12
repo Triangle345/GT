@@ -51,7 +51,7 @@ func (this *SpriteRenderer) SetImage(imageLoc string) {
 	if err != nil {
 		fmt.Println("Cannot create image: " + err.Error())
 	}
-	this.uvs = Image.GetUVs(img.Bounds())
+	this.uvs = img.UVs()
 	this.img = img
 }
 
@@ -72,23 +72,14 @@ func (this *SpriteRenderer) SetSubImage(imageLoc string, bounds image.Rectangle)
 		fmt.Println("Cannot create sub image: " + err.Error())
 	}
 
-	this.uvs = Image.GetUVs(img.Bounds())
+	// this.uvs = Image.GetUVs(img.Bounds())
+	this.uvs = img.UVs()
 	this.img = img
 }
 
 func (s *SpriteRenderer) Initialize() {
 
 }
-
-// func (s *SpriteRenderer) SetParent(node *Components.Node) {
-// 	s.Parent = node
-// }
-//
-// func (s *SpriteRenderer) GetParent() Components.GameNode {
-// 	return s.Parent
-// }
-
-// var data2 []float32 = make([]float32, 0, 100)
 
 func (s *SpriteRenderer) Update(delta float32) {
 

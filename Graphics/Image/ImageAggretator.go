@@ -27,8 +27,15 @@ func init() {
 
 	for _, f := range fonts {
 		fontSec := f.GetImage()
+
 		AggrImg.fonts = append(AggrImg.fonts, fontSec)
 		AggrImg.fontsSectionMap[f.Name()] = fontSec
+
+		// // iterate through all font sections and adjust them to match after append
+		// for _, r := range fontSec.FontSections {
+
+		// }
+
 		AggrImg.AppendImage(fontSec.Image, f.Name())
 	}
 
@@ -38,23 +45,23 @@ func init() {
 	// AggrImg.Print("./aggr.png")
 }
 
-/**
- * Where to load all images from.
- * @param {[type]} path string [description]
- */
+//Where to load all images from.
 func LoadImages(path string) {
 	AggrImg = NewAggregateImage("./")
 }
 
-type AggregateImageSection struct {
+type ImageSection interface {
+}
+
+type aggregateImageSection struct {
 	image.Image
 	pathName string
 	section  image.Rectangle
 }
 
 type AggregateImage struct {
-	images     []*AggregateImageSection
-	sectionMap map[string]*AggregateImageSection
+	images     []*aggregateImageSection
+	sectionMap map[string]*aggregateImageSection
 
 	fonts           []*Font.FontImageSection
 	fontsSectionMap map[string]*Font.FontImageSection
@@ -71,7 +78,7 @@ type AggregateImage struct {
  */
 func NewAggregateImage(location string) *AggregateImage {
 	fmt.Println("new aggr image")
-	imgAgg := &AggregateImage{sectionMap: map[string]*AggregateImageSection{}, fontsSectionMap: map[string]*Font.FontImageSection{}}
+	imgAgg := &AggregateImage{sectionMap: map[string]*aggregateImageSection{}, fontsSectionMap: map[string]*Font.FontImageSection{}}
 	imgAgg.fileWalker(location)
 
 	height := 0
@@ -127,7 +134,7 @@ func (this *AggregateImage) AppendImage(img image.Image, imgTag string) {
 	draw.Draw(rgbaFinal, image.Rectangle{image.Point{0, this.aggregateImage.Bounds().Dy()}, this.aggregateImage.Bounds().Size().Add(img.Bounds().Size())}, img, image.Point{0, 0}, draw.Src) // draw first image
 
 	sec := image.Rectangle{image.Point{0, this.aggregateImage.Bounds().Dy()}, image.Point{img.Bounds().Dx(), this.aggregateImage.Bounds().Dy() + img.Bounds().Dy()}}
-	this.sectionMap[imgTag] = &AggregateImageSection{img, "", sec}
+	this.sectionMap[imgTag] = &aggregateImageSection{img, "", sec}
 	this.images = append(this.images, this.sectionMap[imgTag])
 	this.aggregateImage = rgbaFinal
 }
@@ -146,7 +153,7 @@ func (this *AggregateImage) loadImage(imgPath string) error {
 		return err
 	}
 
-	sec := &AggregateImageSection{img, imgPath, image.Rectangle{}}
+	sec := &aggregateImageSection{img, imgPath, image.Rectangle{}}
 
 	// populate both section map and image list with section
 	this.images = append(this.images, sec)
@@ -167,7 +174,7 @@ func (this *AggregateImage) fileWalker(path string) {
 	filepath.Walk(path, this.fileVisitor)
 }
 
-func (this *AggregateImage) GetImageSection(path string) *AggregateImageSection {
+func (this *AggregateImage) GetImageSection(path string) *aggregateImageSection {
 	return this.sectionMap[path]
 }
 

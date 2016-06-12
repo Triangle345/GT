@@ -38,7 +38,7 @@ func (this *Bunny) Update(delta float32) {
 	this.posX += this.speedX
 	this.posY += this.speedY
 	this.speedY += 9.8
-
+	
 	if this.posX > 100 {
 		this.speedX *= -1
 		this.posX = 100
@@ -54,9 +54,10 @@ func main() {
 	fmt.Println("starting")
 	// // defer profile.Start(profile.CPUProfile).Stop()
 	w := Window.NewWindowedWindow("test", 600, 800)
+	
 	s, _ := Graphics.NewBasicScene(&w)
 	g := TestGame{BaseScene: &s}
-
+	
 	//aggrImg := Graphics.NewAggregateImage("./")
 	//aggrImg.Print("./aggregate.png")
 	for i := 0; i < 10000; i++ {
@@ -81,7 +82,7 @@ func main() {
 		// fmt.Println(sr)
 
 		node.AddNode(nodebak2)
-
+		
 		g.BaseScene.RootNode.AddNode(node)
 	}
 	g.Start()
