@@ -20,12 +20,6 @@ var fonts []*FontInfo = []*FontInfo{}
 
 type FontInfo truetype.Font
 
-type FontImageSection struct {
-	image.Image
-	name         string
-	FontSections map[rune]image.Rectangle
-}
-
 func GetFonts() []*FontInfo {
 	return fonts
 }
@@ -55,7 +49,7 @@ func (this FontInfo) Name() string {
 
 //getSectionMap
 //Returns section mapping for each letter in ttf in form of image.Rect with y=0
-func (this FontInfo) getSectionMap() map[rune]image.Rectangle {
+func (this FontInfo) GetSectionMap() map[rune]image.Rectangle {
 	f := truetype.Font(this)
 
 	secMap := map[rune]image.Rectangle{}
@@ -80,7 +74,8 @@ func (this FontInfo) getSectionMap() map[rune]image.Rectangle {
 
 }
 
-func (this FontInfo) GetImage() *FontImageSection {
+// returns image of rendered font
+func (this FontInfo) GetImage() image.Image {
 
 	f := truetype.Font(this)
 
@@ -152,7 +147,7 @@ func (this FontInfo) GetImage() *FontImageSection {
 	y += dy
 	// }
 
-	return &FontImageSection{rgba, this.Name(), this.getSectionMap()}
+	return rgba
 }
 
 func loadFont(fontFile string) FontInfo {

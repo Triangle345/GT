@@ -26,15 +26,16 @@ func init() {
 	fonts := Font.GetFonts()
 
 	for _, f := range fonts {
-		fontSec := f.GetImage()
+		fontImg := f.GetImage()
+		mainSec := image.Rect(0,
+			AggrImg.aggregateImage.Bounds().Dy(),
+			fontImg.Bounds().Dx(),
+			AggrImg.aggregateImage.Bounds().Dy()+fontImg.Bounds().Dy())
+
+		fontSec := &FontImageSection{aggregateImageSection{fontImg, f.Name(), mainSec}, f.GetSectionMap()}
 
 		AggrImg.fonts = append(AggrImg.fonts, fontSec)
 		AggrImg.fontsSectionMap[f.Name()] = fontSec
-
-		// // iterate through all font sections and adjust them to match after append
-		// for _, r := range fontSec.FontSections {
-
-		// }
 
 		AggrImg.AppendImage(fontSec.Image, f.Name())
 	}
@@ -50,7 +51,11 @@ func LoadImages(path string) {
 	AggrImg = NewAggregateImage("./")
 }
 
-type ImageSection interface {
+type FontImageSection struct {
+	// image.Image
+	// name         string
+	aggregateImageSection
+	FontSections map[rune]image.Rectangle
 }
 
 type aggregateImageSection struct {
@@ -63,8 +68,8 @@ type AggregateImage struct {
 	images     []*aggregateImageSection
 	sectionMap map[string]*aggregateImageSection
 
-	fonts           []*Font.FontImageSection
-	fontsSectionMap map[string]*Font.FontImageSection
+	fonts           []*FontImageSection
+	fontsSectionMap map[string]*FontImageSection
 
 	aggregateImage image.Image
 }
@@ -78,7 +83,7 @@ type AggregateImage struct {
  */
 func NewAggregateImage(location string) *AggregateImage {
 	fmt.Println("new aggr image")
-	imgAgg := &AggregateImage{sectionMap: map[string]*aggregateImageSection{}, fontsSectionMap: map[string]*Font.FontImageSection{}}
+	imgAgg := &AggregateImage{sectionMap: map[string]*aggregateImageSection{}, fontsSectionMap: map[string]*FontImageSection{}}
 	imgAgg.fileWalker(location)
 
 	height := 0
@@ -125,13 +130,16 @@ func NewAggregateImage(location string) *AggregateImage {
 func (this *AggregateImage) AppendImage(img image.Image, imgTag string) {
 	fmt.Println("append img")
 	//TODO : clean this up .. too much repetition of variables
-	newDim := image.Rectangle{image.Point{0, 0}, this.aggregateImage.Bounds().Size().Add(img.Bounds().Size())}
+	newDim := image.Rectangle{image.Point{0, 0},
+		this.aggregateImage.Bounds().Size().Add(img.Bounds().Size())}
 
 	rgbaFinal := image.NewRGBA(newDim)
 
 	//TODO need to check this...
-	draw.Draw(rgbaFinal, image.Rectangle{image.Point{0, 0}, this.aggregateImage.Bounds().Size()}, this.aggregateImage, image.Point{0, 0}, draw.Src)                                          // draw first image
-	draw.Draw(rgbaFinal, image.Rectangle{image.Point{0, this.aggregateImage.Bounds().Dy()}, this.aggregateImage.Bounds().Size().Add(img.Bounds().Size())}, img, image.Point{0, 0}, draw.Src) // draw first image
+	draw.Draw(rgbaFinal,
+		image.Rectangle{image.Point{0, 0}, this.aggregateImage.Bounds().Size()}, this.aggregateImage, image.Point{0, 0}, draw.Src) // draw first image
+	draw.Draw(rgbaFinal,
+		image.Rectangle{image.Point{0, this.aggregateImage.Bounds().Dy()}, this.aggregateImage.Bounds().Size().Add(img.Bounds().Size())}, img, image.Point{0, 0}, draw.Src) // draw first image
 
 	sec := image.Rectangle{image.Point{0, this.aggregateImage.Bounds().Dy()}, image.Point{img.Bounds().Dx(), this.aggregateImage.Bounds().Dy() + img.Bounds().Dy()}}
 	this.sectionMap[imgTag] = &aggregateImageSection{img, "", sec}
