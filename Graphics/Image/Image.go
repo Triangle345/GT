@@ -96,3 +96,17 @@ func NewImage(path string) (retImg Image, err error) {
 	return Image{}, fmt.Errorf("Cannot get valid image section for path: %s", path)
 
 }
+
+// creates a new font rune image
+func NewFontImage(font string, r rune) (retImg Image, err error) {
+
+	if fontSec := AggrImg.GetFontImageSection(font); fontSec != nil {
+
+		fontImg := Image{fontSec.aggregateImageSection, getUVs(fontSec.section)}
+		runeImg, _ := fontImg.SubImage(fontSec.FontSections[r])
+		return runeImg, nil
+	}
+
+	return Image{}, fmt.Errorf("Cannot get valid font section for font: %s", font)
+
+}

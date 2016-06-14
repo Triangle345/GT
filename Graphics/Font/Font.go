@@ -17,11 +17,16 @@ import (
 )
 
 var fonts []*FontInfo = []*FontInfo{}
+var fontsMap map[string]*FontInfo = map[string]*FontInfo{}
 
 type FontInfo truetype.Font
 
 func GetFonts() []*FontInfo {
 	return fonts
+}
+
+func GetFont(font string) *FontInfo {
+	return fontsMap[font]
 }
 
 var (
@@ -172,6 +177,7 @@ func fileVisitor(path string, f os.FileInfo, err error) error {
 		fmt.Printf("Processing font: %s\n", path)
 		fInfo := loadFont(path)
 		fonts = append(fonts, &fInfo)
+		fontsMap[fInfo.Name()] = &fInfo
 	}
 
 	return nil

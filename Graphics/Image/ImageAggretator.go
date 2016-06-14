@@ -32,7 +32,7 @@ func init() {
 			fontImg.Bounds().Dx(),
 			AggrImg.aggregateImage.Bounds().Dy()+fontImg.Bounds().Dy())
 
-		fontSec := &FontImageSection{aggregateImageSection{fontImg, f.Name(), mainSec}, f.GetSectionMap()}
+		fontSec := &FontImageSection{&aggregateImageSection{fontImg, f.Name(), mainSec}, f.GetSectionMap()}
 
 		AggrImg.fonts = append(AggrImg.fonts, fontSec)
 		AggrImg.fontsSectionMap[f.Name()] = fontSec
@@ -54,7 +54,7 @@ func LoadImages(path string) {
 type FontImageSection struct {
 	// image.Image
 	// name         string
-	aggregateImageSection
+	*aggregateImageSection
 	FontSections map[rune]image.Rectangle
 }
 
@@ -184,6 +184,10 @@ func (this *AggregateImage) fileWalker(path string) {
 
 func (this *AggregateImage) GetImageSection(path string) *aggregateImageSection {
 	return this.sectionMap[path]
+}
+
+func (this *AggregateImage) GetFontImageSection(font string) *FontImageSection {
+	return this.fontsSectionMap[font]
 }
 
 func (this *AggregateImage) Print(path string) {
