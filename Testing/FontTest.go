@@ -46,7 +46,7 @@ func main() {
 		rend.SetImage("test.png")
 		nodebak.Transform().Rotate(20)
 		nodebak.AddComponent(rend)
-		nodebak.AddComponent(textRend)
+		node.AddComponent(textRend)
 
 		g.BaseScene.RootNode.AddNode(node)
 	}

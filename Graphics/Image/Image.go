@@ -104,6 +104,7 @@ func NewFontImage(font string, r rune) (retImg Image, err error) {
 
 		fontImg := Image{fontSec.aggregateImageSection, getUVs(fontSec.section)}
 		runeImg, _ := fontImg.SubImage(fontSec.FontSections[r])
+
 		return runeImg, nil
 	}
 

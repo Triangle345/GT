@@ -65,12 +65,14 @@ func (this FontInfo) GetSectionMap() map[rune]image.Rectangle {
 		i := f.Index(v)
 		hmet := f.HMetric(100, i)
 
-		minX := curW
+		minX := curW + 1
 		minY := 0
 		maxX := curW + int(hmet.AdvanceWidth)
-		maxY := int(f.Bounds(100).Max.Y)
+		maxY := int(f.Bounds(100).Max.Y) + 1
 
 		secMap[v] = image.Rect(minX, minY, maxX, maxY)
+		fmt.Print("SECMAP for: ", string(v))
+		fmt.Println(secMap[v])
 
 		curW = maxX
 	}

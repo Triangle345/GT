@@ -23,6 +23,11 @@ func NewTextRenderer() *TextRenderer {
 
 }
 
+type fontImage struct {
+	runeImg image.Image
+	uvs     []float32
+}
+
 type TextRenderer struct {
 	// the parent node
 	//Parent *Components.Node
@@ -34,14 +39,10 @@ type TextRenderer struct {
 
 	text string
 
-	// the individual letters
-	runeImgs []image.Image
+	runeImgs []*fontImage
 
 	// color
 	r, g, b, a float32
-
-	// uvs - store uvs for speed
-	uvs []float32
 }
 
 func (this *TextRenderer) SetFont(font string) {
@@ -67,9 +68,8 @@ func (this *TextRenderer) SetText(text string) {
 			fmt.Println("Cannot create image: " + err.Error())
 		}
 
-		this.runeImgs = append(this.runeImgs, img)
+		this.runeImgs = append(this.runeImgs, &fontImage{img, img.UVs()})
 
-		this.uvs = append(this.uvs, img.UVs()...)
 	}
 
 }
@@ -84,17 +84,6 @@ func (this *TextRenderer) Update(delta float32) {
 		return
 	}
 
-	// fontSec := Image.AggrImg.GetFontImageSection(this.font)
-	// secStartY := fontSec.Bounds()
-	// fmt.Println(secStartY)
-
-	for i := 0; i < len(this.uvs); i++ {
-		if i%2 == 0 {
-			//this.uvs[i] = secStartY
-
-		}
-	}
-
 	fInfo := truetype.Font(*Font.GetFont(this.font))
 	totalWidth := float32(0.0)
 
@@ -102,15 +91,16 @@ func (this *TextRenderer) Update(delta float32) {
 
 		// get advance width
 		fIdx := fInfo.Index(rune(this.text[i]))
-		advance := float32(fInfo.HMetric(100, fIdx).AdvanceWidth)
 
-		totalWidth += advance
-		advance = float32(1 + i*5)
 		// this gets teh bounds of the sub image
-		w := float32(img.Bounds().Dx())
-		h := float32(img.Bounds().Dy())
+		w := float32(img.runeImg.Bounds().Dx())
+		h := float32(img.runeImg.Bounds().Dy())
 
-		vertex_data := []float32{(-0.5 + advance) * w, 0.5 * h, 1.0, (0.5 + advance) * w, 0.5 * h, 1.0, (0.5 + advance) * w, -0.5 * h, 1.0, (-0.5 + advance) * w, -0.5 * h, 1.0}
+		vertex_data := []float32{-0.5*w + totalWidth, 0.5 * h, 1.0, 0.5*w + totalWidth, 0.5 * h, 1.0, 0.5*w + totalWidth, -0.5 * h, 1.0, -0.5*w + totalWidth, -0.5 * h, 1.0}
+
+		advance := float32(fInfo.HMetric(100, fIdx).AdvanceWidth)
+		//fmt.Println("Advance: ", advance)
+		totalWidth += advance
 
 		elements := []uint32{uint32(0), uint32(1), uint32(2), uint32(0), uint32(2), uint32(3)}
 
@@ -128,7 +118,7 @@ func (this *TextRenderer) Update(delta float32) {
 			transformation := mathgl.Vec4{vertex_data[j*3+0], vertex_data[j*3+1], vertex_data[j*3+2], 1}
 			t := Model.Mul4x1(transformation)
 
-			data = append(data, t[0], t[1], t[2], this.r, this.g, this.b, this.a, this.uvs[j*2+0], this.uvs[j*2+1])
+			data = append(data, t[0], t[1], t[2], this.r, this.g, this.b, this.a, img.uvs[j*2+0], img.uvs[j*2+1])
 
 		}
 
