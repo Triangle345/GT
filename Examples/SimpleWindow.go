@@ -1,4 +1,5 @@
-// This code demonstrates how to create a simple (windowed) game instance while rendering a png image
+// SimpleWindow : This code demonstrates how to create a simple (windowed) game instance while rendering a png image
+
 package main
 
 import (
