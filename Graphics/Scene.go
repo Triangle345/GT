@@ -1,4 +1,5 @@
-// Scene
+// Scene.go : contain game components within nodes, and stucture them inside of scenes for rendering etc
+
 package Graphics
 
 import (
@@ -11,24 +12,18 @@ import (
 	"github.com/veandco/go-sdl2/sdl"
 )
 
-type Scene interface {
-	Start()
-	Load()  // unused?
-	Clear() // unused?
-	Draw()  // draw() to be private
-}
-
+// BaseScene : object to contain nodes for rendering. TODO: implement more scene types from this base type
 type BaseScene struct {
 	RootNode *Components.Node
 
 	window *Window.Window
-	//TODO can put fps into struct fps counter
+	// TODO: can put fps into struct fps counter
 	fps       int
 	timestart int32
 	update    bool
 }
 
-// orthographic scene
+// NewBasicScene : start a new simple scene of orthographic orientation
 func NewBasicScene(window *Window.Window) (BaseScene, error) {
 
 	s := BaseScene{RootNode: Components.NewNode("RootNode"), window: window}
@@ -39,12 +34,11 @@ func NewBasicScene(window *Window.Window) (BaseScene, error) {
 	Opengl.SetOrthographic(window.Width, window.Height)
 
 	return s, nil
-
 }
 
+// Start : initiate a scene's continous animation. While the scene is running, draw it and update our nodes
 func (s *BaseScene) Start() {
 
-	//s.LoadHandler()
 	running := true
 	s.update = true
 	drawStart := int(time.Now().Unix())
@@ -75,44 +69,27 @@ func (s *BaseScene) Start() {
 		s.window.Clear()
 		drawEnd = int(time.Now().Unix())
 
-		// TODO: implement or store this data. Delta is currently not being used...
+		// TODO: implement or store this data. Implement this with the fps limiting mentioned below
 		delta := float32(drawEnd - drawStart)
 		s.RootNode.Update(delta)
 		drawStart = int(time.Now().Unix())
 		s.Draw()
 
-		// sleep for 1ms to smooth out the image rendering
+		// sleep in between renders to smooth out the display
 		// TODO: consider making this user defined (fps limit)
 		time.Sleep(time.Nanosecond)
 		s.window.Refresh()
 	}
 }
 
+// Draw : wrap the openGl draw method and report fps info
 func (s *BaseScene) Draw() {
-
-	// if len(s.entities) == 0 {
-	// 	fmt.Println("No Sprites to draw.")
-	// 	return
-	// }
-	//
-	// for i := 0; i < len(s.spriteDraw); i++ {
-	//
-	// 	sprite := s.spriteDraw[i]
-	//
-	// 	glInfo := sprite.getGLVertexInfo()
-	//
-	// 	Opengl.AddVertexData(&glInfo)
-	//
-	// }
-
-	// data.Print()
 
 	if s.update {
 		fmt.Println("In update")
-		//TODO: remove hard coded resolution
 
+		// TODO: remove hard coded resolution
 		// gl.BindTexture(gl.TEXTURE_2D, s.spriteSheet.textureId)
-
 		Opengl.BindBuffers()
 		s.update = false
 	}
@@ -127,5 +104,4 @@ func (s *BaseScene) Draw() {
 	}
 
 	s.fps = s.fps + 1
-
 }
