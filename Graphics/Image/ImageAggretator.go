@@ -33,7 +33,6 @@ func init() {
 			AggrImg.aggregateImage.Bounds().Dy()+fontImg.Bounds().Dy())
 
 		fontSec := &FontImageSection{&aggregateImageSection{fontImg, f.Name(), mainSec}, f.GetSectionMap()}
-
 		AggrImg.fonts = append(AggrImg.fonts, fontSec)
 		AggrImg.fontsSectionMap[f.Name()] = fontSec
 
@@ -142,6 +141,7 @@ func (this *AggregateImage) AppendImage(img image.Image, imgTag string) {
 		image.Rectangle{image.Point{0, this.aggregateImage.Bounds().Dy()}, this.aggregateImage.Bounds().Size().Add(img.Bounds().Size())}, img, image.Point{0, 0}, draw.Src) // draw first image
 
 	sec := image.Rectangle{image.Point{0, this.aggregateImage.Bounds().Dy()}, image.Point{img.Bounds().Dx(), this.aggregateImage.Bounds().Dy() + img.Bounds().Dy()}}
+
 	this.sectionMap[imgTag] = &aggregateImageSection{img, "", sec}
 	this.images = append(this.images, this.sectionMap[imgTag])
 	this.aggregateImage = rgbaFinal
@@ -187,6 +187,7 @@ func (this *AggregateImage) GetImageSection(path string) *aggregateImageSection 
 }
 
 func (this *AggregateImage) GetFontImageSection(font string) *FontImageSection {
+
 	return this.fontsSectionMap[font]
 }
 

@@ -84,9 +84,9 @@ func (this *TextRenderer) Update(delta float32) {
 		return
 	}
 
-	fontSec := Image.AggrImg.GetFontImageSection(this.font)
-	secStartY := fontSec.Bounds()
-	fmt.Println(secStartY)
+	// fontSec := Image.AggrImg.GetFontImageSection(this.font)
+	// secStartY := fontSec.Bounds()
+	// fmt.Println(secStartY)
 
 	for i := 0; i < len(this.uvs); i++ {
 		if i%2 == 0 {

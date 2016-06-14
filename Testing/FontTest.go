@@ -37,12 +37,16 @@ func main() {
 		nodebak.Transform().Translate(400, 400)
 		node := Components.NewNode("Person2")
 
+		textRend := Graphics.NewTextRenderer()
+		textRend.SetText("Hello World!")
+
 		node.Transform().Translate(100, 100)
 		node.AddNode(nodebak)
 		rend := Graphics.NewSpriteRenderer()
 		rend.SetImage("test.png")
 		nodebak.Transform().Rotate(20)
 		nodebak.AddComponent(rend)
+		nodebak.AddComponent(textRend)
 
 		g.BaseScene.RootNode.AddNode(node)
 	}

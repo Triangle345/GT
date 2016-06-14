@@ -32,27 +32,6 @@ func (this Image) Bounds() image.Rectangle {
 	return this.section
 }
 
-// returns a new image that is just a sub image based on given bounds
-func (this *Image) SubImage(bounds image.Rectangle) (Image, error) {
-	img, err := NewImage(this.pathName)
-
-	if err != nil {
-		return img, err
-	}
-
-	origB := img.Bounds()
-
-	if origB.Bounds().Dy() < bounds.Dy() {
-		return img, fmt.Errorf("Bounds of sub image exceeds image size, sub %d vs original %d", bounds.Dy(), origB.Dy())
-	}
-
-	// this is actually a sub image within a subimage
-
-	img.section = image.Rectangle{origB.Min.Add(bounds.Min), origB.Min.Add(bounds.Max)}
-
-	return img, nil
-}
-
 func getUVFromPosition(point image.Point) (u, v float32) {
 
 	u = float32(point.X) / float32(AggrImg.aggregateImage.Bounds().Dx())
@@ -81,6 +60,27 @@ func getUVs(bounds image.Rectangle) []float32 {
 	uvs = append(uvs, u, v)
 
 	return uvs
+}
+
+// returns a new image that is just a sub image based on given bounds
+func (this *Image) SubImage(bounds image.Rectangle) (Image, error) {
+
+	// create totally new image with copy of section
+	aggrImgCopy := *this.aggregateImageSection
+	img := Image{aggregateImageSection: &aggrImgCopy}
+
+	origB := img.Bounds()
+
+	if origB.Bounds().Dy() < bounds.Dy() {
+		return img, fmt.Errorf("Bounds of sub image exceeds image size, sub %d vs original %d", bounds.Dy(), origB.Dy())
+	}
+
+	// this is actually a sub image within a subimage
+
+	img.section = image.Rectangle{origB.Min.Add(bounds.Min), origB.Min.Add(bounds.Max)}
+	img.uvs = getUVs(img.section)
+
+	return img, nil
 }
 
 // creates a new image
