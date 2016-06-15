@@ -42,7 +42,7 @@ func init() {
 	Opengl.SetAggregateImage(AggrImg.aggregateImage)
 
 	// for debug
-	// AggrImg.Print("./aggr.png")
+	//AggrImg.Print("./aggr.png")
 }
 
 //Where to load all images from.

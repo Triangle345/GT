@@ -5,13 +5,11 @@ import (
 	// "github.com/go-gl/gl/v3.2-core/gl"
 
 	"GT/Graphics/Components"
-	"GT/Graphics/Font"
 	"GT/Graphics/Image"
 	"GT/Graphics/Opengl"
 	"fmt"
 	"image"
-
-	"github.com/golang/freetype/truetype"
+	"math"
 
 	mathgl "github.com/go-gl/mathgl/mgl32"
 )
@@ -29,8 +27,6 @@ type fontImage struct {
 }
 
 type TextRenderer struct {
-	// the parent node
-	//Parent *Components.Node
 	Components.ChildComponent
 
 	size int
@@ -51,6 +47,7 @@ func (this *TextRenderer) SetFont(font string) {
 
 }
 
+// size of text in pixels (current max 100)
 func (this *TextRenderer) SetSize(size int) {
 
 	this.size = size
@@ -84,44 +81,53 @@ func (this *TextRenderer) Update(delta float32) {
 		return
 	}
 
-	fInfo := truetype.Font(*Font.GetFont(this.font))
+	Model := mathgl.Ident4()
+	Model = this.GetParent().Transform().GetUpdatedModel()
+
+	// fInfo := truetype.Font(*Font.GetFont(this.font))
 	totalWidth := float32(0.0)
+	scale := float32(this.size) / 100.0
 
 	for i, img := range this.runeImgs {
 
 		// get advance width
-		fIdx := fInfo.Index(rune(this.text[i]))
+		// fIdx := fInfo.Index(rune(this.text[i]))
 
 		// this gets teh bounds of the sub image
 		w := float32(img.runeImg.Bounds().Dx())
 		h := float32(img.runeImg.Bounds().Dy())
 
-		vertex_data := []float32{-0.5*w + totalWidth, 0.5 * h, 1.0, 0.5*w + totalWidth, 0.5 * h, 1.0, 0.5*w + totalWidth, -0.5 * h, 1.0, -0.5*w + totalWidth, -0.5 * h, 1.0}
+		//vertex_data := []float32{-0.5 * w, 0.5 * h, 1.0, 0.5 * w, 0.5 * h, 1.0, 0.5 * w, -0.5 * h, 1.0, -0.5 * w, -0.5 * h, 1.0}
+		vertex_data := []float32{0, 0.5 * h, 1.0, w, 0.5 * h, 1.0, w, -0.5 * h, 1.0, 0, -0.5 * h, 1.0}
 
-		advance := float32(fInfo.HMetric(100, fIdx).AdvanceWidth)
-		//fmt.Println("Advance: ", advance)
-		totalWidth += advance
+		// advance := float32(fInfo.HMetric(100, fIdx).AdvanceWidth)
 
 		elements := []uint32{uint32(0), uint32(1), uint32(2), uint32(0), uint32(2), uint32(3)}
 
-		Model := mathgl.Ident4()
-
-		// check to see if its a regular node to get the updated model
-		// if n, ok := s.Parent.(*Components.Node); ok {
-
-		Model = this.GetParent().Transform().GetUpdatedModel()
-		// }
+		advance := float32(math.Abs(float64(totalWidth-w))) + w/2
+		fmt.Println("advance new: ", advance)
+		fmt.Println("w: ", w)
+		if i == 0 {
+			advance = 0
+		}
 
 		// transform all vertex data and combine it with other data
 		var data []float32 = make([]float32, 0, 9*4)
 		for j := 0; j < 4; j++ {
 			transformation := mathgl.Vec4{vertex_data[j*3+0], vertex_data[j*3+1], vertex_data[j*3+2], 1}
-			t := Model.Mul4x1(transformation)
+
+			// apply font transforms
+			t := mathgl.Translate3D(totalWidth, 0, 0).Mul4x1(transformation)
+
+			t = mathgl.Scale3D(scale, scale, 1).Mul4x1(t)
+
+			t = Model.Mul4x1(t)
 
 			data = append(data, t[0], t[1], t[2], this.r, this.g, this.b, this.a, img.uvs[j*2+0], img.uvs[j*2+1])
 
 		}
 
+		totalWidth += w
 		// package everything up in an OpenGLVertexInfo
 		vertexInfo := Opengl.OpenGLVertexInfo{
 			VertexData: data,

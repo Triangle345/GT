@@ -34,21 +34,26 @@ func main() {
 	//aggrImg.Print("./aggregate.png")
 	for i := 0; i < 1; i++ {
 		nodebak := Components.NewNode("Person")
-		nodebak.Transform().Translate(400, 400)
+		nodebak.Transform().Translate(100, 100)
+		
 		node := Components.NewNode("Person2")
 
 		textRend := Graphics.NewTextRenderer()
-		textRend.SetText("Hello World!")
-
+		textRend.SetText("Hello World From GT!")
+		textRend.SetSize(50)
 		node.Transform().Translate(100, 100)
-		node.AddNode(nodebak)
+		
 		rend := Graphics.NewSpriteRenderer()
 		rend.SetImage("test.png")
-		nodebak.Transform().Rotate(20)
+		//nodebak.Transform().Rotate(20)
+		nodebak.Transform().Scale(.3,.3)
+		nodebak.Transform().Rotate(1.5)
 		nodebak.AddComponent(rend)
 		node.AddComponent(textRend)
-
+		//node.Transform().Rotate(1.5)
+		//node.Transform().Scale(.5,.5)
 		g.BaseScene.RootNode.AddNode(node)
+		g.BaseScene.RootNode.AddNode(nodebak)
 	}
 	g.Start()
 
