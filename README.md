@@ -3,11 +3,7 @@ GT
 
 ## Summary
 
-Go Graphics/Game engine
-
-This is a simple Game engine written in Go.  It is really a thin wrapper around the go-gl wrapper.  Written a test of what it an do in the "Testing" section.  So far it seems pretty responsive with 5000 sprites drawn at once.
-
-This project is still in it's infancy and has a minimal set of features.  Primarily; it can draw sprites on the screen and move them.
+Game Toolkit
 
 ## Getting Started
 The current installation procedure:
@@ -34,6 +30,7 @@ If you encounter any issues after / during installation check out these pointers
 * Ensure that all go dependencies have been resolved
 * This engine uses OpenGL and SDL, so updated graphics drivers may be necessary
 	* Because of this, running this engine within a virtual machine could be difficult
+* Sometimes Debian/Ubuntu install opengl (libGL.so.x.x) libraries in the wrong format and go-gl cannot find them. Need to symlink libGL.so.x.x to libGL.so in /usr/lib or where ever your libraries are located.
 
 ## Other Notes
 We will likely have Travis CI set up *at some point* for builds and will include MinGW dlls and whatnot. So hopefully the installation process will require less work on the user's end.
