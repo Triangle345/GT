@@ -57,21 +57,21 @@ func NewGTLogger(inFileName string, loggerFlags int) (string, error) {
 }
 
 // Debug sets the prefix and prints to stdout as well as a file
-func Debug(msg string) {
+func Debug(msg ...interface{}) {
 	// TODO: only send these if filtered logging allows
 	flogger.SetPrefix("DEBUG:\t")
-	flogger.Printf(msg)
+	flogger.Println(msg)
 
 	stdlogger.SetPrefix("DEBUG:\t")
-	stdlogger.Printf(msg)
+	stdlogger.Println(msg)
 }
 
 // Info sets the prefix and prints to stdout as well as a file
-func Info(msg string) {
+func Info(msg ...interface{}) {
 	// TODO: only send these if filtered logging allows
 	flogger.SetPrefix("INFO:\t")
-	flogger.Printf(msg)
+	flogger.Println(msg)
 
 	stdlogger.SetPrefix("INFO:\t")
-	stdlogger.Printf(msg)
+	stdlogger.Println(msg)
 }

@@ -52,7 +52,7 @@ func (this FontInfo) Name() string {
 	return f.Name(truetype.NameIDFontFullName)
 }
 
-//getSectionMap
+//GetSectionMap
 //Returns section mapping for each letter in ttf in form of image.Rect with y=0
 func (this FontInfo) GetSectionMap() map[rune]image.Rectangle {
 	f := truetype.Font(this)
@@ -72,8 +72,6 @@ func (this FontInfo) GetSectionMap() map[rune]image.Rectangle {
 		maxY := 100 //int(f.Bounds(100).Max.Y) + 1
 
 		secMap[v] = image.Rect(minX, minY, maxX, maxY)
-		fmt.Print("SECMAP for: ", string(v))
-		fmt.Println(secMap[v])
 
 		curW = maxX
 	}
