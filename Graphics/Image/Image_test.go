@@ -65,4 +65,16 @@ func TestBuddyAggregator(t *testing.T) {
 	}
 	fmt.Println("Partition insert", part)
 
+	part = ba.Insert("test9", 20, 20)
+
+	fmt.Println("Partition insert", part)
+
+	part = ba.Insert("test10", 20, 20)
+
+	if ok := part.Bounds().Eq(image.Rect(0, 50, 25, 75)); !ok {
+		t.Error("Failed large bounds non uniform")
+	}
+
+	fmt.Println("Partition insert", part)
+
 }
