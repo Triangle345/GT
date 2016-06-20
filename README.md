@@ -20,9 +20,9 @@ The current installation procedure:
 	* go get golang.org/x/image/font
 	* go get golang.org/x/image/math/fixed
 * Validate the install
-    * Navigate to $GOPATH/src/GT/Testing
-    * go run TestGame.go
-    * Ctrl-C
+    * Navigate to $GOPATH/src/GT/Examples
+    * go run SimpleWindow.go
+    * Close the Window or press 'Escape'
 
 ## Installation Troubleshooting
 If you encounter any issues after / during installation check out these pointers:

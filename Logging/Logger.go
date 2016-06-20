@@ -8,22 +8,23 @@ import (
 	"path/filepath"
 )
 
-// make the loggers global for easy use (no need to pass stuff around)
+// make the loggers global to the class for easy use (no need to pass stuff around)
 var logfile *os.File
 var flogger *log.Logger
 var stdlogger *log.Logger
 
+// init may (eventually...) be removed if we decide to create the logger from the engine's main entry point
 func init() {
 	// can specify a desired file name here
-	fileLocation, err := NewGTLogger("", log.Ldate|log.Ltime|log.Lshortfile)
+	fileLocation, err := newLogger("", log.Ldate|log.Ltime|log.Lshortfile)
 	if err != nil {
 		panic(err)
 	}
 	Info("log file location: " + fileLocation)
 }
 
-// NewGTLogger creates a file logger and stdout logger from an inputted file name and logger flags
-func NewGTLogger(inFileName string, loggerFlags int) (string, error) {
+// newLogger creates a file logger and stdout logger from an inputted file name and logger flags
+func newLogger(inFileName string, loggerFlags int) (string, error) {
 
 	// set up our logger file's name
 	fileName := inFileName
