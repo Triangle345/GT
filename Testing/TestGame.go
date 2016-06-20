@@ -60,7 +60,7 @@ func main() {
 	
 	//aggrImg := Graphics.NewAggregateImage("./")
 	//aggrImg.Print("./aggregate.png")
-	for i := 0; i < 10000; i++ {
+	for i := 0; i < 1; i++ {
 		nodebak := Components.NewNode("Person")
 		nodebak.Transform().Translate(400, 400)
 		node := Components.NewNode("Person2")

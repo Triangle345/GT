@@ -145,6 +145,7 @@ func (this *AggregateImage) AppendImage(img image.Image, imgTag string) {
 	this.sectionMap[imgTag] = &aggregateImageSection{img, "", sec}
 	this.images = append(this.images, this.sectionMap[imgTag])
 	this.aggregateImage = rgbaFinal
+
 }
 
 func (this *AggregateImage) loadImage(imgPath string) error {
