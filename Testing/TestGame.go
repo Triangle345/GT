@@ -3,14 +3,12 @@ package main
 
 import (
 	"GT/Graphics"
-	"GT/Window"
-	// "github.com/veandco/go-sdl2/sdl"
-	"math/rand"
-	// "time"
 	"GT/Graphics/Components"
+	"GT/Window"
 	"fmt"
 	"image"
-	// "github.com/davecheney/profile"
+	"math/rand"
+	"path/filepath"
 )
 
 func random(min, max int) int {
@@ -38,7 +36,7 @@ func (this *Bunny) Update(delta float32) {
 	this.posX += this.speedX
 	this.posY += this.speedY
 	this.speedY += 9.8
-	
+
 	if this.posX > 100 {
 		this.speedX *= -1
 		this.posX = 100
@@ -54,12 +52,13 @@ func main() {
 	fmt.Println("starting")
 	// // defer profile.Start(profile.CPUProfile).Stop()
 	w := Window.NewWindowedWindow("test", 600, 800)
-	
+
 	s, _ := Graphics.NewBasicScene(&w)
 	g := TestGame{BaseScene: &s}
-	
-	//aggrImg := Graphics.NewAggregateImage("./")
-	//aggrImg.Print("./aggregate.png")
+
+	myTestImage, _ := filepath.Abs("../Assets/Images/test.png")
+	mySmileyImage, _ := filepath.Abs("../Assets/Images/smiley.png")
+
 	for i := 0; i < 1; i++ {
 		nodebak := Components.NewNode("Person")
 		nodebak.Transform().Translate(400, 400)
@@ -68,13 +67,13 @@ func main() {
 		node.Transform().Translate(100, 100)
 		node.AddNode(nodebak)
 		rend := Graphics.NewSpriteRenderer()
-		rend.SetImage("test.png")
+		rend.SetImage(myTestImage)
 		nodebak.Transform().Rotate(20)
 		nodebak.AddComponent(rend)
 		nodebak.AddComponent(&Bunny{})
 
 		rend2 := Graphics.NewSpriteRenderer()
-		rend2.SetSubImage("smiley.png", image.Rectangle{image.Point{30, 30}, image.Point{50, 50}})
+		rend2.SetSubImage(mySmileyImage, image.Rectangle{image.Point{30, 30}, image.Point{50, 50}})
 		nodebak2 := Components.NewNode("Person")
 		nodebak2.Transform().Translate(50, 50)
 		nodebak2.AddComponent(rend2)
@@ -82,7 +81,7 @@ func main() {
 		// fmt.Println(sr)
 
 		node.AddNode(nodebak2)
-		
+
 		g.BaseScene.RootNode.AddNode(node)
 	}
 	g.Start()

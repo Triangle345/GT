@@ -20,7 +20,14 @@ var AggrImg *AggregateImage
 //TODO maybe not the best place for this? need to init somewhere else?
 func init() {
 
-	LoadImages("./")
+	// use absolute pathing so that we can reference / map the images easily from anywhere
+	imgsPath, err := filepath.Abs("../Assets/Images")
+	if err != nil {
+		panic(err)
+	}
+
+	// TODO when project folder creation is enacted, we will also need to load images in the project's designated image folder
+	LoadImages(imgsPath)
 	Font.LoadFonts("../Assets/Fonts")
 
 	fonts := Font.GetFonts()
@@ -45,11 +52,12 @@ func init() {
 	//AggrImg.Print("./aggr.png")
 }
 
-//Where to load all images from.
+// LoadImages creates an aggregate image with images inside a specified path
 func LoadImages(path string) {
-	AggrImg = NewAggregateImage("./")
+	AggrImg = NewAggregateImage(path)
 }
 
+// FontImageSection keeps track of where our fonts are within the aggregate image
 type FontImageSection struct {
 	// image.Image
 	// name         string
@@ -63,6 +71,9 @@ type aggregateImageSection struct {
 	section  image.Rectangle
 }
 
+// AggregateImage is our class for grouping all images, sprites, etc. into one place.
+// This will improve performance over loading an image every time it's needed.
+// Instead we only need to select a space of our pre-rendered composite image
 type AggregateImage struct {
 	images     []*aggregateImageSection
 	sectionMap map[string]*aggregateImageSection
@@ -93,8 +104,6 @@ func NewAggregateImage(location string) *AggregateImage {
 		if imgSec.Bounds().Dx() > maxWidth {
 			maxWidth = imgSec.Bounds().Dx()
 		}
-
-		//fmt.Printf("Dy is: %d\n", img.Bounds().Dy())
 	}
 
 	fmt.Printf("Height is %d\n", height)
@@ -126,6 +135,7 @@ func NewAggregateImage(location string) *AggregateImage {
 	return imgAgg
 }
 
+// AppendImage adds, and keeps track of, a new image within the aggregate
 func (this *AggregateImage) AppendImage(img image.Image, imgTag string) {
 	fmt.Println("append img")
 	//TODO : clean this up .. too much repetition of variables

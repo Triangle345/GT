@@ -7,6 +7,7 @@ import (
 	"GT/Graphics/Components"
 	"GT/Window"
 	"fmt"
+	"path/filepath"
 )
 
 func main() {
@@ -20,7 +21,8 @@ func main() {
 
 	// create a png based sprite
 	rend := Graphics.NewSpriteRenderer()
-	rend.SetImage("test.png")
+	myImagePath, _ := filepath.Abs("../Assets/Images/test.png")
+	rend.SetImage(myImagePath)
 
 	// attach the sprite to our node, and transform if desired
 	node.AddComponent(rend)
