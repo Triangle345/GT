@@ -5,6 +5,7 @@ import (
 	"image"
 	"image/draw"
 	"image/png"
+	"math"
 	"os"
 	"strings"
 
@@ -149,9 +150,14 @@ func NewAggregateImage(location string) *AggregateImage {
 // AppendImage adds, and keeps track of, a new image within the aggregate
 func (this *AggregateImage) AppendImage(img image.Image, imgTag string) {
 	fmt.Println("append img")
+
+	width := math.Max(float64(this.aggregateImage.Bounds().Dx()),
+		float64(img.Bounds().Dx()))
+
 	//TODO : clean this up .. too much repetition of variables
-	newDim := image.Rectangle{image.Point{0, 0},
-		this.aggregateImage.Bounds().Size().Add(img.Bounds().Size())}
+	newDim := image.Rect(0, 0,
+		int(width),
+		this.aggregateImage.Bounds().Max.Y+img.Bounds().Dy())
 
 	rgbaFinal := image.NewRGBA(newDim)
 
@@ -159,8 +165,8 @@ func (this *AggregateImage) AppendImage(img image.Image, imgTag string) {
 	draw.Draw(rgbaFinal,
 		image.Rectangle{image.Point{0, 0}, this.aggregateImage.Bounds().Size()}, this.aggregateImage, image.Point{0, 0}, draw.Src) // draw first image
 	draw.Draw(rgbaFinal,
-		image.Rectangle{image.Point{0, this.aggregateImage.Bounds().Dy()},
-			this.aggregateImage.Bounds().Max.Add(img.Bounds().Size())},
+		image.Rect(0, this.aggregateImage.Bounds().Dy(),
+			int(width), this.aggregateImage.Bounds().Max.Y+img.Bounds().Dy()),
 		img, image.Point{0, 0}, draw.Src) // draw second image
 
 	sec := image.Rectangle{
