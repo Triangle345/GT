@@ -17,8 +17,13 @@ import (
 //TODO: create some way of doing this automatically maybe based on some config file
 var AggrImg *AggregateImage
 
+var imageBuddy *partition
+
 //TODO maybe not the best place for this? need to init somewhere else?
 func init() {
+
+	// TODO need to figure out a way to setup opengl and window context to use video card probe
+	imageBuddy = NewBuddyAggregator(8000)
 
 	// use absolute pathing so that we can reference / map the images easily from anywhere
 	imgsPath, err := filepath.Abs("../Assets/Images")
@@ -49,7 +54,7 @@ func init() {
 	Opengl.SetAggregateImage(AggrImg.aggregateImage)
 
 	// for debug
-	//AggrImg.Print("./aggr.png")
+	// AggrImg.Print("./aggr.png")
 }
 
 // LoadImages creates an aggregate image with images inside a specified path
@@ -96,33 +101,39 @@ func NewAggregateImage(location string) *AggregateImage {
 	imgAgg := &AggregateImage{sectionMap: map[string]*aggregateImageSection{}, fontsSectionMap: map[string]*FontImageSection{}}
 	imgAgg.fileWalker(location)
 
-	height := 0
+	maxHeight := 0
 	maxWidth := 0
 
 	for _, imgSec := range imgAgg.images {
-		height += imgSec.Bounds().Dy()
-		if imgSec.Bounds().Dx() > maxWidth {
-			maxWidth = imgSec.Bounds().Dx()
+
+		part := imageBuddy.Insert(imgSec.pathName, imgSec.Bounds().Dx(), imgSec.Bounds().Dy())
+
+		fmt.Println("Partition: ", part)
+
+		if part != nil {
+			imgSec.section = part.Bounds()
+
+			if imgSec.section.Bounds().Max.Y > maxHeight {
+				maxHeight = imgSec.section.Bounds().Max.Y
+			}
+			if imgSec.Bounds().Max.X > maxWidth {
+				maxWidth = imgSec.section.Bounds().Max.X
+			}
 		}
+
 	}
 
-	fmt.Printf("Height is %d\n", height)
+	fmt.Printf("Height is %d\n", maxHeight)
 	fmt.Printf("Width is %d\n", maxWidth)
 
 	//rectangle for the big image
-	finalImg := image.Rectangle{image.Point{0, 0}, image.Point{maxWidth, height}}
+	finalImg := image.Rectangle{image.Point{0, 0}, image.Point{maxWidth, maxHeight}}
 
 	rgbaFinal := image.NewRGBA(finalImg)
 
 	lastLocY := 0
 
 	for _, imgSec := range imgAgg.images {
-
-		fmt.Printf("lastLocY: %d\n", lastLocY)
-
-		p1 := image.Point{0, lastLocY}
-		p2 := p1.Add(imgSec.Bounds().Size())
-		imgSec.section = image.Rectangle{p1, p2}
 
 		draw.Draw(rgbaFinal, imgSec.section, imgSec, image.Point{0, 0}, draw.Src) // draw first image
 		lastLocY += imgSec.Bounds().Dy()
@@ -148,9 +159,13 @@ func (this *AggregateImage) AppendImage(img image.Image, imgTag string) {
 	draw.Draw(rgbaFinal,
 		image.Rectangle{image.Point{0, 0}, this.aggregateImage.Bounds().Size()}, this.aggregateImage, image.Point{0, 0}, draw.Src) // draw first image
 	draw.Draw(rgbaFinal,
-		image.Rectangle{image.Point{0, this.aggregateImage.Bounds().Dy()}, this.aggregateImage.Bounds().Size().Add(img.Bounds().Size())}, img, image.Point{0, 0}, draw.Src) // draw first image
+		image.Rectangle{image.Point{0, this.aggregateImage.Bounds().Dy()},
+			this.aggregateImage.Bounds().Max.Add(img.Bounds().Size())},
+		img, image.Point{0, 0}, draw.Src) // draw second image
 
-	sec := image.Rectangle{image.Point{0, this.aggregateImage.Bounds().Dy()}, image.Point{img.Bounds().Dx(), this.aggregateImage.Bounds().Dy() + img.Bounds().Dy()}}
+	sec := image.Rectangle{
+		image.Point{0, this.aggregateImage.Bounds().Dy()},
+		image.Point{img.Bounds().Dx(), this.aggregateImage.Bounds().Dy() + img.Bounds().Dy()}}
 
 	this.sectionMap[imgTag] = &aggregateImageSection{img, "", sec}
 	this.images = append(this.images, this.sectionMap[imgTag])
