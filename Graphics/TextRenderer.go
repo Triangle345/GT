@@ -21,6 +21,7 @@ func NewTextRenderer() *TextRenderer {
 }
 
 type fontImage struct {
+	r       rune
 	runeImg image.Image
 	uvs     []float32
 }
@@ -64,7 +65,7 @@ func (this *TextRenderer) SetText(text string) {
 			fmt.Println("Cannot create image: " + err.Error())
 		}
 
-		this.runeImgs = append(this.runeImgs, &fontImage{img, img.UVs()})
+		this.runeImgs = append(this.runeImgs, &fontImage{t, img, img.UVs()})
 
 	}
 

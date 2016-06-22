@@ -38,8 +38,8 @@ func main() {
 
 		textRend := Graphics.NewTextRenderer()
 		textRend.SetText("Hello World From GT!")
-		textRend.SetSize(100)
-		node.Transform().Translate(100, 100)
+		textRend.SetSize(15)
+		node.Transform().Translate(150, 100)
 
 		rend := Graphics.NewSpriteRenderer()
 		rend.SetImage(myTestImage)
