@@ -18,6 +18,7 @@ type BaseScene struct {
 
 	window *Window.Window
 	// TODO: can put fps into struct fps counter
+	targetFps int
 	fps       int
 	timestart int32
 	update    bool
@@ -75,9 +76,13 @@ func (s *BaseScene) Start() {
 		drawStart = int(time.Now().Unix())
 		s.Draw()
 
-		// sleep in between renders to smooth out the display
-		// TODO: consider making this user defined (fps limit)
-		time.Sleep(time.Nanosecond)
+		// fps limitation is optional, sleep for at least 1 ns to smooth rendering
+		if s.targetFps > 0 {
+			// 1 second / n frames = fps sleep time
+			time.Sleep(time.Second / time.Duration(s.targetFps))
+		} else {
+			time.Sleep(time.Nanosecond)
+		}
 		s.window.Refresh()
 	}
 }
@@ -104,4 +109,9 @@ func (s *BaseScene) Draw() {
 	}
 
 	s.fps = s.fps + 1
+}
+
+// SetFPS forces the loop to delay such that the fps is the number inputted
+func (s *BaseScene) SetFPS(fpsInputted int) {
+	s.targetFps = fpsInputted
 }

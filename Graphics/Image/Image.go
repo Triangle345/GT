@@ -16,18 +16,18 @@ type Image struct {
 	uvs []float32
 }
 
-// returns the uv coords for this image (based on aggregate image)
+// UVs will return the uv coords for this image (based on aggregate image)
 func (this *Image) UVs() []float32 {
 	return this.uvs
 }
 
-// TODO: maybe need this to impelement sprite sheets? maybe put this in Image?
+// SpriteSheetImage TODO: may be useful for sprite grouping in aggregate, SpriteRenderer will handle animations though
 type SpriteSheetImage struct {
 	Image
 	section image.Rectangle
 }
 
-// This "overrides" the normal image bounds
+// Bounds will "override" the normal image bounds
 func (this Image) Bounds() image.Rectangle {
 	return this.section
 }
