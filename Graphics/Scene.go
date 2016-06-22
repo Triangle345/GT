@@ -78,8 +78,10 @@ func (s *BaseScene) Start() {
 
 		// fps limitation is optional, sleep for at least 1 ns to smooth rendering
 		if s.targetFps > 0 {
-			// 1 second / n frames = fps sleep time
-			time.Sleep(time.Second / time.Duration(s.targetFps))
+			if delta < float32(time.Second/time.Duration(s.targetFps)) {
+				// (1 second / n frames - time elapsed) = leftover sleep needed to reach target fps
+				time.Sleep((time.Second/time.Duration(s.targetFps) - time.Duration(delta)))
+			}
 		} else {
 			time.Sleep(time.Nanosecond)
 		}
