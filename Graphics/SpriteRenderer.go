@@ -20,6 +20,12 @@ func NewSpriteRenderer() *SpriteRenderer {
 
 }
 
+type sheetImage struct {
+	img image.Image
+	uvs []float32
+}
+
+// SpriteRenderer is a component which allows a sprite to be drawn or animated
 type SpriteRenderer struct {
 	// the parent node
 	//Parent *Components.Node
@@ -27,6 +33,10 @@ type SpriteRenderer struct {
 
 	// the image
 	img image.Image
+
+	// list of images representing our spliced sprite sheet (animation)
+	sheetImages      []*sheetImage
+	indexInAnimation int
 
 	// color
 	r, g, b, a float32
@@ -55,6 +65,41 @@ func (this *SpriteRenderer) SetImage(imageLoc string) {
 	this.img = img
 }
 
+// SpliceAndSetSheet manually cuts up a sprite sheet based on user defined dimensions
+func (s *SpriteRenderer) SpliceAndSetSheet(imageLoc string, rowSize int, columnSize int) {
+
+	// TODO: throw some sort of warning if referencing bad dimensions (i.e. non divisible by inputted sizes)
+	img, err := Image.NewImage(imageLoc)
+	if err != nil {
+		fmt.Println("Cannot create image: " + err.Error())
+	}
+
+	// NOTE: the splice logic is not working perfectly yet because our img.Bounds reference the whole section
+	//		from within the aggregate. To make this work properly we need to reference the bounds of the png itself.
+	//		TODO: add the actual png's bounds as a property to the Image (or something to this effect)
+
+	// nested loops to cut every image in a row, then shift rows
+	for j := 0; j < img.Bounds().Dy(); j += columnSize {
+
+		for i := 0; i < img.Bounds().Dx(); i += rowSize {
+
+			// splice image from row, and insert piece into array
+			b := image.Rect(i, j, i+columnSize, j+columnSize)
+			spriteSheetPart, err := img.SubImage(b)
+			if err != nil {
+				fmt.Println("Cannot create sub image: " + err.Error())
+			}
+
+			s.sheetImages = append(s.sheetImages, &sheetImage{spriteSheetPart, spriteSheetPart.UVs()})
+		}
+	}
+
+	// set the current image to the first in the sheet
+	s.indexInAnimation = 0
+	s.uvs = s.sheetImages[0].uvs
+	s.img = s.sheetImages[0].img
+}
+
 // SetSubImage
 // Sets a designated part of an image for this sprite renderer
 //  @param  {[string]} this *SpriteRenderer [the base image path]
@@ -81,6 +126,7 @@ func (s *SpriteRenderer) Initialize() {
 
 }
 
+// Update gets called every frame and accounts for all settings in the renderer as well as shifts animations
 func (s *SpriteRenderer) Update(delta float32) {
 
 	if s.img == nil {
@@ -123,8 +169,19 @@ func (s *SpriteRenderer) Update(delta float32) {
 	// send OpenGLVertex info to Opengl module
 	Opengl.AddVertexData(1, &vertexInfo)
 
+	// iterate images if we have a list (animation)
+	if len(s.sheetImages) > 0 {
+		if s.indexInAnimation == len(s.sheetImages)-1 {
+			s.indexInAnimation = 0
+		} else {
+			s.indexInAnimation++
+		}
+		s.img = s.sheetImages[s.indexInAnimation].img
+		s.uvs = s.sheetImages[s.indexInAnimation].uvs
+	}
 }
 
+// SetColor allows us to modify image coloring of whatever is set in the Renderer
 func (s *SpriteRenderer) SetColor(r, g, b, a float32) {
 	s.r = r
 	s.g = g
