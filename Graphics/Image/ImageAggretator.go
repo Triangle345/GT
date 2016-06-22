@@ -112,7 +112,8 @@ func NewAggregateImage(location string) *AggregateImage {
 		fmt.Println("Partition: ", part)
 
 		if part != nil {
-			imgSec.section = part.Bounds()
+			imgSec.section = image.Rectangle{part.Bounds().Min,
+				part.Bounds().Min.Add(imgSec.Bounds().Size())}
 
 			if imgSec.section.Bounds().Max.Y > maxHeight {
 				maxHeight = imgSec.section.Bounds().Max.Y

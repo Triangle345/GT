@@ -9,7 +9,6 @@ import (
 	"GT/Graphics/Opengl"
 	"fmt"
 	"image"
-	"math"
 
 	mathgl "github.com/go-gl/mathgl/mgl32"
 )
@@ -88,7 +87,7 @@ func (this *TextRenderer) Update(delta float32) {
 	totalWidth := float32(0.0)
 	scale := float32(this.size) / 100.0
 
-	for i, img := range this.runeImgs {
+	for _, img := range this.runeImgs {
 
 		// get advance width
 		// fIdx := fInfo.Index(rune(this.text[i]))
@@ -104,12 +103,11 @@ func (this *TextRenderer) Update(delta float32) {
 
 		elements := []uint32{uint32(0), uint32(1), uint32(2), uint32(0), uint32(2), uint32(3)}
 
-		advance := float32(math.Abs(float64(totalWidth-w))) + w/2
-		fmt.Println("advance new: ", advance)
-		fmt.Println("w: ", w)
-		if i == 0 {
-			advance = 0
-		}
+		// advance := float32(math.Abs(float64(totalWidth-w))) + w/2
+
+		// if i == 0 {
+		// 	advance = 0
+		// }
 
 		// transform all vertex data and combine it with other data
 		var data []float32 = make([]float32, 0, 9*4)

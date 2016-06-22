@@ -38,12 +38,12 @@ func main() {
 
 		textRend := Graphics.NewTextRenderer()
 		textRend.SetText("Hello World From GT!")
-		textRend.SetSize(50)
+		textRend.SetSize(100)
 		node.Transform().Translate(100, 100)
 
 		rend := Graphics.NewSpriteRenderer()
 		rend.SetImage(myTestImage)
-		nodebak.Transform().Scale(.3, .3)
+		nodebak.Transform().Scale(.5, .5)
 		nodebak.Transform().Rotate(1.5)
 		nodebak.AddComponent(rend)
 		node.AddComponent(textRend)

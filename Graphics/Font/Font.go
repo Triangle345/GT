@@ -36,14 +36,15 @@ var (
 	//fontfile = flag.String("fontfile", "./Times_New_Roman_Normal.ttf", "filename of the ttf font")
 	hinting string = "none"
 	//hinting  = flag.String("hinting", "none", "none | full")
-	size float64 = 100
+	size      float64       = 14
+	sizeFixed fixed.Int26_6 = 14
 	//size     = flag.Float64("size", 100, "font size in points")
 	spacing float64 = 1.5
 	//spacing  = flag.Float64("spacing", 1.5, "line spacing (e.g. 2 means double spaced)")
 	wonb bool = false
 	//wonb     = flag.Bool("whiteonblack", false, "white text on a black background")
 
-	text string = "ACDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz`0123456789-=~!@#$%^&*()_+[]\\{}|;':\",./<>?"
+	text string = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz`0123456789-=~!@#$%^&*()_+[]\\{}|;':\",./<>?"
 )
 
 // returns official font name: eg. "Times New Roman Normal""
@@ -63,16 +64,18 @@ func (this FontInfo) GetSectionMap() map[rune]image.Rectangle {
 
 	for _, v := range text {
 		i := f.Index(v)
-		hmet := f.HMetric(100, i)
+		hmet := f.HMetric(sizeFixed, i)
 
 		// advance width is how much font advances on x which next font starts AFTER that.
 		minX := curW + 1
 		minY := 0
 		maxX := curW + int(hmet.AdvanceWidth)
-		maxY := 100 //int(f.Bounds(100).Max.Y) + 1
+		maxY := sizeFixed //int(f.Bounds(100).Max.Y) + 1
 
-		secMap[v] = image.Rect(minX, minY, maxX, maxY)
+		secMap[v] = image.Rect(minX, minY, maxX, int(maxY))
 
+		fmt.Print(string(v))
+		fmt.Println(secMap[v])
 		curW = maxX
 	}
 
@@ -86,12 +89,12 @@ func (this FontInfo) GetImage() image.Image {
 	f := truetype.Font(this)
 
 	i := f.Index('l')
-	hmet := f.HMetric(100, i)
-	vmet := f.VMetric(100, i)
+	hmet := f.HMetric(sizeFixed, i)
+	vmet := f.VMetric(sizeFixed, i)
 
 	fmt.Println("bounds")
 	// fmt.Println(int(f.Bounds(100).Min.Y) - int(f.Bounds(100).Max.Y))
-	fmt.Println(int(f.Bounds(100).Min.X) - int(f.Bounds(100).Max.X))
+	fmt.Println(int(f.Bounds(sizeFixed).Min.X) - int(f.Bounds(sizeFixed).Max.X))
 	fmt.Println("hmetric: ")
 	fmt.Println(hmet)
 	fmt.Println(float32(hmet.AdvanceWidth))
@@ -102,7 +105,7 @@ func (this FontInfo) GetImage() image.Image {
 	totalWidth := 0
 	for _, val := range text {
 		i := f.Index(val)
-		hmet := f.HMetric(100, i)
+		hmet := f.HMetric(sizeFixed, i)
 		totalWidth += int(hmet.AdvanceWidth)
 	}
 
@@ -115,7 +118,7 @@ func (this FontInfo) GetImage() image.Image {
 	// 	ruler = color.RGBA{0x22, 0x22, 0x22, 0xff}
 	// }
 	const imgW, imgH = 640, 480
-	rgba := image.NewRGBA(image.Rect(0, 0, totalWidth, int(math.Abs(float64(f.Bounds(100).Min.Y)-float64(f.Bounds(100).Max.Y)))))
+	rgba := image.NewRGBA(image.Rect(0, 0, totalWidth, int(math.Abs(float64(f.Bounds(sizeFixed).Min.Y)-float64(f.Bounds(sizeFixed).Max.Y)))))
 	draw.Draw(rgba, rgba.Bounds(), bg, image.ZP, draw.Src)
 
 	// draw the ruler
@@ -139,7 +142,7 @@ func (this FontInfo) GetImage() image.Image {
 			Hinting: h,
 		}),
 	}
-	y := int(math.Abs(float64(f.Bounds(100).Max.Y))) //10 + int(math.Ceil(*size**dpi/72))
+	y := int(math.Abs(float64(f.Bounds(sizeFixed).Max.Y))) //10 + int(math.Ceil(*size**dpi/72))
 	dy := int(math.Ceil(size * spacing * dpi / 72))
 	// d.Dot = fixed.Point26_6{
 	// 	X: (fixed.I(imgW) - d.MeasureString(title)) / 2,
