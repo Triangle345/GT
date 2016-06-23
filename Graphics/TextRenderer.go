@@ -92,7 +92,6 @@ func (this *TextRenderer) Update(delta float32) {
 
 		// get advance width
 		// fIdx := fInfo.Index(rune(this.text[i]))
-
 		// this gets teh bounds of the sub image
 		w := float32(img.runeImg.Bounds().Dx())
 		h := float32(img.runeImg.Bounds().Dy())

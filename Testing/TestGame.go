@@ -4,8 +4,8 @@ package main
 import (
 	"GT/Graphics"
 	"GT/Graphics/Components"
-	"GT/Window"
 	"fmt"
+	"GT"
 	"image"
 	"math/rand"
 	"path/filepath"
@@ -51,9 +51,9 @@ func main() {
 
 	fmt.Println("starting")
 	// // defer profile.Start(profile.CPUProfile).Stop()
-	w := Window.NewWindowedWindow("test", 600, 800)
-
-	s, _ := Graphics.NewBasicScene(&w)
+	// w := Window.NewWindowedWindow("test", 600, 800)
+GT.EngineStart()
+	s, _ := Graphics.NewBasicScene()
 	g := TestGame{BaseScene: &s}
 
 	myTestImage, _ := filepath.Abs("../Assets/Images/test.png")
@@ -85,7 +85,5 @@ func main() {
 		g.BaseScene.RootNode.AddNode(node)
 	}
 	g.Start()
-
-	w.Close()
 
 }

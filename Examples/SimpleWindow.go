@@ -3,9 +3,9 @@
 package main
 
 import (
+	"GT"
 	"GT/Graphics"
 	"GT/Graphics/Components"
-	"GT/Window"
 	"fmt"
 	"path/filepath"
 )
@@ -13,10 +13,9 @@ import (
 func main() {
 
 	fmt.Println("starting")
+	GT.EngineStart()
 
-	// create the foundation: a new window, basic scene, and game component (node)
-	simpleWindow := Window.NewWindowedWindow("SimpleWindowTitle", 600, 800)
-	simpleScene, _ := Graphics.NewBasicScene(&simpleWindow)
+	simpleScene, _ := Graphics.NewBasicScene()
 	node := Components.NewNode("new_image")
 
 	// create a png based sprite
@@ -34,7 +33,4 @@ func main() {
 
 	// start the scene to render our setup
 	simpleScene.Start()
-
-	// close the window
-	simpleWindow.Close()
 }

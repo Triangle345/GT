@@ -36,7 +36,7 @@ func newLogger(inFileName string, loggerFlags int) (string, error) {
 	}
 
 	// create the log file in the logging directory
-	path, err := filepath.Abs("../../GT/Logging/")
+	path, err := filepath.Abs("./")
 	if err != nil {
 		return fileName, err
 	}

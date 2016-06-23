@@ -4,7 +4,6 @@ package Window
 import (
 	// "GT/Graphics/Opengl"
 
-	"GT/Graphics/Opengl"
 	"fmt"
 	"runtime"
 
@@ -19,6 +18,13 @@ type Window struct {
 	windowSDL     *sdl.Window
 	contextSDL    sdl.GLContext
 	running       bool
+}
+
+var MainWindow Window
+
+func Start() {
+	//TODO: need to prob read title and height and width from some file or somewhere
+	MainWindow = NewWindowedWindow("", 600, 800)
 }
 
 func NewWindowedWindow(title string, width, height int) Window {
@@ -73,7 +79,7 @@ func (w Window) init() error {
 	sdl.GL_SetAttribute(sdl.GL_ALPHA_SIZE, 8)
 
 	// this only needs to be called once
-	Opengl.CreateBuffers()
+	//Opengl.CreateBuffers()
 
 	//TODO: find a better way to load all images in
 	//however; this has logic to handle more than one call

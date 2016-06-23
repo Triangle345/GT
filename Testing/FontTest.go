@@ -4,10 +4,11 @@ package main
 import (
 	"GT/Graphics"
 	"GT/Graphics/Components"
-	"GT/Window"
+	//"GT/Window"
 	"fmt"
 	"math/rand"
 	"path/filepath"
+	"GT"
 )
 
 func random(min, max int) int {
@@ -22,10 +23,9 @@ type TestGame struct {
 func main() {
 
 	fmt.Println("starting")
+	GT.EngineStart()
 
-	// // defer profile.Start(profile.CPUProfile).Stop()
-	w := Window.NewWindowedWindow("test", 600, 800)
-	s, _ := Graphics.NewBasicScene(&w)
+	s, _ := Graphics.NewBasicScene()
 	g := TestGame{BaseScene: &s}
 
 	myTestImage, _ := filepath.Abs("../Assets/Images/test.png")
@@ -38,7 +38,8 @@ func main() {
 
 		textRend := Graphics.NewTextRenderer()
 		textRend.SetText("Hello World From GT!")
-		textRend.SetSize(15)
+		textRend.SetSize(14)
+		textRend.SetColor(1,.2,.1,1)
 		node.Transform().Translate(150, 100)
 
 		rend := Graphics.NewSpriteRenderer()
@@ -52,6 +53,5 @@ func main() {
 	}
 	g.Start()
 
-	w.Close()
 
 }

@@ -3,9 +3,9 @@
 package main
 
 import (
+	"GT"
 	"GT/Graphics"
 	"GT/Graphics/Components"
-	"GT/Window"
 	"fmt"
 	"path/filepath"
 )
@@ -15,8 +15,8 @@ func main() {
 	fmt.Println("starting")
 
 	// create the foundation: a new window, basic scene, and game component (node)
-	simpleWindow := Window.NewWindowedWindow("SimpleWindowTitle", 600, 800)
-	simpleScene, _ := Graphics.NewBasicScene(&simpleWindow)
+	GT.EngineStart()
+	simpleScene, _ := Graphics.NewBasicScene()
 	node := Components.NewNode("new_image")
 
 	// splice a sprite sheet into multiple nodes... method tbd
@@ -50,6 +50,4 @@ func main() {
 	// start the scene to render our setup
 	simpleScene.Start()
 
-	// close the window
-	simpleWindow.Close()
 }
