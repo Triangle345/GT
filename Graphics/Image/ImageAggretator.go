@@ -133,6 +133,7 @@ func LoadImages(location string) {
 		fontSec = AggrImg.fontsSectionMap[f.Name()]
 
 		fontSec.section = image.Rect(0, lastLocY, fontSec.Bounds().Dx(), lastLocY+fontSec.Bounds().Dy())
+
 		draw.Draw(rgbaFinal, fontSec.section, fontSec, image.Point{0, 0}, draw.Src) // draw fonts image
 		lastLocY += fontSec.Bounds().Dy()
 	}

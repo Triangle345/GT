@@ -66,14 +66,15 @@ func (this FontInfo) GetSectionMap() map[rune]image.Rectangle {
 	for _, v := range text {
 		i := f.Index(v)
 		hmet := f.HMetric(sizeFixed, i)
+		// vmet := f.VMetric(sizeFixed, i)
 
 		// advance width is how much font advances on x which next font starts AFTER that.
 		minX := curW + 1
-		minY := 0
+		minY := 1
 		maxX := curW + int(hmet.AdvanceWidth)
-		maxY := f.Bounds(sizeFixed) //sizeFixed + 1 //int(f.Bounds(100).Max.Y) + 1
+		maxY := int(f.Bounds(sizeFixed).Max.Sub(f.Bounds(sizeFixed).Min).Y)
 
-		secMap[v] = image.Rect(minX, minY, maxX, int(maxY.Max.Y-maxY.Min.Y))
+		secMap[v] = image.Rect(minX, minY, maxX, maxY)
 
 		curW = maxX
 	}
@@ -88,17 +89,29 @@ func (this FontInfo) GetImage() image.Image {
 	f := truetype.Font(this)
 
 	totalWidth := 0
+	maxHeight := 0
 	for _, val := range text {
 		i := f.Index(val)
 		hmet := f.HMetric(sizeFixed, i)
+		vmet := f.VMetric(sizeFixed, i)
+
+		aHeight := int(vmet.AdvanceHeight)
+
+		if aHeight > maxHeight {
+			maxHeight = aHeight
+		}
+
 		totalWidth += int(hmet.AdvanceWidth)
 	}
 
-	fmt.Printf("total width: %d\n", totalWidth)
 	// Draw the background and the guidelines.
 	fg, bg := image.Black, image.Transparent
 
-	rgba := image.NewRGBA(image.Rect(0, 0, totalWidth, int(math.Abs(float64(f.Bounds(sizeFixed).Min.Y)-float64(f.Bounds(sizeFixed).Max.Y)))))
+	diffY := int(f.Bounds(sizeFixed).Max.Sub(f.Bounds(sizeFixed).Min).Y)
+
+	// add a constant to the y term because of subtle bleeding between vertical space, probably because of advance height
+	rgba := image.NewRGBA(image.Rect(0, 0, totalWidth, diffY+5))
+
 	draw.Draw(rgba, rgba.Bounds(), bg, image.ZP, draw.Src)
 
 	// Draw the text.

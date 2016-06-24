@@ -15,7 +15,7 @@ import (
 
 func NewTextRenderer() *TextRenderer {
 
-	text := TextRenderer{a: 1, size: 100, font: "Times New Roman Normal"}
+	text := TextRenderer{a: 1, size: 100, font: "Raleway"}
 	return &text
 
 }
