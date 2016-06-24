@@ -38,15 +38,22 @@ func main() {
 
 		textRend := Graphics.NewTextRenderer()
 		textRend.SetText("Hello World From GT!")
-		textRend.SetSize(14)
+		textRend.SetSize(50)
 		textRend.SetColor(1,.2,.1,1)
 		node.Transform().Translate(150, 100)
+
+		textRend2 := Graphics.NewTextRenderer()
+		textRend2.SetFont("Fantasque Sans Mono Regular")
+		textRend2.SetSize(70)
+		textRend2.SetText("This is the second font")
+
 
 		rend := Graphics.NewSpriteRenderer()
 		rend.SetImage(myTestImage)
 		nodebak.Transform().Scale(.5, .5)
-		nodebak.Transform().Rotate(1.5)
+		nodebak.Transform().Rotate(1.2)
 		nodebak.AddComponent(rend)
+		nodebak.AddComponent(textRend2)
 		node.AddComponent(textRend)
 		g.BaseScene.RootNode.AddNode(node)
 		g.BaseScene.RootNode.AddNode(nodebak)

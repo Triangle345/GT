@@ -89,7 +89,6 @@ func (this *TextRenderer) Update(delta float32) {
 	scale := float32(this.size) / 100.0
 
 	for _, img := range this.runeImgs {
-
 		// get advance width
 		// fIdx := fInfo.Index(rune(this.text[i]))
 		// this gets teh bounds of the sub image

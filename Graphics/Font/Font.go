@@ -1,6 +1,7 @@
 package Font
 
 import (
+	"GT/Logging"
 	"fmt"
 	"image"
 	"image/draw"
@@ -44,7 +45,7 @@ var (
 	wonb bool = false
 	//wonb     = flag.Bool("whiteonblack", false, "white text on a black background")
 
-	text string = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz`0123456789-=~!@#$%^&*()_+[]\\{}|;':\",./<>?"
+	text string = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz`0123456789-=~!@#$%^&*()_+[]\\{}|;':\",./<>? "
 )
 
 // returns official font name: eg. "Times New Roman Normal""
@@ -67,12 +68,12 @@ func (this FontInfo) GetSectionMap() map[rune]image.Rectangle {
 		hmet := f.HMetric(sizeFixed, i)
 
 		// advance width is how much font advances on x which next font starts AFTER that.
-		minX := curW // + 1
+		minX := curW + 1
 		minY := 0
 		maxX := curW + int(hmet.AdvanceWidth)
-		maxY := sizeFixed //int(f.Bounds(100).Max.Y) + 1
+		maxY := f.Bounds(sizeFixed) //sizeFixed + 1 //int(f.Bounds(100).Max.Y) + 1
 
-		secMap[v] = image.Rect(minX, minY, maxX, int(maxY))
+		secMap[v] = image.Rect(minX, minY, maxX, int(maxY.Max.Y-maxY.Min.Y))
 
 		curW = maxX
 	}
@@ -85,20 +86,6 @@ func (this FontInfo) GetSectionMap() map[rune]image.Rectangle {
 func (this FontInfo) GetImage() image.Image {
 
 	f := truetype.Font(this)
-
-	i := f.Index('l')
-	hmet := f.HMetric(sizeFixed, i)
-	vmet := f.VMetric(sizeFixed, i)
-
-	fmt.Println("bounds")
-	// fmt.Println(int(f.Bounds(100).Min.Y) - int(f.Bounds(100).Max.Y))
-	fmt.Println(int(f.Bounds(sizeFixed).Min.X) - int(f.Bounds(sizeFixed).Max.X))
-	fmt.Println("hmetric: ")
-	fmt.Println(hmet)
-	fmt.Println(float32(hmet.AdvanceWidth))
-	fmt.Println("vmetric: ")
-	fmt.Println(vmet)
-	fmt.Println(int(vmet.AdvanceHeight))
 
 	totalWidth := 0
 	for _, val := range text {
@@ -169,6 +156,8 @@ func fileVisitor(path string, f os.FileInfo, err error) error {
 		fmt.Printf("Processing font: %s\n", path)
 		fInfo := loadFont(path)
 		fonts = append(fonts, &fInfo)
+
+		Logging.Info("Found Font: " + fInfo.Name())
 		fontsMap[fInfo.Name()] = &fInfo
 	}
 

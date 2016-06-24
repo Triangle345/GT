@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/go-gl/gl/v3.2-core/gl"
+	"github.com/go-gl/gl/v3.3-core/gl"
+
 	mathgl "github.com/go-gl/mathgl/mgl32"
 
 	"image"
@@ -25,6 +26,18 @@ var vao, vbo, colorvbo, uvvbo, tvbo, rvbo, svbo, elementvbo uint32
 
 func SetAggregateImage(img image.Image) {
 	aggregateImage = img
+}
+
+func Start() {
+	// call init right after creating context
+	if err := gl.Init(); err != nil {
+		fmt.Println("Cannot initialize OGL: " + err.Error())
+	}
+}
+
+func SetViewPort(width, height int32) {
+	// set viewport for window
+	gl.Viewport(0, 0, int32(width), int32(height))
 }
 
 func bindAggregateImage() uint32 {
@@ -123,6 +136,12 @@ func SetOrthographic(width, height int) {
 	Projection := mathgl.Ortho(0.0, float32(width), float32(height), 0.0, -5.0, 5.0)
 
 	projectionM = Projection
+}
+
+// Clear instructs opengl to clear the background to a certain color
+func Clear(r, g, b, a float32) {
+	gl.ClearColor(1.0, 1.0, 1.0, 1.0)
+	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 }
 
 func CreateBuffers() {

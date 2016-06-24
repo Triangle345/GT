@@ -1,6 +1,7 @@
 package GT
 
 import (
+	"GT/Graphics/Font"
 	"GT/Graphics/Image"
 	"GT/Graphics/Opengl"
 	"GT/Logging"
@@ -11,6 +12,8 @@ import (
 func EngineStart() {
 	Logging.Info("Engine initializing...")
 	Window.Start()
+	Opengl.Start()
+	Font.LoadFonts("../Assets/Fonts")
 	Image.Start()
 	Opengl.CreateBuffers()
 	Logging.Info("Engine initialization finished.")

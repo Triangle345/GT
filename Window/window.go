@@ -4,10 +4,10 @@ package Window
 import (
 	// "GT/Graphics/Opengl"
 
+	"GT/Graphics/Opengl"
 	"fmt"
 	"runtime"
 
-	"github.com/go-gl/gl/v3.2-core/gl"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
@@ -24,7 +24,7 @@ var MainWindow Window
 
 func Start() {
 	//TODO: need to prob read title and height and width from some file or somewhere
-	MainWindow = NewWindowedWindow("", 600, 800)
+	MainWindow = NewWindowedWindow("", 800, 800)
 }
 
 func NewWindowedWindow(title string, width, height int) Window {
@@ -43,14 +43,6 @@ func NewWindowedWindow(title string, width, height int) Window {
 	}
 
 	context, err := sdl.GL_CreateContext(windowSDL)
-
-	// call init right after creating context
-	if err := gl.Init(); err != nil {
-		fmt.Println("Cannot initialize OGL: " + err.Error())
-	}
-
-	// set viewport for window
-	gl.Viewport(0, 0, int32(width), int32(height))
 
 	sdl.GL_MakeCurrent(windowSDL, context)
 
@@ -78,20 +70,12 @@ func (w Window) init() error {
 	sdl.GL_SetAttribute(sdl.GL_BLUE_SIZE, 8)
 	sdl.GL_SetAttribute(sdl.GL_ALPHA_SIZE, 8)
 
-	// this only needs to be called once
-	//Opengl.CreateBuffers()
-
-	//TODO: find a better way to load all images in
-	//however; this has logic to handle more than one call
-	//// TODO: put this in opengl along with aggregate image
-	//Image.AggrImg.Bind2GL()
 
 	return nil
 }
 
 func (w Window) Clear() {
-	gl.ClearColor(1.0, 1.0, 1.0, 1.0)
-	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+	Opengl.Clear(1.0, 1.0, 1.0, 1.0)
 }
 
 func (w Window) Refresh() {
@@ -99,21 +83,6 @@ func (w Window) Refresh() {
 	sdl.GL_SwapWindow(w.windowSDL)
 
 }
-
-// func (w window) Draw(entity ...Graphics.Drawable) {
-// 	for _, v := range entity {
-// 		v.Draw(w.projectionM, w.viewM)
-// 	}
-
-// }
-
-// func (w window) IsOpen() bool {
-// 	if glfw.WindowParam(glfw.Opened) == 1 {
-// 		return true
-// 	}
-
-// 	return false
-// }
 
 func (w Window) Close() {
 	// sdl.GL_DeleteContext(w.contextSDL)

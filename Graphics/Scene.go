@@ -32,6 +32,7 @@ func NewBasicScene() (BaseScene, error) {
 	s.timestart = int32(time.Now().Unix())
 	s.update = true
 
+	Opengl.SetViewPort(int32(s.window.Width), int32(s.window.Height))
 	Opengl.SetOrthographic(s.window.Width, s.window.Height)
 
 	return s, nil

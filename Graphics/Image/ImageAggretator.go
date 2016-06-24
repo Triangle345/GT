@@ -33,8 +33,6 @@ func Start() {
 		panic(err)
 	}
 
-	Font.LoadFonts("../Assets/Fonts")
-
 	LoadImages(imgsPath)
 
 	Opengl.SetAggregateImage(AggrImg.aggregateImage)
