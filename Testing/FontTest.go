@@ -34,16 +34,17 @@ func main() {
 	node := Components.NewNode("Person2")
 
 	textRend := Graphics.NewTextRenderer()
-	textRend.SetText("Hello World From GT!")
 	textRend.SetFont("Raleway")
-	textRend.SetSize(12)
+	textRend.SetText("Hello World From GT!?")
+	
+	textRend.SetSize(14)
 	textRend.SetColor(1,.2,.1,1)
 	node.Transform().Translate(150, 100)
 
 	textRend2 := Graphics.NewTextRenderer()
 	textRend2.SetFont("Fantasque Sans Mono Regular")
-	textRend2.SetSize(70)
-	textRend2.SetText("This is the second font")
+	textRend2.SetSize(60)
+	textRend2.SetText("This is Second Font Fantasque Bold")
 
 
 	rend := Graphics.NewSpriteRenderer()

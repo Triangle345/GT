@@ -89,6 +89,7 @@ func (this *TextRenderer) Update(delta float32) {
 	scale := float32(this.size) / 100.0
 
 	for _, img := range this.runeImgs {
+
 		// get advance width
 		// fIdx := fInfo.Index(rune(this.text[i]))
 		// this gets teh bounds of the sub image
@@ -98,15 +99,7 @@ func (this *TextRenderer) Update(delta float32) {
 		//vertex_data := []float32{-0.5 * w, 0.5 * h, 1.0, 0.5 * w, 0.5 * h, 1.0, 0.5 * w, -0.5 * h, 1.0, -0.5 * w, -0.5 * h, 1.0}
 		vertex_data := []float32{0, 0.5 * h, 1.0, w, 0.5 * h, 1.0, w, -0.5 * h, 1.0, 0, -0.5 * h, 1.0}
 
-		// advance := float32(fInfo.HMetric(100, fIdx).AdvanceWidth)
-
 		elements := []uint32{uint32(0), uint32(1), uint32(2), uint32(0), uint32(2), uint32(3)}
-
-		// advance := float32(math.Abs(float64(totalWidth-w))) + w/2
-
-		// if i == 0 {
-		// 	advance = 0
-		// }
 
 		// transform all vertex data and combine it with other data
 		var data []float32 = make([]float32, 0, 9*4)

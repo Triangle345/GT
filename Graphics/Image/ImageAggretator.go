@@ -5,7 +5,6 @@ import (
 	"image"
 	"image/draw"
 	"image/png"
-	"math"
 	"os"
 	"strings"
 
@@ -33,6 +32,7 @@ func Start() {
 		panic(err)
 	}
 
+	// load all images from the beginning only. Never load images again after this
 	LoadImages(imgsPath)
 
 	Opengl.SetAggregateImage(AggrImg.aggregateImage)
@@ -68,15 +68,7 @@ type AggregateImage struct {
 	aggregateImage image.Image
 }
 
-//var images []image.Image = []image.Image{}
-
-/** NewAggregateImage
- *
- * Walk the directory and aggregate all images to one image and store in meemory
- * @param {[type]} location string [description]
- */
-func LoadImages(location string) {
-	fmt.Println("new aggr image")
+func loadTextureImages(location string) {
 	AggrImg.fileWalker(location)
 
 	maxHeight := 0
@@ -105,75 +97,63 @@ func LoadImages(location string) {
 	fmt.Printf("Height is %d\n", maxHeight)
 	fmt.Printf("Width is %d\n", maxWidth)
 
-	//rectangle for the big image
-	texSize := int(Opengl.Probe().MaxTextureSize)
-	finalImg := image.Rectangle{image.Point{0, 0}, image.Point{texSize, texSize}}
+}
 
-	rgbaFinal := image.NewRGBA(finalImg)
-
-	lastLocY := 0
-
-	for _, imgSec := range AggrImg.images {
-
-		draw.Draw(rgbaFinal, imgSec.section, imgSec, image.Point{0, 0}, draw.Src) // draw images
-		lastLocY += imgSec.Bounds().Dy()
-
-	}
-
+func loadFontImages() {
 	fonts := Font.GetFonts()
 
 	for _, f := range fonts {
 
 		fontImg := f.GetImage()
 
-		fontSec := &FontImageSection{&aggregateImageSection{fontImg, f.Name(), fontImg.Bounds()}, f.GetSectionMap()}
+		// find free space for fonts
+		part := imageBuddy.Insert(f.Name(), fontImg.Bounds().Dx(), fontImg.Bounds().Dy())
+
+		// create section
+		sec := image.Rectangle{part.Bounds().Min, part.Bounds().Min.Add(fontImg.Bounds().Size())}
+
+		// create font section with section created from insertion
+		fontSec := &FontImageSection{&aggregateImageSection{fontImg, f.Name(), sec}, f.GetSectionMap()}
+
+		// add font section to lists
 		AggrImg.fonts = append(AggrImg.fonts, fontSec)
 		AggrImg.fontsSectionMap[f.Name()] = fontSec
 
-		fontSec = AggrImg.fontsSectionMap[f.Name()]
+	}
+}
 
-		fontSec.section = image.Rect(0, lastLocY, fontSec.Bounds().Dx(), lastLocY+fontSec.Bounds().Dy())
+/** NewAggregateImage
+ *
+ * Walk the directory and aggregate all images to one image and store in meemory
+ * @param {[type]} location string [description]
+ */
+func LoadImages(location string) {
+	fmt.Println("new aggr image")
 
-		draw.Draw(rgbaFinal, fontSec.section, fontSec, image.Point{0, 0}, draw.Src) // draw fonts image
-		lastLocY += fontSec.Bounds().Dy()
+	loadTextureImages(location)
+	loadFontImages()
+
+	// create empty image to hold all images
+	texSize := int(Opengl.Probe().MaxTextureSize)
+	finalImg := image.Rectangle{image.Point{0, 0}, image.Point{texSize, texSize}}
+
+	rgbaFinal := image.NewRGBA(finalImg)
+
+	// draw all images
+	for _, imgSec := range AggrImg.images {
+
+		draw.Draw(rgbaFinal, imgSec.section, imgSec, image.Point{0, 0}, draw.Src) // draw images
+
+	}
+
+	for _, fontSec := range AggrImg.fonts {
+
+		draw.Draw(rgbaFinal, fontSec.section, fontSec, image.Point{0, 0}, draw.Src) // draw images
+
 	}
 
 	// store the final aggregate image
 	AggrImg.aggregateImage = rgbaFinal
-}
-
-// AppendImage adds, and keeps track of, a new image within the aggregate
-func (this *AggregateImage) AppendImage(img image.Image, imgTag string) {
-	fmt.Println("append img", imgTag)
-
-	width := math.Max(float64(this.aggregateImage.Bounds().Dx()),
-		float64(img.Bounds().Dx()))
-
-	//TODO : add binary square image
-	// newDim := image.Rect(0, 0,
-	// 	int(width),
-	// 	this.aggregateImage.Bounds().Max.Y+img.Bounds().Dy())
-	texSize := int(Opengl.Probe().MaxTextureSize)
-	newDim := image.Rect(0, 0, texSize, texSize)
-
-	rgbaFinal := image.NewRGBA(newDim)
-
-	//TODO need to check this...
-	draw.Draw(rgbaFinal,
-		image.Rectangle{image.Point{0, 0}, this.aggregateImage.Bounds().Size()}, this.aggregateImage, image.Point{0, 0}, draw.Src) // draw first image
-	draw.Draw(rgbaFinal,
-		image.Rect(0, this.aggregateImage.Bounds().Dy(),
-			int(width), this.aggregateImage.Bounds().Max.Y+img.Bounds().Dy()),
-		img, image.Point{0, 0}, draw.Src) // draw second image
-
-	sec := image.Rectangle{
-		image.Point{0, this.aggregateImage.Bounds().Dy()},
-		image.Point{img.Bounds().Dx(), this.aggregateImage.Bounds().Dy() + img.Bounds().Dy()}}
-
-	this.sectionMap[imgTag] = &aggregateImageSection{img, "", sec}
-	this.images = append(this.images, this.sectionMap[imgTag])
-	this.aggregateImage = rgbaFinal
-
 }
 
 func (this *AggregateImage) loadImage(imgPath string) error {

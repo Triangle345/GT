@@ -45,7 +45,12 @@ var (
 	wonb bool = false
 	//wonb     = flag.Bool("whiteonblack", false, "white text on a black background")
 
-	text string = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz`0123456789-=~!@#$%^&*()_+[]\\{}|;':\",./<>? "
+	// items per row for font spread
+	itemsPerRow int = 20
+
+	insetPadding int = 30
+
+	text string = " ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz`0123456789-=~!@#$%^&*()_+[]\\{}|;':\",./<>?"
 )
 
 // returns official font name: eg. "Times New Roman Normal""
@@ -62,21 +67,31 @@ func (this FontInfo) GetSectionMap() map[rune]image.Rectangle {
 	secMap := map[rune]image.Rectangle{}
 
 	curW := 0
+	curH := 0
 
-	for _, v := range text {
+	// fmt.Println("Font: ", this.Name())
+
+	for idx, v := range text {
+		if idx > 0 && int(math.Mod(float64(idx), float64(itemsPerRow))) == 0 {
+			curH += int(f.Bounds(sizeFixed).Max.Sub(f.Bounds(sizeFixed).Min).Y) + insetPadding
+			curW = 0
+		}
 		i := f.Index(v)
 		hmet := f.HMetric(sizeFixed, i)
 		// vmet := f.VMetric(sizeFixed, i)
 
 		// advance width is how much font advances on x which next font starts AFTER that.
-		minX := curW + 1
-		minY := 1
+		minX := curW //+ 1
+		minY := curH //+ 1
 		maxX := curW + int(hmet.AdvanceWidth)
-		maxY := int(f.Bounds(sizeFixed).Max.Sub(f.Bounds(sizeFixed).Min).Y)
+		maxY := curH + int(f.Bounds(sizeFixed).Max.Sub(f.Bounds(sizeFixed).Min).Y)
+
+		curW += int(hmet.AdvanceWidth) + insetPadding
 
 		secMap[v] = image.Rect(minX, minY, maxX, maxY)
 
-		curW = maxX
+		// fmt.Println("Letter: ", string(v))
+		// fmt.Println("Bounds: ", secMap[v])
 	}
 
 	return secMap
@@ -88,29 +103,38 @@ func (this FontInfo) GetImage() image.Image {
 
 	f := truetype.Font(this)
 
-	totalWidth := 0
-	maxHeight := 0
-	for _, val := range text {
-		i := f.Index(val)
-		hmet := f.HMetric(sizeFixed, i)
-		vmet := f.VMetric(sizeFixed, i)
+	maxWidth := 0
+	curW := 0
+	maxHeight := int(f.Bounds(sizeFixed).Max.Sub(f.Bounds(sizeFixed).Min).Y) + insetPadding
+	for idx, val := range text {
+		if idx > 0 && int(math.Mod(float64(idx), float64(itemsPerRow))) == 0 {
+			maxHeight += int(f.Bounds(sizeFixed).Max.Sub(f.Bounds(sizeFixed).Min).Y) + insetPadding
+			curW = 0
 
-		aHeight := int(vmet.AdvanceHeight)
-
-		if aHeight > maxHeight {
-			maxHeight = aHeight
 		}
 
-		totalWidth += int(hmet.AdvanceWidth)
+		i := f.Index(val)
+		hmet := f.HMetric(sizeFixed, i)
+
+		curW += int(hmet.AdvanceWidth) + insetPadding
+
+		if curW > maxWidth {
+			maxWidth = curW
+		}
+
 	}
+
+	fmt.Print("Font ", this.Name())
+	fmt.Println("Max width: ", maxWidth)
+	fmt.Println("Max height: ", maxHeight)
 
 	// Draw the background and the guidelines.
 	fg, bg := image.Black, image.Transparent
 
-	diffY := int(f.Bounds(sizeFixed).Max.Sub(f.Bounds(sizeFixed).Min).Y)
+	// diffY := int(f.Bounds(sizeFixed).Max.Sub(f.Bounds(sizeFixed).Min).Y)
 
 	// add a constant to the y term because of subtle bleeding between vertical space, probably because of advance height
-	rgba := image.NewRGBA(image.Rect(0, 0, totalWidth, diffY+5))
+	rgba := image.NewRGBA(image.Rect(0, 0, maxWidth, maxHeight)) //diffY+5))
 
 	draw.Draw(rgba, rgba.Bounds(), bg, image.ZP, draw.Src)
 
@@ -130,19 +154,25 @@ func (this FontInfo) GetImage() image.Image {
 		}),
 	}
 
-	y := int(math.Abs(float64(f.Bounds(sizeFixed).Max.Y))) //10 + int(math.Ceil(*size**dpi/72))
-	dy := int(math.Ceil(size * spacing * dpi / 72))
-	// d.Dot = fixed.Point26_6{
-	// 	X: (fixed.I(imgW) - d.MeasureString(title)) / 2,
-	// 	Y: fixed.I(y),
-	// }
-	// d.DrawString(title)
-	// y += dy
-	// for _, s := range text {
-	d.Dot = fixed.P(0, y)
-	d.DrawString(text)
-	y += dy
-	// }
+	// y := int(math.Abs(float64(f.Bounds(sizeFixed).Max.Y))) //10 + int(math.Ceil(*size**dpi/72))
+	// dy := int(math.Ceil(size * spacing * dpi / 72))
+
+	tWidth := 0
+	tHeight := int(math.Abs(float64(f.Bounds(sizeFixed).Max.Y)))
+	for idx, r := range text {
+		if idx > 0 && int(math.Mod(float64(idx), float64(itemsPerRow))) == 0 {
+			tHeight += int(f.Bounds(sizeFixed).Max.Sub(f.Bounds(sizeFixed).Min).Y) + insetPadding
+			tWidth = 0
+		}
+		i := f.Index(r)
+		hmet := f.HMetric(sizeFixed, i)
+
+		d.Dot = fixed.P(tWidth, tHeight)
+		tWidth += int(hmet.AdvanceWidth) + insetPadding
+
+		d.DrawString(string(r))
+
+	}
 
 	return rgba
 }
