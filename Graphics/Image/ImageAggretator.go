@@ -1,45 +1,22 @@
 package Image
 
 import (
+	"GT/Graphics/Font"
+	"GT/Graphics/Opengl"
 	"fmt"
 	"image"
 	"image/draw"
 	"image/png"
 	"os"
-	"strings"
-
+	"path"
 	"path/filepath"
-
-	"GT/Graphics/Font"
-	"GT/Graphics/Opengl"
+	"strings"
 )
 
 //TODO: create some way of doing this automatically maybe based on some config file
 var AggrImg *AggregateImage
 
 var imageBuddy *partition
-
-//TODO maybe not the best place for this? need to init somewhere else?
-func Start() {
-	AggrImg = &AggregateImage{sectionMap: map[string]*aggregateImageSection{}, fontsSectionMap: map[string]*FontImageSection{}}
-
-	// TODO need to figure out a way to setup opengl and window context to use video card probe
-	imageBuddy = NewBuddyAggregator(int(Opengl.Probe().MaxTextureSize))
-
-	// use absolute pathing so that we can reference / map the images easily from anywhere
-	imgsPath, err := filepath.Abs("../Assets/Images")
-	if err != nil {
-		panic(err)
-	}
-
-	// load all images from the beginning only. Never load images again after this
-	LoadImages(imgsPath)
-
-	Opengl.SetAggregateImage(AggrImg.aggregateImage)
-
-	// for debug
-	// AggrImg.Print("./aggr.png")
-}
 
 // FontImageSection keeps track of where our fonts are within the aggregate image
 type FontImageSection struct {
@@ -129,10 +106,14 @@ func loadFontImages() {
  * Walk the directory and aggregate all images to one image and store in meemory
  * @param {[type]} location string [description]
  */
-func LoadImages(location string) {
-	fmt.Println("new aggr image")
+func LoadImages(path string) {
 
-	loadTextureImages(location)
+	AggrImg = &AggregateImage{sectionMap: map[string]*aggregateImageSection{}, fontsSectionMap: map[string]*FontImageSection{}}
+
+	// TODO need to figure out a way to setup opengl and window context to use video card probe
+	imageBuddy = NewBuddyAggregator(int(Opengl.Probe().MaxTextureSize))
+
+	loadTextureImages(path)
 	loadFontImages()
 
 	// create empty image to hold all images
@@ -156,6 +137,8 @@ func LoadImages(location string) {
 
 	// store the final aggregate image
 	AggrImg.aggregateImage = rgbaFinal
+
+	Opengl.SetAggregateImage(AggrImg.aggregateImage)
 }
 
 func (this *AggregateImage) loadImage(imgPath string) error {
@@ -175,9 +158,10 @@ func (this *AggregateImage) loadImage(imgPath string) error {
 	sec := &aggregateImageSection{img, imgPath, image.Rectangle{}}
 
 	// populate both section map and image list with section
-
 	this.images = append(this.images, sec)
-	this.sectionMap[imgPath] = sec
+
+	_, fileName := path.Split(imgPath)
+	this.sectionMap[fileName] = sec
 
 	return nil
 }

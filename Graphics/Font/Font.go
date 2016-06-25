@@ -213,6 +213,5 @@ func fileVisitor(path string, f os.FileInfo, err error) error {
  * @param {[string]} path string [the directory where fonts are located]
  */
 func LoadFonts(path string) {
-
 	filepath.Walk(path, fileVisitor)
 }

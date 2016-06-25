@@ -7,7 +7,6 @@ import (
 	//"GT/Window"
 	"fmt"
 	"math/rand"
-	"path/filepath"
 	"GT"
 )
 
@@ -24,8 +23,6 @@ func main() {
 	GT.EngineStart()
 
 	s, _ := Graphics.NewBasicScene()
-
-	myTestImage, _ := filepath.Abs("../Assets/Images/test.png")
 
 
 	nodebak := Components.NewNode("Person")
@@ -48,7 +45,7 @@ func main() {
 
 
 	rend := Graphics.NewSpriteRenderer()
-	rend.SetImage(myTestImage)
+	rend.SetImage("test.png")
 	nodebak.Transform().Scale(.5, .5)
 	nodebak.Transform().Rotate(1.2)
 	nodebak.AddComponent(rend)

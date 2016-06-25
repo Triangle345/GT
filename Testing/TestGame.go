@@ -8,7 +8,6 @@ import (
 	"GT"
 	"image"
 	"math/rand"
-	"path/filepath"
 )
 
 func random(min, max int) int {
@@ -56,8 +55,6 @@ GT.EngineStart()
 	s, _ := Graphics.NewBasicScene()
 	g := TestGame{BaseScene: &s}
 
-	myTestImage, _ := filepath.Abs("../Assets/Images/test.png")
-	mySmileyImage, _ := filepath.Abs("../Assets/Images/smiley.png")
 
 	for i := 0; i < 1; i++ {
 		nodebak := Components.NewNode("Person")
@@ -67,13 +64,13 @@ GT.EngineStart()
 		node.Transform().Translate(100, 100)
 		node.AddNode(nodebak)
 		rend := Graphics.NewSpriteRenderer()
-		rend.SetImage(myTestImage)
+		rend.SetImage("test.png")
 		nodebak.Transform().Rotate(20)
 		nodebak.AddComponent(rend)
 		nodebak.AddComponent(&Bunny{})
 
 		rend2 := Graphics.NewSpriteRenderer()
-		rend2.SetSubImage(mySmileyImage, image.Rectangle{image.Point{30, 30}, image.Point{50, 50}})
+		rend2.SetSubImage("smiley.png", image.Rectangle{image.Point{30, 30}, image.Point{50, 50}})
 		nodebak2 := Components.NewNode("Person")
 		nodebak2.Transform().Translate(50, 50)
 		nodebak2.AddComponent(rend2)
