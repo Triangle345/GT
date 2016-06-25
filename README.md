@@ -21,7 +21,7 @@ The current installation procedure:
 	* go get golang.org/x/image/math/fixed
 * Validate the install
     * Navigate to $GOPATH/src/GT/Examples
-    * go run SimpleWindow.go
+    * go run SimpleWindow.go -Assets "../Assets"
     * Close the Window or press 'Escape'
 
 ## Installation Troubleshooting
