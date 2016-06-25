@@ -68,6 +68,7 @@ type AggregateImage struct {
 	aggregateImage image.Image
 }
 
+// loadTExtureImages populates image section maps
 func loadTextureImages(location string) {
 	AggrImg.fileWalker(location)
 
@@ -99,6 +100,7 @@ func loadTextureImages(location string) {
 
 }
 
+// loadFontImages populates font sections
 func loadFontImages() {
 	fonts := Font.GetFonts()
 
