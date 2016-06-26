@@ -34,13 +34,13 @@ func main() {
 	//      we need to change which to iterate based on input to determine row etc.
 	//      this involves determining an expected / standardized sprite sheet format
 	// also we may want to abstract this outside of sprite renderer?
-	rend.SpliceAndSetSheet(GT.AssetsImages+"/tomatohead1.png", 12, 12)
+	rend.SpliceAndSetSheet(GT.AssetsImages+"tomatohead1.png", 12, 12)
 	simpleScene.SetFPS(4)
 
 	// attach the sprite to our node, and transform if desired
 	node.AddComponent(rend)
 	node.Transform().Scale(3, 3)
-	node.Transform().Translate(300, 400)
+	node.Transform().Translate(400, 400)
 
 	// attach the node to our scene
 	simpleScene.RootNode.AddNode(node)

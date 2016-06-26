@@ -1,11 +1,11 @@
-// full_test
+// TestGame runs a simple sprite render to test simple graphics and performance indications. For now needs to be run with -Assets "../Assets"
 package main
 
 import (
+	"GT"
 	"GT/Graphics"
 	"GT/Graphics/Components"
 	"fmt"
-	"GT"
 	"image"
 	"math/rand"
 )
@@ -51,10 +51,9 @@ func main() {
 	fmt.Println("starting")
 	// // defer profile.Start(profile.CPUProfile).Stop()
 	// w := Window.NewWindowedWindow("test", 600, 800)
-GT.EngineStart()
+	GT.EngineStart()
 	s, _ := Graphics.NewBasicScene()
 	g := TestGame{BaseScene: &s}
-
 
 	for i := 0; i < 1; i++ {
 		nodebak := Components.NewNode("Person")
@@ -64,13 +63,13 @@ GT.EngineStart()
 		node.Transform().Translate(100, 100)
 		node.AddNode(nodebak)
 		rend := Graphics.NewSpriteRenderer()
-		rend.SetImage(GT.AssetsImages + "/test.png")
+		rend.SetImage(GT.AssetsImages + "test.png")
 		nodebak.Transform().Rotate(20)
 		nodebak.AddComponent(rend)
 		nodebak.AddComponent(&Bunny{})
 
 		rend2 := Graphics.NewSpriteRenderer()
-		rend2.SetSubImage(GT.AssetsImages + "/smiley.png", image.Rectangle{image.Point{30, 30}, image.Point{50, 50}})
+		rend2.SetSubImage(GT.AssetsImages+"smiley.png", image.Rectangle{image.Point{30, 30}, image.Point{50, 50}})
 		nodebak2 := Components.NewNode("Person")
 		nodebak2.Transform().Translate(50, 50)
 		nodebak2.AddComponent(rend2)

@@ -13,35 +13,45 @@ var logfile *os.File
 var flogger *log.Logger
 var stdlogger *log.Logger
 
-// init may (eventually...) be removed if we decide to create the logger from the engine's main entry point
-func init() {
-	// can specify a desired file name here
-	fileLocation, err := newLogger("", log.Ldate|log.Ltime|log.Lshortfile)
-	if err != nil {
-		panic(err)
+// Init creates a logger based on input from Engine.go (which parses flags and starts the engine)
+func Init(logFilePath string, loggerFlags int) {
+
+	// only allow this if we did not already create a logger...
+	if logfile == nil {
+
+		// can specify a desired file name here
+		fileLocation, err := newLogger(logFilePath, loggerFlags)
+		if err != nil {
+			panic(err)
+		}
+		Info("log file location: " + fileLocation)
 	}
-	Info("log file location: " + fileLocation)
 }
 
 // newLogger creates a file logger and stdout logger from an inputted file name and logger flags
 func newLogger(inFileName string, loggerFlags int) (string, error) {
 
-	// set up our logger file's name
-	fileName := inFileName
-	fileExtension := ".log"
-	if len(inFileName) > 0 {
-		fileName = inFileName
-	} else {
+	// set up our logger file's properties
+	fileDir := filepath.Dir(inFileName) + string(os.PathSeparator)
+	fileName := filepath.Base(inFileName)
+	fileExtension := filepath.Ext(fileName)
+
+	// verify or default our file name
+	if len(inFileName) <= 0 || fileName == "/" || fileName == "Logging" {
 		fileName = "default"
 	}
 
-	// create the log file in the logging directory
-	path, err := filepath.Abs("./")
-	if err != nil {
-		return fileName, err
+	// verify or default our extension
+	// if we have an extension, then it will be included with the file name
+	if len(fileExtension) > 0 && fileExtension != "." {
+		fileExtension = ""
+	} else {
+		fileExtension = ".log"
 	}
-	fileName = path + fileName + fileExtension
-	logfile, err = os.Create(fileName)
+
+	// create the log file in the designated location
+	fileName = fileDir + fileName + fileExtension
+	logfile, err := os.Create(fileName)
 	if err != nil {
 		return fileName, err
 	}

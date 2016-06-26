@@ -8,6 +8,7 @@ import (
 	"GT/Window"
 	"flag"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 )
@@ -20,6 +21,12 @@ var (
 
 func readFlags() {
 	flag.Parse()
+
+	// eventually add log flags (filtering, naming, etc.)
+	logPath, _ := filepath.Abs(*Assets + "/Logging")
+	logPath += string(os.PathSeparator)
+	// logPath += inputFileNameFlag
+	Logging.Init(logPath, log.Ldate|log.Ltime|log.Lshortfile)
 
 	imgsPath, _ := filepath.Abs(*Assets + "/Images")
 
@@ -36,7 +43,7 @@ func readFlags() {
 	}
 
 	AssetsFonts = fontsPath
-	AssetsImages = imgsPath
+	AssetsImages = imgsPath + string(os.PathSeparator)
 
 	Logging.Info("Assets Path: ", *Assets)
 	Logging.Info("Images Path: ", AssetsImages)
