@@ -8,7 +8,6 @@ import (
 	"image/draw"
 	"image/png"
 	"os"
-	"path"
 	"path/filepath"
 	"strings"
 )
@@ -160,8 +159,7 @@ func (this *AggregateImage) loadImage(imgPath string) error {
 	// populate both section map and image list with section
 	this.images = append(this.images, sec)
 
-	_, fileName := path.Split(imgPath)
-	this.sectionMap[fileName] = sec
+	this.sectionMap[imgPath] = sec
 
 	return nil
 }
@@ -179,11 +177,13 @@ func (this *AggregateImage) fileWalker(path string) {
 	filepath.Walk(path, this.fileVisitor)
 }
 
+// GetImageSEction returns the image section based on named image
 func (this *AggregateImage) GetImageSection(path string) *aggregateImageSection {
 
 	return this.sectionMap[path]
 }
 
+// GetFontImageSection returns FontImageSection based on named font
 func (this *AggregateImage) GetFontImageSection(font string) *FontImageSection {
 
 	return this.fontsSectionMap[font]

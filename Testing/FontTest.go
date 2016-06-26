@@ -45,7 +45,7 @@ func main() {
 
 
 	rend := Graphics.NewSpriteRenderer()
-	rend.SetImage("test.png")
+	rend.SetImage(GT.AssetsImages + "/test.png")
 	nodebak.Transform().Scale(.5, .5)
 	nodebak.Transform().Rotate(1.2)
 	nodebak.AddComponent(rend)
