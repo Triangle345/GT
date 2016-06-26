@@ -1,6 +1,7 @@
 package Physics
 
 import (
+	"fmt"
 	"math"
 )
 
@@ -39,7 +40,40 @@ func (this vector3) SqMag() float64 {
 	return math.Pow(this.X, 2) + math.Pow(this.Y, 2) + math.Pow(this.Z, 2)
 }
 
-// Scale returns the matrix multiplied by the scaler
-func (this vector3) Scale(scalar float64) vector3 {
+// Comp is the Component Product a o b
+func (this vector3) Comp(other vector3) vector3 {
+	return vector3{this.X * other.X, this.Y * other.Y, this.Z * other.Y}
+}
+
+// Scalar returns the matrix multiplied by the scaler
+func (this vector3) Scalar(scalar float64) vector3 {
 	return vector3{this.X * scalar, this.Y * scalar, this.Z * scalar}
+}
+
+// Dot is the dot prodcut or scalar product of two vectors a . b
+func (this vector3) Dot(other vector3) float64 {
+	return this.X*other.X + this.Y*other.Y + this.Z + other.Z
+}
+
+// Cross returns cross product matrix of two matrices, eg. The orthogonal matrix
+func (this vector3) Cross(other vector3) vector3 {
+	return vector3{
+		this.Y*other.Z - this.Z*other.Y,
+		this.Z*other.X - this.X*other.Z,
+		this.X*other.Y - this.Y*other.X}
+}
+
+func (this vector3) Clear() vector3 {
+	return vector3{0, 0, 0}
+}
+
+func (this vector3) Normalize() vector3 {
+	mag := this.Mag()
+
+	if mag > 0 {
+		return this.Scalar(1 / mag)
+	}
+
+	fmt.Println("Cannot normalize vector, magnitude 0")
+	return this.Clear()
 }
