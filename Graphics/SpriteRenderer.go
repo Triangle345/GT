@@ -65,26 +65,47 @@ func (this *SpriteRenderer) SetImage(imageLoc string) {
 	this.img = img
 }
 
-// SpliceAndSetSheet manually cuts up a sprite sheet based on user defined dimensions
-func (s *SpriteRenderer) SpliceAndSetSheet(imageLoc string, rowSize int, columnSize int) {
+// SpliceAndSetFullSheet manually cuts up an entire sprite sheet based on user defined frame dimensions
+func (s *SpriteRenderer) SpliceAndSetFullSheet(imageLoc string, frameHeight int, frameWidth int) {
+	// to set an entire sheet as an animation, set the Frames and Row Numbers to 0
+	s.SpliceAndSetAnimation(imageLoc, frameHeight, frameWidth, 0, 0)
+}
 
-	// TODO: throw some sort of warning if referencing bad dimensions (i.e. non divisible by inputted sizes)
+// SpliceAndSetAnimation manually cuts up a row of a sprite sheet based on user defined dimensions and sets it as the current animation
+func (s *SpriteRenderer) SpliceAndSetAnimation(imageLoc string, frameHeight int, frameWidth int, noOfFrames int, rowNum int) {
+
 	img, err := Image.NewImage(imageLoc)
 	if err != nil {
 		fmt.Println("Cannot create image: " + err.Error())
 	}
 
-	// NOTE: the splice logic is not working perfectly yet because our img.Bounds reference the whole section
-	//		from within the aggregate. To make this work properly we need to reference the bounds of the png itself.
-	//		TODO: add the actual png's bounds as a property to the Image (or something to this effect)
+	// throw warnings for bad input
+	numOfRows := float32(img.Bounds().Dy() / frameHeight)
+	numOfColumns := float32(img.Bounds().Dx() / frameWidth)
+	if float32(noOfFrames) > numOfColumns || numOfColumns < 1 {
+		fmt.Println("WARNING: frames out of bounds")
+	}
+	if float32(rowNum) > numOfRows || numOfRows < 1 {
+		fmt.Println("WARNING: row desired out of bounds")
+	}
 
-	// nested loops to cut every image in a row, then shift rows
-	for j := 0; j < img.Bounds().Dy(); j += columnSize {
+	for j := 0; j < img.Bounds().Dy(); j += frameHeight {
 
-		for i := 0; i < img.Bounds().Dx(); i += rowSize {
+		// only use our desired row (if specified)
+		if rowNum != 0 && j/frameHeight != rowNum-1 {
+			continue
+		}
+
+		// splice the row by the amount of intended images
+		for i := 0; i < img.Bounds().Dx(); i += frameWidth {
+
+			// only grab our desired number of frames (if specified)
+			if noOfFrames != 0 && i/frameWidth >= noOfFrames {
+				continue
+			}
 
 			// splice image from row, and insert piece into array
-			b := image.Rect(i, j, i+columnSize, j+columnSize)
+			b := image.Rect(i, j, i+frameWidth, j+frameHeight)
 			spriteSheetPart, err := img.SubImage(b)
 			if err != nil {
 				fmt.Println("Cannot create sub image: " + err.Error())
@@ -94,7 +115,7 @@ func (s *SpriteRenderer) SpliceAndSetSheet(imageLoc string, rowSize int, columnS
 		}
 	}
 
-	// set the current image to the first in the sheet
+	// set the current image to the first in the new animation
 	s.indexInAnimation = 0
 	s.uvs = s.sheetImages[0].uvs
 	s.img = s.sheetImages[0].img

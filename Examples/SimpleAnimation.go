@@ -10,6 +10,16 @@ import (
 )
 
 func main() {
+	// NOTE/TODO: we are going to have to set some ground rules for animations.
+	// 1) the user will be able to append their own images (pngs) to an animation
+	//    i.e. rend.Animation[rowNum?].AppendImage(imgName)
+	// 2) the user will be able to splice a sprite sheet into one or more animations
+	//    i) the user will provide frame dimensions to splice a single sprite, then the number of frames to splice
+	//    ii) animations are assumed to be one row within the sprite sheet (for now?)
+	//        i.e. rend.SpliceAndSetSheet(imgName, frameX, frameY, noOfFrames, rowNum)
+	//
+	// NOTE: since we may be using multiple animations we may want to abstract an animation component to attach and map to the renderer
+	//
 
 	fmt.Println("starting")
 
@@ -21,25 +31,24 @@ func main() {
 	// splice a sprite sheet into multiple nodes... method tbd
 
 	// anim := Graphics.NewAnimation()
-	// myImagePath, _ := filepath.Abs("../Assets/Images/tomatohead1.png")
-	// anim.SpliceAndSetSheet(myImagePath)
+	// anim.AddAnim(img, x, y, amt, rowNum)
 	// anim.Frequency(5) // number of frames it takes to toggle animation
-	// node.AddComponent(anim)
+	// rend.AddAnimation(anim, nameToMapBy)
+	// rend.SetCurrentAnimation(nameToMapBy)
 	// OR
 	rend := Graphics.NewSpriteRenderer()
 
-	// right now it simply iterates the spliced images
-	// we may need to have an option to identify the rows and animate them differently...
-	// i.e. if a sheet has idle animations as well as movement animations,
-	//      we need to change which to iterate based on input to determine row etc.
-	//      this involves determining an expected / standardized sprite sheet format
-	// also we may want to abstract this outside of sprite renderer?
-	rend.SpliceAndSetSheet(GT.AssetsImages+"tomatohead1.png", 12, 12)
-	simpleScene.SetFPS(4)
+	// SetAnimation to grab specific frames from a row in a spritesheet
+	rend.SpliceAndSetAnimation(GT.AssetsImages+"Dog.png", 58, 90, 5, 3)
+	// SetFullSheet to use entire sprite sheet as one animation
+	//rend.SpliceAndSetFullSheet(GT.AssetsImages+"tomatohead1.png", 12, 12)
+	//rend.SpliceAndSetFullSheet(GT.AssetsImages+"Dog.png", 58, 90) //58, 90)
+	//rend.Frequency(6) //no of frames before toggling images
+	simpleScene.SetFPS(30)
 
 	// attach the sprite to our node, and transform if desired
 	node.AddComponent(rend)
-	node.Transform().Scale(3, 3)
+	//node.Transform().Scale(3, 3)
 	node.Transform().Translate(400, 400)
 
 	// attach the node to our scene
