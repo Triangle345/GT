@@ -14,6 +14,7 @@ var flogger *log.Logger
 var stdlogger *log.Logger
 
 // Init creates a logger based on input from Engine.go (which parses flags and starts the engine)
+// this now means that the logger is coupled to the engine, but that can be reverted later if deemed necessary
 func Init(logFilePath string, loggerFlags int) {
 
 	// only allow this if we did not already create a logger...
@@ -36,8 +37,17 @@ func newLogger(inFileName string, loggerFlags int) (string, error) {
 	fileName := filepath.Base(inFileName)
 	fileExtension := filepath.Ext(fileName)
 
+	// verify or create our directory
+	_, err := os.Stat(fileDir)
+	if os.IsNotExist(err) {
+		err = os.MkdirAll(fileDir, os.ModeDir)
+		if err != nil {
+			panic(err)
+		}
+	}
+
 	// verify or default our file name
-	if len(inFileName) <= 0 || fileName == "/" || fileName == "Logging" {
+	if len(inFileName) <= 0 || fileName == "/" || fileName == "Logs" {
 		fileName = "default"
 	}
 

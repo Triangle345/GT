@@ -41,7 +41,7 @@ func main() {
 	textRend2.SetText("This is Second Font Fantasque Bold")
 
 	rend := Graphics.NewSpriteRenderer()
-	rend.SetImage(GT.AssetsImages + "/test.png")
+	rend.SetImage(GT.AssetsImages + "test.png")
 	nodebak.Transform().Scale(.5, .5)
 	nodebak.Transform().Rotate(1.2)
 	nodebak.AddComponent(rend)

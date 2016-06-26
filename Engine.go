@@ -23,7 +23,7 @@ func readFlags() {
 	flag.Parse()
 
 	// eventually add log flags (filtering, naming, etc.)
-	logPath, _ := filepath.Abs(*Assets + "/Logging")
+	logPath, _ := filepath.Abs(*Assets + "/Logs")
 	logPath += string(os.PathSeparator)
 	// logPath += inputFileNameFlag
 	Logging.Init(logPath, log.Ldate|log.Ltime|log.Lshortfile)

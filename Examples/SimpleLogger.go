@@ -1,11 +1,14 @@
 package main
 
 import (
+	"GT"
 	"GT/Logging"
-	//"fmt"
 )
 
 func main() {
+
+	// The logger now initializes in the Engine's start. That is where flags get parsed etc.
+	GT.EngineStart()
 
 	// TODO: test filtering and simultaneous outputs once implemented and configured
 	Logging.Debug("debug")
