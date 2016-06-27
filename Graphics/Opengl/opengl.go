@@ -138,6 +138,11 @@ func SetOrthographic(width, height int) {
 	projectionM = Projection
 }
 
+func SetPerspective(width, height int) {
+	Projection := mathgl.Perspective(45.0, float32(width/height), 0.1, 100.0)
+	projectionM = Projection
+}
+
 // Clear instructs opengl to clear the background to a certain color
 func Clear(r, g, b, a float32) {
 	gl.ClearColor(1.0, 1.0, 1.0, 1.0)

@@ -13,11 +13,11 @@ type vertex struct {
 }
 
 type vertex_normal struct {
-	x, y, z float32
+	X, Y, Z float32
 }
 
 type face struct {
-	v, vn, vuv int
+	v, vuv, vn []int
 }
 
 type Object struct {
@@ -28,6 +28,11 @@ type Object struct {
 }
 
 func parseMtllib(i *int, dat []string) string {
+	*i++
+	return dat[*i]
+}
+
+func parseUseMtl(i *int, dat []string) string {
 	*i++
 	return dat[*i]
 }
@@ -56,6 +61,65 @@ func parseVertex(i *int, dat []string) vertex {
 	return v
 }
 
+func parseVertexNormal(i *int, dat []string) vertex_normal {
+	*i++
+	vn := vertex_normal{}
+
+	f, _ := strconv.ParseFloat(dat[*i], 32)
+
+	vn.X = float32(f)
+
+	*i++
+	f, _ = strconv.ParseFloat(dat[*i], 32)
+	vn.Y = float32(f)
+
+	*i++
+	f, _ = strconv.ParseFloat(dat[*i], 32)
+	vn.Z = float32(f)
+
+	return vn
+}
+
+func parseFace(i *int, dat []string) face {
+	*i++
+	f := face{}
+	fDat := strings.Split(dat[*i], "/")
+
+	// first point of triangle
+	v, _ := strconv.Atoi(fDat[0])
+	vuv, _ := strconv.Atoi(fDat[1])
+	vn, _ := strconv.Atoi(fDat[2])
+	f.v = append(f.v, v)
+	f.vuv = append(f.vuv, vuv)
+	f.vn = append(f.vn, vn)
+
+	*i++
+
+	fDat = strings.Split(dat[*i], "/")
+
+	// second point of triangle
+	v, _ = strconv.Atoi(fDat[0])
+	vuv, _ = strconv.Atoi(fDat[1])
+	vn, _ = strconv.Atoi(fDat[2])
+	f.v = append(f.v, v)
+	f.vuv = append(f.vuv, vuv)
+	f.vn = append(f.vn, vn)
+
+	*i++
+
+	fDat = strings.Split(dat[*i], "/")
+
+	// third point of triangle
+	v, _ = strconv.Atoi(fDat[0])
+	vuv, _ = strconv.Atoi(fDat[1])
+	vn, _ = strconv.Atoi(fDat[2])
+	f.v = append(f.v, v)
+	f.vuv = append(f.vuv, vuv)
+	f.vn = append(f.vn, vn)
+
+	return f
+}
+
 func ParseOBJ(location string) {
 	dat, _ := ioutil.ReadFile(location)
 	strDat := string(dat)
@@ -78,6 +142,18 @@ func ParseOBJ(location string) {
 		case "v":
 			v := parseVertex(&i, strArray)
 			fmt.Println("Parsed Vertex: ", v)
+
+		case "vn":
+			vn := parseVertexNormal(&i, strArray)
+			fmt.Println("Parsed Vertex normal: ", vn)
+
+		case "usemtl":
+			usemtl := parseUseMtl(&i, strArray)
+			fmt.Println("Parsed usemtl: ", usemtl)
+
+		case "f":
+			f := parseFace(&i, strArray)
+			fmt.Println("Parsed Face: ", f)
 
 		}
 
