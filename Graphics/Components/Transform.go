@@ -11,7 +11,7 @@ func NewTransform() Transform {
 type Transform struct {
 
 	// location
-	x, y float32
+	X, Y float32
 
 	// rotation
 	rot float32
@@ -33,13 +33,13 @@ func (s *Transform) Scale(x, y float32) {
 }
 
 func (s *Transform) Translate(x, y float32) {
-	s.x = x
-	s.y = y
+	s.X = x
+	s.Y = y
 }
 
 func (s *Transform) GetUpdatedModel() mathgl.Mat4 {
 	Model := s.model
-	Model = Model.Mul4(mathgl.Translate3D(float32(s.x), float32(s.y), float32(0.0)))
+	Model = Model.Mul4(mathgl.Translate3D(float32(s.X), float32(s.Y), float32(0.0)))
 	Model = Model.Mul4(mathgl.HomogRotate3DZ(float32(s.rot)))
 	Model = Model.Mul4(mathgl.Scale3D(float32(s.xS), float32(s.yS), float32(1)))
 

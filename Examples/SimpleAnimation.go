@@ -9,6 +9,20 @@ import (
 	"fmt"
 )
 
+// RunLeft is a sample script we can use for actions
+type RunLeft struct {
+	Components.ChildComponent
+}
+
+func (this *RunLeft) Initialize() {
+	//no initialize for RunLeft
+}
+
+func (this *RunLeft) Update(delta float32) {
+
+	this.GetParent().Transform().X -= .7 //* delta
+}
+
 func main() {
 	// NOTE/TODO: we are going to have to set some ground rules for animations.
 	// 1) the user will be able to append their own images (pngs) to an animation
@@ -36,7 +50,7 @@ func main() {
 	// rend.AddAnimation(anim, nameToMapBy)
 	// rend.SetCurrentAnimation(nameToMapBy)
 	// OR
-	rend := Graphics.NewSpriteRenderer()
+	rend := Components.NewSpriteRenderer()
 
 	// SetAnimation to grab specific frames from a row in a spritesheet
 	rend.SpliceAndSetAnimation(GT.AssetsImages+"Dog.png", 58, 90, 5, 3)
@@ -48,6 +62,7 @@ func main() {
 
 	// attach the sprite to our node, and transform if desired
 	node.AddComponent(rend)
+	node.AddComponent(&RunLeft{})
 	//node.Transform().Scale(3, 3)
 	node.Transform().Translate(400, 400)
 

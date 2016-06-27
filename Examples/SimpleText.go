@@ -23,13 +23,13 @@ func main() {
 	s, _ := Graphics.NewBasicScene()
 
 	// create text rendering components
-	textRend := Graphics.NewTextRenderer()
+	textRend := Components.NewTextRenderer()
 	textRend.SetFont("Raleway")
 	textRend.SetText("Hello World From GT!?")
 	textRend.SetSize(14)
 	textRend.SetColor(1, .2, .1, 1)
 
-	textRend2 := Graphics.NewTextRenderer()
+	textRend2 := Components.NewTextRenderer()
 	textRend2.SetFont("Fantasque Sans Mono Regular")
 	textRend2.SetSize(60)
 	textRend2.SetText("Hello World Pt.2")

@@ -1,10 +1,7 @@
 // Package Graphics
-package Graphics
+package Components
 
 import (
-	// "github.com/go-gl/gl/v3.2-core/gl"
-
-	"GT/Graphics/Components"
 	"GT/Graphics/Image"
 	"GT/Graphics/Opengl"
 	"fmt"
@@ -29,7 +26,7 @@ type sheetImage struct {
 type SpriteRenderer struct {
 	// the parent node
 	//Parent *Components.Node
-	Components.ChildComponent
+	ChildComponent
 
 	// the image
 	img image.Image

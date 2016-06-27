@@ -62,13 +62,13 @@ func main() {
 
 		node.Transform().Translate(100, 100)
 		node.AddNode(nodebak)
-		rend := Graphics.NewSpriteRenderer()
+		rend := Components.NewSpriteRenderer()
 		rend.SetImage(GT.AssetsImages + "test.png")
 		nodebak.Transform().Rotate(20)
 		nodebak.AddComponent(rend)
 		nodebak.AddComponent(&Bunny{})
 
-		rend2 := Graphics.NewSpriteRenderer()
+		rend2 := Components.NewSpriteRenderer()
 		rend2.SetSubImage(GT.AssetsImages+"smiley.png", image.Rectangle{image.Point{30, 30}, image.Point{50, 50}})
 		nodebak2 := Components.NewNode("Person")
 		nodebak2.Transform().Translate(50, 50)
