@@ -11,7 +11,7 @@ import (
 
 // RunLeft is a sample script we can use for actions
 type RunLeft struct {
-	Components.ChildComponent
+	Components.ScriptComponent
 }
 
 func (this *RunLeft) Initialize() {
@@ -20,7 +20,7 @@ func (this *RunLeft) Initialize() {
 
 func (this *RunLeft) Update(delta float32) {
 
-	this.GetParent().Transform().X -= .7 //* delta
+	this.Transform().X -= .7 //* delta
 }
 
 func main() {

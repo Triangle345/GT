@@ -164,7 +164,7 @@ func (s *SpriteRenderer) Update(delta float32) {
 	// check to see if its a regular node to get the updated model
 	// if n, ok := s.Parent.(*Components.Node); ok {
 
-	Model = s.GetParent().Transform().GetUpdatedModel()
+	Model = s.GetParent().transform.GetUpdatedModel()
 	// }
 
 	// transform all vertex data and combine it with other data

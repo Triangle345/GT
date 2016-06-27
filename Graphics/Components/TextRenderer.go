@@ -81,7 +81,7 @@ func (this *TextRenderer) Update(delta float32) {
 	}
 
 	Model := mathgl.Ident4()
-	Model = this.GetParent().Transform().GetUpdatedModel()
+	Model = this.GetParent().transform.GetUpdatedModel()
 
 	// fInfo := truetype.Font(*Font.GetFont(this.font))
 	totalWidth := float32(0.0)
