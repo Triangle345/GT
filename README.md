@@ -17,8 +17,7 @@ The current installation procedure:
 	* go get github.com/go-gl/mathgl/mgl32
 	* go get github.com/golang/freetype/truetype
 	* go get github.com/veandco/go-sdl2/sdl
-	* go get golang.org/x/image/font
-	* go get golang.org/x/image/math/fixed
+
 * Validate the install
     * Navigate to $GOPATH/src/GT/Examples
     * go run SimpleWindow.go -Assets "../Assets"
