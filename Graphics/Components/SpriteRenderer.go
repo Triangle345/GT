@@ -10,16 +10,19 @@ import (
 	mathgl "github.com/go-gl/mathgl/mgl32"
 )
 
-func NewSpriteRenderer() *SpriteRenderer {
-
-	sprite := SpriteRenderer{a: 1}
-	return &sprite
+// Initialize is necessary for the renderer to be utilized as a Component
+func (s *SpriteRenderer) Initialize() {
 
 }
 
-type sheetImage struct {
-	img image.Image
-	uvs []float32
+// NewSpriteRenderer creates a renderer and initializes its animation map
+func NewSpriteRenderer() *SpriteRenderer {
+
+	sprite := SpriteRenderer{a: 1}
+
+	sprite.animationsMap = map[string]*SpriteAnimation{}
+
+	return &sprite
 }
 
 // SpriteRenderer is a component which allows a sprite to be drawn or animated
@@ -32,8 +35,8 @@ type SpriteRenderer struct {
 	img image.Image
 
 	// list of images representing our spliced sprite sheet (animation)
-	sheetImages      []*sheetImage
-	indexInAnimation int
+	animationsMap    map[string]*SpriteAnimation
+	currentAnimation *SpriteAnimation
 
 	// color
 	r, g, b, a float32
@@ -42,88 +45,43 @@ type SpriteRenderer struct {
 	uvs []float32
 }
 
-// func (this *SpriteRenderer) SetImageSpriteSheet(imageLoc string) {
-// 	//TODO: should probably cache this for speed
-// 	img, err := NewSpriteSheetImage(imageLoc, NewRectangularArea(0, 0, 128, 128))
-//
-// 	if err != nil {
-// 		fmt.Println("Cannot create image: " + err.Error())
-// 	}
-//
-// 	this.img = img
-// }
-func (this *SpriteRenderer) SetImage(imageLoc string) {
+// SetCurrentAnimation takes a animation's name and tries to set that as the current animation
+func (s *SpriteRenderer) SetCurrentAnimation(mappedAnimationName string) {
+	animationRetrieved, ok := s.animationsMap[mappedAnimationName]
+	if !ok {
+		fmt.Printf("couldn't find the animation" + mappedAnimationName)
+	}
+	s.currentAnimation = animationRetrieved
+	s.img = s.currentAnimation.AnimationImages[0].img
+	s.uvs = s.currentAnimation.AnimationImages[0].uvs
+}
+
+// AddAnimation maps a created animation inside the renderer
+func (s *SpriteRenderer) AddAnimation(animationToAdd *SpriteAnimation, nameToMap string) {
+	_, ok := s.animationsMap[nameToMap]
+	if !ok {
+		s.animationsMap[nameToMap] = animationToAdd
+	} else {
+		fmt.Printf("the animation " + nameToMap + " already exists, please try a different name")
+	}
+}
+
+// SetImage puts a designated image from the agregate into our image which will be rendered
+func (s *SpriteRenderer) SetImage(imageLoc string) {
 	img, err := Image.NewImage(imageLoc)
 
 	if err != nil {
 		fmt.Println("Cannot create image: " + err.Error())
 	}
-	this.uvs = img.UVs()
-	this.img = img
+	s.uvs = img.UVs()
+	s.img = img
 }
 
-// SpliceAndSetFullSheet manually cuts up an entire sprite sheet based on user defined frame dimensions
-func (s *SpriteRenderer) SpliceAndSetFullSheet(imageLoc string, frameHeight int, frameWidth int) {
-	// to set an entire sheet as an animation, set the Frames and Row Numbers to 0
-	s.SpliceAndSetAnimation(imageLoc, frameHeight, frameWidth, 0, 0)
-}
-
-// SpliceAndSetAnimation manually cuts up a row of a sprite sheet based on user defined dimensions and sets it as the current animation
-func (s *SpriteRenderer) SpliceAndSetAnimation(imageLoc string, frameHeight int, frameWidth int, noOfFrames int, rowNum int) {
-
-	img, err := Image.NewImage(imageLoc)
-	if err != nil {
-		fmt.Println("Cannot create image: " + err.Error())
-	}
-
-	// throw warnings for bad input
-	numOfRows := float32(img.Bounds().Dy() / frameHeight)
-	numOfColumns := float32(img.Bounds().Dx() / frameWidth)
-	if float32(noOfFrames) > numOfColumns || numOfColumns < 1 {
-		fmt.Println("WARNING: frames out of bounds")
-	}
-	if float32(rowNum) > numOfRows || numOfRows < 1 {
-		fmt.Println("WARNING: row desired out of bounds")
-	}
-
-	for j := 0; j < img.Bounds().Dy(); j += frameHeight {
-
-		// only use our desired row (if specified)
-		if rowNum != 0 && j/frameHeight != rowNum-1 {
-			continue
-		}
-
-		// splice the row by the amount of intended images
-		for i := 0; i < img.Bounds().Dx(); i += frameWidth {
-
-			// only grab our desired number of frames (if specified)
-			if noOfFrames != 0 && i/frameWidth >= noOfFrames {
-				continue
-			}
-
-			// splice image from row, and insert piece into array
-			b := image.Rect(i, j, i+frameWidth, j+frameHeight)
-			spriteSheetPart, err := img.SubImage(b)
-			if err != nil {
-				fmt.Println("Cannot create sub image: " + err.Error())
-			}
-
-			s.sheetImages = append(s.sheetImages, &sheetImage{spriteSheetPart, spriteSheetPart.UVs()})
-		}
-	}
-
-	// set the current image to the first in the new animation
-	s.indexInAnimation = 0
-	s.uvs = s.sheetImages[0].uvs
-	s.img = s.sheetImages[0].img
-}
-
-// SetSubImage
-// Sets a designated part of an image for this sprite renderer
+// SetSubImage sets a designated part of an image for this sprite renderer
 //  @param  {[string]} this *SpriteRenderer [the base image path]
 //  @param  {[image.Rectangle]} this *SpriteRenderer [the rectangular bounds of designated part of image]
 //  @return
-func (this *SpriteRenderer) SetSubImage(imageLoc string, bounds image.Rectangle) {
+func (s *SpriteRenderer) SetSubImage(imageLoc string, bounds image.Rectangle) {
 	img, err := Image.NewImage(imageLoc)
 
 	if err != nil {
@@ -136,12 +94,8 @@ func (this *SpriteRenderer) SetSubImage(imageLoc string, bounds image.Rectangle)
 	}
 
 	// this.uvs = Image.GetUVs(img.Bounds())
-	this.uvs = img.UVs()
-	this.img = img
-}
-
-func (s *SpriteRenderer) Initialize() {
-
+	s.uvs = img.UVs()
+	s.img = img
 }
 
 // Update gets called every frame and accounts for all settings in the renderer as well as shifts animations
@@ -155,22 +109,18 @@ func (s *SpriteRenderer) Update(delta float32) {
 	w := float32(s.img.Bounds().Dx())
 	h := float32(s.img.Bounds().Dy())
 
-	vertex_data := []float32{-0.5 * w, 0.5 * h, 1.0, 0.5 * w, 0.5 * h, 1.0, 0.5 * w, -0.5 * h, 1.0, -0.5 * w, -0.5 * h, 1.0}
+	vertexData := []float32{-0.5 * w, 0.5 * h, 1.0, 0.5 * w, 0.5 * h, 1.0, 0.5 * w, -0.5 * h, 1.0, -0.5 * w, -0.5 * h, 1.0}
 
 	elements := []uint32{uint32(0), uint32(1), uint32(2), uint32(0), uint32(2), uint32(3)}
 
 	Model := mathgl.Ident4()
 
-	// check to see if its a regular node to get the updated model
-	// if n, ok := s.Parent.(*Components.Node); ok {
-
 	Model = s.GetParent().transform.GetUpdatedModel()
-	// }
 
 	// transform all vertex data and combine it with other data
-	var data []float32 = make([]float32, 0, 9*4)
+	var data = make([]float32, 0, 9*4)
 	for j := 0; j < 4; j++ {
-		transformation := mathgl.Vec4{vertex_data[j*3+0], vertex_data[j*3+1], vertex_data[j*3+2], 1}
+		transformation := mathgl.Vec4{vertexData[j*3+0], vertexData[j*3+1], vertexData[j*3+2], 1}
 		t := Model.Mul4x1(transformation)
 
 		data = append(data, t[0], t[1], t[2], s.r, s.g, s.b, s.a, s.uvs[j*2+0], s.uvs[j*2+1])
@@ -188,14 +138,14 @@ func (s *SpriteRenderer) Update(delta float32) {
 	Opengl.AddVertexData(1, &vertexInfo)
 
 	// iterate images if we have a list (animation)
-	if len(s.sheetImages) > 0 {
-		if s.indexInAnimation == len(s.sheetImages)-1 {
-			s.indexInAnimation = 0
+	if s.currentAnimation != nil && len(s.currentAnimation.AnimationImages) > 0 {
+		if s.currentAnimation.IndexInAnimation == len(s.currentAnimation.AnimationImages)-1 {
+			s.currentAnimation.IndexInAnimation = 0
 		} else {
-			s.indexInAnimation++
+			s.currentAnimation.IndexInAnimation++
 		}
-		s.img = s.sheetImages[s.indexInAnimation].img
-		s.uvs = s.sheetImages[s.indexInAnimation].uvs
+		s.img = s.currentAnimation.AnimationImages[s.currentAnimation.IndexInAnimation].img
+		s.uvs = s.currentAnimation.AnimationImages[s.currentAnimation.IndexInAnimation].uvs
 	}
 }
 

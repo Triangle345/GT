@@ -9,6 +9,8 @@ import (
 	"fmt"
 )
 
+//////////////////////////////////////////////////////
+// TODO: clean this up to use an external script file instead of coding it all here
 // RunLeft is a sample script we can use for actions
 type RunLeft struct {
 	Components.ScriptComponent
@@ -22,6 +24,8 @@ func (this *RunLeft) Update(delta float32) {
 
 	this.Transform().X -= .7 //* delta
 }
+
+//////////////////////////////////////////////////////
 
 func main() {
 	// NOTE/TODO: we are going to have to set some ground rules for animations.
@@ -44,20 +48,19 @@ func main() {
 
 	// splice a sprite sheet into multiple nodes... method tbd
 
-	// anim := Graphics.NewAnimation()
-	// anim.AddAnim(img, x, y, amt, rowNum)
-	// anim.Frequency(5) // number of frames it takes to toggle animation
-	// rend.AddAnimation(anim, nameToMapBy)
-	// rend.SetCurrentAnimation(nameToMapBy)
-	// OR
 	rend := Components.NewSpriteRenderer()
+	anim := Components.NewSpriteAnimation()
 
 	// SetAnimation to grab specific frames from a row in a spritesheet
-	rend.SpliceAndSetAnimation(GT.AssetsImages+"Dog.png", 58, 90, 5, 3)
-	// SetFullSheet to use entire sprite sheet as one animation
-	//rend.SpliceAndSetFullSheet(GT.AssetsImages+"tomatohead1.png", 12, 12)
-	//rend.SpliceAndSetFullSheet(GT.AssetsImages+"Dog.png", 58, 90) //58, 90)
-	//rend.Frequency(6) //no of frames before toggling images
+	anim.SpliceAndSetAnimation(GT.AssetsImages+"Dog.png", 58, 90, 5, 3)
+
+	// SetFullSheetAnimation to use entire sprite sheet as one animation
+	//anim.SpliceAndSetFullSheetAnimation(GT.AssetsImages+"tomatohead1.png", 12, 12)
+	//anim.SpliceAndSetFullSheetAnimation(GT.AssetsImages+"Dog.png", 58, 90) //58, 90)
+	//anim.Frequency(6) //no of frames before toggling images
+
+	rend.AddAnimation(anim, "run_left")
+	rend.SetCurrentAnimation("run_left") // script components can make use of this...
 	simpleScene.SetFPS(30)
 
 	// attach the sprite to our node, and transform if desired
