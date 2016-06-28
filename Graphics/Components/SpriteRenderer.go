@@ -52,8 +52,8 @@ func (s *SpriteRenderer) SetCurrentAnimation(mappedAnimationName string) {
 		fmt.Printf("couldn't find the animation" + mappedAnimationName)
 	}
 	s.currentAnimation = animationRetrieved
-	s.img = s.currentAnimation.AnimationImages[0].img
-	s.uvs = s.currentAnimation.AnimationImages[0].uvs
+	s.img = s.currentAnimation.CurrentImage().img
+	s.uvs = s.currentAnimation.CurrentImage().uvs
 }
 
 // AddAnimation maps a created animation inside the renderer
@@ -137,25 +137,10 @@ func (s *SpriteRenderer) Update(delta float32) {
 	// send OpenGLVertex info to Opengl module
 	Opengl.AddVertexData(1, &vertexInfo)
 
-	// iterate images if we have a list (animation)
-	// if s.currentAnimation.Update() {
-	//     s.img = s.currentAnimation.CurrentImage.img
-	//     s.uvs = s.currentAnimation.CurrentImage.uvs
-	// }
-	anim := s.currentAnimation
-	if anim != nil && len(anim.AnimationImages) > 0 {
-		if anim.FramesSinceLastToggle/anim.Frequency == 1 {
-			if anim.IndexInAnimation == len(anim.AnimationImages)-1 {
-				anim.IndexInAnimation = 0
-			} else {
-				anim.IndexInAnimation++
-			}
-			s.img = anim.AnimationImages[anim.IndexInAnimation].img
-			s.uvs = anim.AnimationImages[anim.IndexInAnimation].uvs
-			anim.FramesSinceLastToggle = 0
-		} else {
-			anim.FramesSinceLastToggle++
-		}
+	// run the animation update (if applicable) and set our renderer image if the animation toggled
+	if s.currentAnimation != nil && s.currentAnimation.Update() {
+		s.img = s.currentAnimation.CurrentImage().img
+		s.uvs = s.currentAnimation.CurrentImage().uvs
 	}
 }
 

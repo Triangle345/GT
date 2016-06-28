@@ -11,6 +11,8 @@ import (
 
 //////////////////////////////////////////////////////
 // TODO: clean this up to use an external script file instead of coding it all here
+//    once this is abstracted more fully, make a SimpleScript.go example
+
 // RunLeft is a sample script we can use for actions
 type RunLeft struct {
 	Components.ScriptComponent
@@ -46,22 +48,20 @@ func main() {
 	simpleScene, _ := Graphics.NewBasicScene()
 	node := Components.NewNode("new_image")
 
-	// splice a sprite sheet into multiple nodes... method tbd
-
+	// create our renderer and our animation objects
 	rend := Components.NewSpriteRenderer()
 	anim := Components.NewSpriteAnimation()
-
+	// set our animation based on an image, and user defined framing / splice logic
 	// SetAnimation to grab specific frames from a row in a spritesheet
 	anim.SpliceAndSetAnimation(GT.AssetsImages+"Dog.png", 58, 90, 5, 3)
-
 	// SetFullSheetAnimation to use entire sprite sheet as one animation
 	//anim.SpliceAndSetFullSheetAnimation(GT.AssetsImages+"tomatohead1.png", 12, 12)
 	//anim.SpliceAndSetFullSheetAnimation(GT.AssetsImages+"Dog.png", 58, 90) //58, 90)
-	anim.Frequency = 6
+	anim.Frequency(10)
 
 	rend.AddAnimation(anim, "run_left")
 	rend.SetCurrentAnimation("run_left") // script components can make use of this...
-	simpleScene.SetFPS(30)
+	//simpleScene.SetFPS(30)
 
 	// attach the sprite to our node, and transform if desired
 	node.AddComponent(rend)
