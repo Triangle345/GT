@@ -57,7 +57,7 @@ func main() {
 	// SetFullSheetAnimation to use entire sprite sheet as one animation
 	//anim.SpliceAndSetFullSheetAnimation(GT.AssetsImages+"tomatohead1.png", 12, 12)
 	//anim.SpliceAndSetFullSheetAnimation(GT.AssetsImages+"Dog.png", 58, 90) //58, 90)
-	//anim.Frequency(6) //no of frames before toggling images
+	anim.Frequency = 6
 
 	rend.AddAnimation(anim, "run_left")
 	rend.SetCurrentAnimation("run_left") // script components can make use of this...

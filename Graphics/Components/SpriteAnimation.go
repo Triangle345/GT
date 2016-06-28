@@ -22,8 +22,10 @@ type animationImage struct {
 type SpriteAnimation struct {
 
 	// list of images representing our spliced sprite sheet (animation)
-	AnimationImages  []*animationImage
-	IndexInAnimation int
+	AnimationImages       []*animationImage
+	IndexInAnimation      int
+	Frequency             int
+	FramesSinceLastToggle int
 }
 
 // NewSpriteAnimation creates a renderer and initializes its animation map

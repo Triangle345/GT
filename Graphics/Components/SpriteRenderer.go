@@ -138,14 +138,24 @@ func (s *SpriteRenderer) Update(delta float32) {
 	Opengl.AddVertexData(1, &vertexInfo)
 
 	// iterate images if we have a list (animation)
-	if s.currentAnimation != nil && len(s.currentAnimation.AnimationImages) > 0 {
-		if s.currentAnimation.IndexInAnimation == len(s.currentAnimation.AnimationImages)-1 {
-			s.currentAnimation.IndexInAnimation = 0
+	// if s.currentAnimation.Update() {
+	//     s.img = s.currentAnimation.CurrentImage.img
+	//     s.uvs = s.currentAnimation.CurrentImage.uvs
+	// }
+	anim := s.currentAnimation
+	if anim != nil && len(anim.AnimationImages) > 0 {
+		if anim.FramesSinceLastToggle/anim.Frequency == 1 {
+			if anim.IndexInAnimation == len(anim.AnimationImages)-1 {
+				anim.IndexInAnimation = 0
+			} else {
+				anim.IndexInAnimation++
+			}
+			s.img = anim.AnimationImages[anim.IndexInAnimation].img
+			s.uvs = anim.AnimationImages[anim.IndexInAnimation].uvs
+			anim.FramesSinceLastToggle = 0
 		} else {
-			s.currentAnimation.IndexInAnimation++
+			anim.FramesSinceLastToggle++
 		}
-		s.img = s.currentAnimation.AnimationImages[s.currentAnimation.IndexInAnimation].img
-		s.uvs = s.currentAnimation.AnimationImages[s.currentAnimation.IndexInAnimation].uvs
 	}
 }
 
