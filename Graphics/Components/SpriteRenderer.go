@@ -123,7 +123,7 @@ func (s *SpriteRenderer) Update(delta float32) {
 		transformation := mathgl.Vec4{vertexData[j*3+0], vertexData[j*3+1], vertexData[j*3+2], 1}
 		t := Model.Mul4x1(transformation)
 
-		data = append(data, t[0], t[1], t[2], s.r, s.g, s.b, s.a, s.uvs[j*2+0], s.uvs[j*2+1])
+		data = append(data, t[0], t[1], t[2], s.r, s.g, s.b, s.a, s.uvs[j*2+0], s.uvs[j*2+1], Opengl.TEXTURED)
 
 	}
 

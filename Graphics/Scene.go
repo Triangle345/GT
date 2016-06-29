@@ -38,6 +38,20 @@ func NewBasicScene() (BaseScene, error) {
 	return s, nil
 }
 
+// NewBasicScene : start a new simple scene of orthographic orientation
+func New3DScene() (BaseScene, error) {
+
+	s := BaseScene{RootNode: Components.NewNode("RootNode"), window: &Window.MainWindow}
+	s.fps = 0
+	s.timestart = int32(time.Now().Unix())
+	s.update = true
+
+	Opengl.SetViewPort(int32(s.window.Width), int32(s.window.Height))
+	Opengl.SetPerspective(s.window.Width, s.window.Height)
+
+	return s, nil
+}
+
 // Start : initiate a scene's continous animation. While the scene is running, draw it and update our nodes
 func (s *BaseScene) Start() {
 

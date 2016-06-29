@@ -67,7 +67,7 @@ func main() {
 	node.AddComponent(rend)
 	node.AddComponent(&RunLeft{})
 	//node.Transform().Scale(3, 3)
-	node.Transform().Translate(400, 400)
+	node.Transform().Translate(400, 400, 0)
 
 	// attach the node to our scene
 	simpleScene.RootNode.AddNode(node)

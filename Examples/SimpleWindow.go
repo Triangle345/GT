@@ -24,8 +24,9 @@ func main() {
 
 	// attach the sprite to our node, and transform if desired
 	node.AddComponent(rend)
-	node.Transform().Rotate(0)
-	node.Transform().Translate(400, 400)
+
+	node.Transform().Translate(400, 400, 0)
+	node.Transform().Scale(.7, .7, 0)
 
 	// attach the node to our scene
 	simpleScene.RootNode.AddNode(node)

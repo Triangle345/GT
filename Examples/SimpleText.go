@@ -36,12 +36,12 @@ func main() {
 
 	// create nodes for them so we can apply transformation
 	node1 := Components.NewNode("Text1")
-	node1.Transform().Translate(100, 100)
+	node1.Transform().Translate(100, 100, 0)
 	node1.AddComponent(textRend)
 
 	node2 := Components.NewNode("Text2")
-	node2.Transform().Rotate(.3)
-	node2.Transform().Translate(150, 100)
+	node2.Transform().Rotate(.3, 0, 0, 1)
+	node2.Transform().Translate(150, 100, 0)
 	node2.AddComponent(textRend2)
 
 	s.RootNode.AddNode(node1)

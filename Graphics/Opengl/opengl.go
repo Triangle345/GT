@@ -134,13 +134,19 @@ func SetOrthographic(width, height int) {
 	// Projection := mathgl.Ortho2D(0.0, winWidth, winHeight, 0.0)
 	// aspect := float32(s.width / s.height)
 	Projection := mathgl.Ortho(0.0, float32(width), float32(height), 0.0, -5.0, 5.0)
-
+	viewM = mathgl.LookAt(0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0)
 	projectionM = Projection
+	gl.Disable(gl.DEPTH_TEST)
 }
 
 func SetPerspective(width, height int) {
-	Projection := mathgl.Perspective(45.0, float32(width/height), 0.1, 100.0)
+	Projection := mathgl.Perspective(mathgl.DegToRad(45.0), float32(width/height), 0.1, 100.0)
+	viewM = mathgl.LookAt(0.0, 0.0, 20.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0)
 	projectionM = Projection
+
+	gl.Disable(gl.CULL_FACE)
+	gl.Enable(gl.DEPTH_TEST)
+
 }
 
 // Clear instructs opengl to clear the background to a certain color
@@ -166,11 +172,10 @@ func CreateBuffers() {
 	matrixID := gl.GetUniformLocation(program, gl.Str("MVP\x00"))
 	MVPid = matrixID
 
-	View := mathgl.LookAt(0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0)
+	// View := mathgl.LookAt(0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0)
 
-	viewM = View
+	// viewM = View
 
-	gl.Disable(gl.DEPTH_TEST)
 	gl.DepthFunc(gl.LEQUAL)
 	gl.Enable(gl.BLEND)
 	gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
@@ -286,15 +291,19 @@ func BindBuffers() { //vertexData *OpenGLVertexInfo) {
 
 	positionAttrib := uint32(gl.GetAttribLocation(program, gl.Str("vertexPosition_modelspace\x00")))
 	gl.EnableVertexAttribArray(positionAttrib)
-	gl.VertexAttribPointer(positionAttrib, 3, gl.FLOAT, false, 4*9, gl.PtrOffset(0))
+	gl.VertexAttribPointer(positionAttrib, 3, gl.FLOAT, false, 4*10, gl.PtrOffset(0))
 
 	colorAttrib := uint32(gl.GetAttribLocation(program, gl.Str("vertexColor\x00")))
 	gl.EnableVertexAttribArray(colorAttrib)
-	gl.VertexAttribPointer(colorAttrib, 4, gl.FLOAT, false, 4*9, gl.PtrOffset(3*4))
+	gl.VertexAttribPointer(colorAttrib, 4, gl.FLOAT, false, 4*10, gl.PtrOffset(3*4))
 
 	uvAttrib := uint32(gl.GetAttribLocation(program, gl.Str("vertexUV\x00")))
 	gl.EnableVertexAttribArray(uvAttrib)
-	gl.VertexAttribPointer(uvAttrib, 2, gl.FLOAT, false, 4*9, gl.PtrOffset(7*4))
+	gl.VertexAttribPointer(uvAttrib, 2, gl.FLOAT, false, 4*10, gl.PtrOffset(7*4))
+
+	shaderMode := uint32(gl.GetAttribLocation(program, gl.Str("mode\x00")))
+	gl.EnableVertexAttribArray(shaderMode)
+	gl.VertexAttribPointer(shaderMode, 1, gl.FLOAT, false, 4*10, gl.PtrOffset(9*4))
 
 	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, elementvbo)
 	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(vertexData.Elements)*4, gl.Ptr(vertexData.Elements), gl.STATIC_DRAW)

@@ -112,7 +112,7 @@ func (this *TextRenderer) Update(delta float32) {
 
 			t = Model.Mul4x1(t)
 
-			data = append(data, t[0], t[1], t[2], this.r, this.g, this.b, this.a, img.uvs[j*2+0], img.uvs[j*2+1])
+			data = append(data, t[0], t[1], t[2], this.r, this.g, this.b, this.a, img.uvs[j*2+0], img.uvs[j*2+1], 1.0)
 
 		}
 
