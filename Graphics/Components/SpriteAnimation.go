@@ -24,21 +24,32 @@ type spriteAnimation struct {
 	animationImages []*animationImage
 
 	// animation properties and tracking
-	indexInAnimation      int
+	indexInAnimation int
+
 	framesSinceLastToggle int
 	timeOfLastToggle      float64
 	frequency             float64
 	frequencyIsInFrames   bool
+
+	oneTimeOnly   bool
+	shouldAnimate bool
 }
 
 // NewSpriteAnimation creates a renderer and initializes its animation map
 func NewSpriteAnimation() *spriteAnimation {
+
+	// preset our defaults
 	animation := spriteAnimation{}
 	animation.indexInAnimation = 0
+
 	animation.frequency = 1
 	animation.frequencyIsInFrames = true
 	animation.framesSinceLastToggle = 0
 	animation.timeOfLastToggle = float64(time.Now().UnixNano()) / nanoToSeconds
+
+	animation.oneTimeOnly = false
+	animation.shouldAnimate = true
+
 	return &animation
 }
 
@@ -97,7 +108,6 @@ func (s *spriteAnimation) ReorderImage(imageOneIdx int, imageTwoIdx int) {
 	s.animationImages[lowerIdx].uvs = s.animationImages[higherIdx].uvs
 	s.animationImages[higherIdx].img = imgTmp.img
 	s.animationImages[higherIdx].uvs = imgTmp.uvs
-
 }
 
 // Frequency sets our animation's timing in either seconds or frames per toggle
@@ -106,6 +116,10 @@ func (s *spriteAnimation) ReorderImage(imageOneIdx int, imageTwoIdx int) {
 func (s *spriteAnimation) Frequency(freqIn float64, setFrequencyByTheFrame bool) {
 	s.frequency = freqIn
 	s.frequencyIsInFrames = setFrequencyByTheFrame
+}
+
+func (s *spriteAnimation) SetAsOneTimeOnly(setOneTime bool) {
+	s.oneTimeOnly = setOneTime
 }
 
 // SpliceAndSetFullSheetAnimation manually cuts up an entire sprite sheet based on user defined frame dimensions
@@ -165,6 +179,7 @@ func (s *spriteAnimation) SpliceAndSetAnimation(imageLoc string, frameWidth int,
 
 // currentImage returns the animation image associated with the current index in the animation
 func (s *spriteAnimation) currentImage() *animationImage {
+	// TODO: possibly make this return a blank image when we shouldn't animate?
 	return s.animationImages[s.indexInAnimation]
 }
 
@@ -172,15 +187,19 @@ func (s *spriteAnimation) currentImage() *animationImage {
 func (s *spriteAnimation) update() bool {
 
 	// verify we have stuff to animate, then check if we are ready to toggle
-	if len(s.animationImages) > 0 {
-		now := float64(time.Now().UnixNano()) / nanoToSeconds
-		if s.frequencyIsInFrames && s.framesSinceLastToggle/int(s.frequency) == 1 ||
-			!s.frequencyIsInFrames && now-s.timeOfLastToggle >= float64(s.frequency) {
+	if len(s.animationImages) > 0 && s.shouldAnimate {
 
-			// allow our animation to continue by resetting it
-			// TODO: possibly allow for a one-time only vs. recurring animation
+		// get the current time and check if our frequency has been met, if so then update the image
+		timeNow := float64(time.Now().UnixNano()) / nanoToSeconds
+		if s.frequencyIsInFrames && s.framesSinceLastToggle/int(s.frequency) == 1 ||
+			!s.frequencyIsInFrames && timeNow-s.timeOfLastToggle >= float64(s.frequency) {
+
+			// allow our animation to continue by resetting the index
 			if s.indexInAnimation == len(s.animationImages)-1 {
 				s.indexInAnimation = 0
+				if s.oneTimeOnly {
+					s.shouldAnimate = false
+				}
 			} else {
 				s.indexInAnimation++
 			}

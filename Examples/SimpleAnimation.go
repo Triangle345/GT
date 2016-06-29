@@ -36,9 +36,6 @@ func main() {
 	//    i) the user will provide frame dimensions to splice a single sprite, then the number of frames to splice
 	//    ii) animations are assumed to be one row within the sprite sheet (for now?)
 	//        i.e. amin.SpliceAndSetSheet(imgName, frameX, frameY, noOfFrames, rowNum)
-	//
-	// NOTE: since we may be using multiple animations we may want to abstract an animation component to attach and map to the renderer
-	//
 
 	fmt.Println("starting")
 
@@ -68,11 +65,13 @@ func main() {
 	anim.AppendAnimation(anim2)
 	anim.AppendAnimation(anim3)
 	anim.AppendImage(GT.AssetsImages + "test.png")
-	anim.Frequency(0.25, false) // set frequency of toggle to every 15 frames
+	anim.Frequency(0.25, false) // set frequency of toggle to every 1/4 second
 
 	// you can swap images in the animation, or remove them by number in the list
 	anim.ReorderImage(1, 27) // one-based input
 	anim.RemoveImage(1)      // remove test.png...
+
+	anim.SetAsOneTimeOnly(true)
 
 	rend.AddAnimation(anim, "dog_left_facing")
 	rend.SetCurrentAnimation("dog_left_facing") // script components can make use of this...

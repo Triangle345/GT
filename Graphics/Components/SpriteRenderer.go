@@ -66,6 +66,16 @@ func (s *SpriteRenderer) AddAnimation(animationToAdd *spriteAnimation, nameToMap
 	}
 }
 
+// StopAnimation tells our current animation that it should not animate (to be used when scripting)
+func (s *SpriteRenderer) StopAnimation() {
+	s.currentAnimation.shouldAnimate = false
+}
+
+// StartAnimation tells our current animation that it should animate (to be used when scripting)
+func (s *SpriteRenderer) StartAnimation() {
+	s.currentAnimation.shouldAnimate = true
+}
+
 // SetImage puts a designated image from the agregate into our image which will be rendered
 func (s *SpriteRenderer) SetImage(imageLoc string) {
 	img, err := Image.NewImage(imageLoc)
