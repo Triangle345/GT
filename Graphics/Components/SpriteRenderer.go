@@ -1,4 +1,4 @@
-// Package Graphics
+// Package Components ...
 package Components
 
 import (
@@ -20,7 +20,7 @@ func NewSpriteRenderer() *SpriteRenderer {
 
 	sprite := SpriteRenderer{a: 1}
 
-	sprite.animationsMap = map[string]*SpriteAnimation{}
+	sprite.animationsMap = map[string]*spriteAnimation{}
 
 	return &sprite
 }
@@ -35,8 +35,8 @@ type SpriteRenderer struct {
 	img image.Image
 
 	// list of images representing our spliced sprite sheet (animation)
-	animationsMap    map[string]*SpriteAnimation
-	currentAnimation *SpriteAnimation
+	animationsMap    map[string]*spriteAnimation
+	currentAnimation *spriteAnimation
 
 	// color
 	r, g, b, a float32
@@ -52,12 +52,12 @@ func (s *SpriteRenderer) SetCurrentAnimation(mappedAnimationName string) {
 		fmt.Printf("couldn't find the animation" + mappedAnimationName)
 	}
 	s.currentAnimation = animationRetrieved
-	s.img = s.currentAnimation.CurrentImage().img
-	s.uvs = s.currentAnimation.CurrentImage().uvs
+	s.img = s.currentAnimation.currentImage().img
+	s.uvs = s.currentAnimation.currentImage().uvs
 }
 
 // AddAnimation maps a created animation inside the renderer
-func (s *SpriteRenderer) AddAnimation(animationToAdd *SpriteAnimation, nameToMap string) {
+func (s *SpriteRenderer) AddAnimation(animationToAdd *spriteAnimation, nameToMap string) {
 	_, ok := s.animationsMap[nameToMap]
 	if !ok {
 		s.animationsMap[nameToMap] = animationToAdd
@@ -138,9 +138,9 @@ func (s *SpriteRenderer) Update(delta float32) {
 	Opengl.AddVertexData(1, &vertexInfo)
 
 	// run the animation update (if applicable) and set our renderer image if the animation toggled
-	if s.currentAnimation != nil && s.currentAnimation.Update() {
-		s.img = s.currentAnimation.CurrentImage().img
-		s.uvs = s.currentAnimation.CurrentImage().uvs
+	if s.currentAnimation != nil && s.currentAnimation.update() {
+		s.img = s.currentAnimation.currentImage().img
+		s.uvs = s.currentAnimation.currentImage().uvs
 	}
 }
 
