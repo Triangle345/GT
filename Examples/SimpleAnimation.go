@@ -10,8 +10,8 @@ import (
 )
 
 //////////////////////////////////////////////////////
-// TODO: clean this up to use an external script file instead of coding it all here
-//    once this is abstracted more fully, make a SimpleScript.go example
+// TODO: remove this when a scripting example is made
+//    clean this up to use an external script file instead of coding it all here
 
 // RunLeft is a sample script we can use for actions
 type RunLeft struct {
@@ -30,16 +30,12 @@ func (this *RunLeft) Update(delta float32) {
 //////////////////////////////////////////////////////
 
 func main() {
-	// NOTE/TODO: we are going to have to set some ground rules for animations.
+	// NOTE: we are going to have to set some ground rules for animations.
 	// 1) the user will be able to append their own images (pngs) to an animation
-	//    i.e. rend.Animation[rowNum?].AppendImage(imgName)
 	// 2) the user will be able to splice a sprite sheet into one or more animations
 	//    i) the user will provide frame dimensions to splice a single sprite, then the number of frames to splice
 	//    ii) animations are assumed to be one row within the sprite sheet (for now?)
-	//        i.e. rend.SpliceAndSetSheet(imgName, frameX, frameY, noOfFrames, rowNum)
-	//
-	// NOTE: since we may be using multiple animations we may want to abstract an animation component to attach and map to the renderer
-	//
+	//        i.e. amin.SpliceAndSetSheet(imgName, frameX, frameY, noOfFrames, rowNum)
 
 	fmt.Println("starting")
 
@@ -51,23 +47,41 @@ func main() {
 	// create our renderer and our animation objects
 	rend := Components.NewSpriteRenderer()
 	anim := Components.NewSpriteAnimation()
-	// set our animation based on an image, and user defined framing / splice logic
-	// SetAnimation to grab specific frames from a row in a spritesheet
-	anim.SpliceAndSetAnimation(GT.AssetsImages+"Dog.png", 58, 90, 5, 3)
-	// SetFullSheetAnimation to use entire sprite sheet as one animation
-	//anim.SpliceAndSetFullSheetAnimation(GT.AssetsImages+"tomatohead1.png", 12, 12)
-	//anim.SpliceAndSetFullSheetAnimation(GT.AssetsImages+"Dog.png", 58, 90) //58, 90)
-	anim.Frequency(10)
+	anim2 := Components.NewSpriteAnimation()
+	anim3 := Components.NewSpriteAnimation()
 
-	rend.AddAnimation(anim, "run_left")
-	rend.SetCurrentAnimation("run_left") // script components can make use of this...
+	// set or append our animation(s) based on an image, and user defined framing / splice logic
+	anim.SpliceAndSetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 4, 1)
+	anim.SpliceAndSetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 6, 2)
+	anim2.SpliceAndSetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 5, 3)
+	anim2.SpliceAndSetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 4, 4)
+	anim3.SpliceAndSetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 3, 5)
+	anim3.SpliceAndSetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 4, 6)
+
+	// if you can make use of a full sprite sheet for one animation, then use the SpliceAndSetFullSheet method
+	//anim2.SpliceAndSetFullSheetAnimation(GT.AssetsImages+"tomatohead1.png", 12, 12)
+
+	// you can append other animations or images
+	anim.AppendAnimation(anim2)
+	anim.AppendAnimation(anim3)
+	anim.AppendImage(GT.AssetsImages + "test.png")
+	anim.Frequency(0.25, false) // set frequency of toggle to every 1/4 second
+
+	// you can swap images in the animation, or remove them by number in the list
+	anim.ReorderImage(1, 27) // one-based input
+	anim.RemoveImage(1)      // remove test.png...
+
+	anim.SetAsOneTimeOnly(true)
+
+	rend.AddAnimation(anim, "dog_left_facing")
+	rend.SetCurrentAnimation("dog_left_facing") // script components can make use of this...
 	//simpleScene.SetFPS(30)
 
 	// attach the sprite to our node, and transform if desired
 	node.AddComponent(rend)
-	node.AddComponent(&RunLeft{})
-	//node.Transform().Scale(3, 3)
-	node.Transform().Translate(400, 400, 0)
+	node.AddComponent(&RunLeft{}) // TODO: remove this for a scripting example
+	//node.Transform().Scale(3, 3) // NOTE: scaling doesn't seem perfect for sub images/animations?
+	node.Transform().Translate(400, 400,0)
 
 	// attach the node to our scene
 	simpleScene.RootNode.AddNode(node)

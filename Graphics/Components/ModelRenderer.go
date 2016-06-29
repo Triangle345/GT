@@ -2,11 +2,9 @@
 package Components
 
 import (
-	"fmt"
+	"GT/Graphics/Opengl"
 
 	mathgl "github.com/go-gl/mathgl/mgl32"
-
-	"GT/Graphics/Opengl"
 )
 
 // Initialize is necessary for the renderer to be utilized as a Component
@@ -44,30 +42,27 @@ func (s *modelRenderer) Update(delta float32) {
 
 	var elements = make([]uint32, 0, 3*12*4)
 
-	// elements = append(elements, uint32(1), uint32(3), uint32(0))
-	// elements = append(elements, uint32(7), uint32(5), uint32(4))
-	// elements = append(elements, uint32(4), uint32(1), uint32(0))
-	// elements = append(elements, uint32(5), uint32(2), uint32(1))
-	// elements = append(elements, uint32(2), uint32(7), uint32(3))
-	// elements = append(elements, uint32(0), uint32(7), uint32(4))
-	// elements = append(elements, uint32(1), uint32(2), uint32(3))
-	// elements = append(elements, uint32(7), uint32(6), uint32(5))
-	// elements = append(elements, uint32(4), uint32(5), uint32(1))
-	// elements = append(elements, uint32(5), uint32(6), uint32(2))
-	// elements = append(elements, uint32(2), uint32(6), uint32(7))
-	// elements = append(elements, uint32(0), uint32(3), uint32(7))
+	elements = append(elements, uint32(1), uint32(3), uint32(0))
+	elements = append(elements, uint32(7), uint32(5), uint32(4))
+	elements = append(elements, uint32(4), uint32(1), uint32(0))
+	elements = append(elements, uint32(5), uint32(2), uint32(1))
+	elements = append(elements, uint32(2), uint32(7), uint32(3))
+	elements = append(elements, uint32(0), uint32(7), uint32(4))
+	elements = append(elements, uint32(1), uint32(2), uint32(3))
+	elements = append(elements, uint32(7), uint32(6), uint32(5))
+	elements = append(elements, uint32(4), uint32(5), uint32(1))
+	elements = append(elements, uint32(5), uint32(6), uint32(2))
+	elements = append(elements, uint32(2), uint32(6), uint32(7))
+	elements = append(elements, uint32(0), uint32(3), uint32(7))
 
-	elements = append(elements, uint32(0), uint32(1), uint32(2), uint32(2))
+	// elements = append(elements, uint32(1), uint32(3), uint32(2), uint32(0))
 
-	elements = append(elements, uint32(3), uint32(0), uint32(3), uint32(2))
-	elements = append(elements, uint32(6), uint32(6), uint32(7), uint32(3))
-	elements = append(elements, uint32(7), uint32(6), uint32(5), uint32(5))
-	elements = append(elements, uint32(4), uint32(7), uint32(4), uint32(0))
-	elements = append(elements, uint32(3), uint32(3), uint32(7), uint32(4))
+	// elements = append(elements, uint32(3), uint32(7), uint32(6), uint32(2))
+	// elements = append(elements, uint32(7), uint32(5), uint32(4), uint32(6))
 
-	elements = append(elements, uint32(0), uint32(1), uint32(5), uint32(5))
-	elements = append(elements, uint32(4), uint32(0), uint32(1), uint32(5))
-	elements = append(elements, uint32(6), uint32(6), uint32(2), uint32(1))
+	// elements = append(elements, uint32(5), uint32(1), uint32(0), uint32(4))
+	// elements = append(elements, uint32(0), uint32(2), uint32(6), uint32(4))
+	// elements = append(elements, uint32(5), uint32(7), uint32(3), uint32(1))
 
 	Model := mathgl.Ident4()
 
@@ -85,31 +80,27 @@ func (s *modelRenderer) Update(delta float32) {
 
 	//TODO: try quads out!
 
-	// data = append(data, 5.000000, -5.000000, -5.000000, r+.1, g, b, a, -1, -1, 0.0)
-	// data = append(data, 5.000000, -5.000000, 5.000000, r+.1, g, b, a, -1, -1, 0.0)
-	// data = append(data, -5.000000, -5.000000, 5.000000, r, g+.1, b, a, -1, -1, 0.0)
-	// data = append(data, -5.000000, -5.000000, -5.000000, r, g, b, a+.1, -1, -1, 0.0)
-	// data = append(data, 5.000000, 5.000000, -5.0, r, g, b, a, 0, 0, 0.0)
-	// data = append(data, 5.0, 5.000000, 5.0, r, g, b, a, 0, 0, 0.0)
-	// data = append(data, -5.000000, 5.000000, 5.000000, r, g, b, a, 0, 0, 0.0)
-	// data = append(data, -5.000000, 5.000000, -5.000000, r, g, b-.1, a, 0, 0, 0.0)
+	data = append(data, 3.000000, -3.000000, -3.000000, r+.1, g, b, a, -1, -1, 0.0)
+	data = append(data, 3.000000, -3.000000, 3.000000, r+.1, g, b, a, -1, -1, 0.0)
+	data = append(data, -3.000000, -3.000000, 3.000000, r, g+.1, b, a, -1, -1, 0.0)
+	data = append(data, -3.000000, -3.000000, -3.000000, r, g, b, a+.1, -1, -1, 0.0)
+	data = append(data, 3.000000, 3.000000, -3.0, r, g, b, a, 0, 0, 0.0)
+	data = append(data, 3.0, 3.000000, 3.0, r, g, b, a, 0, 0, 0.0)
+	data = append(data, -3.000000, 3.000000, 3.000000, r, g, b, a, 0, 0, 0.0)
+	data = append(data, -3.000000, 3.000000, -3.000000, r, g, b-.1, a, 0, 0, 0.0)
 
-	data = append(data, -1.000000, -1.000000, 1.000000, r+.1, g, b, a, -1, -1, 0.0)
-	data = append(data, 1.000000, -1.000000, 1.000000, r+.1, g, b, a, -1, -1, 0.0)
-	data = append(data, 1.000000, 1.000000, 1.000000, r, g+.1, b, a, -1, -1, 0.0)
-	data = append(data, -1.000000, 1.000000, 1.000000, r, g, b, a+.1, -1, -1, 0.0)
-	data = append(data, -1.000000, -1.000000, -1.0, r, g, b, a, 0, 0, 0.0)
-	data = append(data, 1.0, -1.000000, -1.0, r, g, b, a, 0, 0, 0.0)
-	data = append(data, 1.000000, 1.000000, -1.000000, r, g, b, a, 0, 0, 0.0)
-	data = append(data, -1.000000, 1.000000, -1.000000, r, g, b-.1, a, 0, 0, 0.0)
+	// data = append(data, -5.000000, -5.000000, 5.000000, r+.1, g, b, a, -1, -1, 0.0)
+	// data = append(data, -5.000000, 5.000000, 5.000000, r+.1, g, b, a, -1, -1, 0.0)
+	// data = append(data, -5.000000, -5.000000, -5.000000, r, g+.1, b, a, -1, -1, 0.0)
+	// data = append(data, -5.000000, 5.000000, -5.000000, r, g, b, a+.1, -1, -1, 0.0)
+	// data = append(data, 5.000000, -5.000000, 5.0, r, g, b, a, 0, 0, 0.0)
+	// data = append(data, 5.0, 5.000000, 5.0, r, g, b, a, 0, 0, 0.0)
+	// data = append(data, 5.000000, -5.000000, -5.000000, r, g, b, a, 0, 0, 0.0)
+	// data = append(data, 5.000000, 5.000000, -5.000000, r, g, b-.1, a, 0, 0, 0.0)
 
 	for i := 0; i < 8; i++ {
-		fmt.Println("Data going in: ", mathgl.Vec4{data[i*10+0], data[i*10+1], data[i*10+2], 1})
 		transformation := mathgl.Vec4{data[i*10+0], data[i*10+1], data[i*10+2], 1}
 		t := Model.Mul4x1(transformation)
-		fmt.Println("Data going out: ", t)
-		fmt.Println("Model is ", Model)
-
 		data[i*10+0] = t[0]
 		data[i*10+1] = t[1]
 		data[i*10+2] = t[2]

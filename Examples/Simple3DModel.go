@@ -15,7 +15,8 @@ type Spin struct {
 
 func (this *Spin) Initialize() {
 	//no initialize for RunLeft
-	this.Transform().Rotate(0, .1, 1, .1)
+	this.Transform().Rotate(0, .2, 1, .2)
+
 }
 
 func (this *Spin) Update(delta float32) {
@@ -39,7 +40,7 @@ func main() {
 	// attach the sprite to our node, and transform if desired
 	node.AddComponent(rend)
 	//node.Transform().Rotate(.2, 0, 1, 0)
-	//node.Transform().Translate(1, 2, 0)
+	// node.Transform().Translate(1, 2, 0)
 
 	// attach the node to our scene
 	simpleScene.RootNode.AddNode(node)
