@@ -17,7 +17,19 @@ var (
 	Assets       = flag.String("Assets", "./Assets", "Location of Assets folder")
 	AssetsFonts  string
 	AssetsImages string
+	AssetsModels string
 )
+
+func getAbsPath(folder string) string {
+	path, _ := filepath.Abs(*Assets + folder)
+
+	if _, err := os.Stat(path); err != nil {
+		fmt.Println("Please specify the correct Assets path with the -Assets flag")
+		panic(err)
+	}
+
+	return path
+}
 
 func readFlags() {
 	flag.Parse()
@@ -28,26 +40,20 @@ func readFlags() {
 	// logPath += inputFileNameFlag
 	Logging.Init(logPath, log.Ldate|log.Ltime|log.Lshortfile)
 
-	imgsPath, _ := filepath.Abs(*Assets + "/Images")
+	imgsPath := getAbsPath("/Images")
 
-	if _, err := os.Stat(imgsPath); err != nil {
-		fmt.Println("Please specify the correct Assets path with the -Assets flag")
-		panic(err)
-	}
+	fontsPath := getAbsPath("/Fonts")
 
-	fontsPath, _ := filepath.Abs(*Assets + "/Fonts")
-	if _, err := os.Stat(fontsPath); err != nil {
-
-		fmt.Println("Please specify the correct Assets path with the -Assets flag")
-		panic(err)
-	}
+	modelsPath := getAbsPath("/Models")
 
 	AssetsFonts = fontsPath
 	AssetsImages = imgsPath + string(os.PathSeparator)
+	AssetsModels = modelsPath + string(os.PathSeparator)
 
 	Logging.Info("Assets Path: ", *Assets)
 	Logging.Info("Images Path: ", AssetsImages)
 	Logging.Info("Fonts Path: ", AssetsFonts)
+	Logging.Info("Models Path: ", AssetsModels)
 }
 
 // EngineStart initializes everything in order within the engine. Should be called first

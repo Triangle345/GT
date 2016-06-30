@@ -34,6 +34,7 @@ func main() {
 	node.AddComponent(&Spin{})
 	// create a png based sprite
 	rend := Components.NewModelRenderer()
+	rend.SetModel(GT.AssetsModels+"test.obj", GT.AssetsModels+"test.mtl")
 	// myImagePath, _ := filepath.Abs("../Assets/Images/test.png")
 	//rend.SetImage(GT.AssetsImages + "test.png")
 

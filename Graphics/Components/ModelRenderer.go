@@ -2,7 +2,9 @@
 package Components
 
 import (
+	"GT/Graphics/G3D"
 	"GT/Graphics/Opengl"
+	"GT/Logging"
 
 	mathgl "github.com/go-gl/mathgl/mgl32"
 )
@@ -22,95 +24,79 @@ func NewModelRenderer() *modelRenderer {
 
 // SpriteRenderer is a component which allows a sprite to be drawn or animated
 type modelRenderer struct {
-	// the parent node
-	//Parent *Components.Node
 	ChildComponent
+
+	mesh *G3D.Mesh
 
 	// uvs - store uvs for speed
 	uvs []float32
+
+	vertexData Opengl.OpenGLVertexInfo
 }
 
-// Update gets called every frame and accounts for all settings in the renderer as well as shifts animations
-func (s *modelRenderer) Update(delta float32) {
+func (this *modelRenderer) SetModel(path string, mat string) {
+	//TODO make aggregate models store them in memory
+	mesh, err := G3D.ParseOBJ(path, mat)
+
+	if err != nil {
+		Logging.Info(err)
+	}
+
+	this.mesh = mesh
+	this.mesh.RecalcElementStride()
 
 	r := float32(.3)
 	g := float32(.3)
 	b := float32(.3)
 	a := float32(1.000)
 
-	//vertexData := []float32{-0.5, 0.5, 1.0, 0.5, 0.5, 1.0, 0.5, -0.5, 1.0, -0.5, -0.5, 1.0}
+	this.vertexData.Elements = make([]uint32, 0, this.mesh.Stride()+1)
 
-	var elements = make([]uint32, 0, 3*12*4)
+	for _, face := range this.mesh.Faces {
+		for _, vIdx := range face.V {
+			this.vertexData.Elements = append(this.vertexData.Elements, uint32(vIdx))
+		}
+	}
 
-	elements = append(elements, uint32(1), uint32(3), uint32(0))
-	elements = append(elements, uint32(7), uint32(5), uint32(4))
-	elements = append(elements, uint32(4), uint32(1), uint32(0))
-	elements = append(elements, uint32(5), uint32(2), uint32(1))
-	elements = append(elements, uint32(2), uint32(7), uint32(3))
-	elements = append(elements, uint32(0), uint32(7), uint32(4))
-	elements = append(elements, uint32(1), uint32(2), uint32(3))
-	elements = append(elements, uint32(7), uint32(6), uint32(5))
-	elements = append(elements, uint32(4), uint32(5), uint32(1))
-	elements = append(elements, uint32(5), uint32(6), uint32(2))
-	elements = append(elements, uint32(2), uint32(6), uint32(7))
-	elements = append(elements, uint32(0), uint32(3), uint32(7))
+	for _, v := range this.mesh.Vs {
 
-	// elements = append(elements, uint32(1), uint32(3), uint32(2), uint32(0))
+		this.vertexData.VertexData = append(this.vertexData.VertexData, v.X, v.Y, v.Z)     // vdata
+		this.vertexData.VertexData = append(this.vertexData.VertexData, r, g, b, a)        // color
+		this.vertexData.VertexData = append(this.vertexData.VertexData, -1, -1)            // texture
+		this.vertexData.VertexData = append(this.vertexData.VertexData, Opengl.NO_TEXTURE) //mode
 
-	// elements = append(elements, uint32(3), uint32(7), uint32(6), uint32(2))
-	// elements = append(elements, uint32(7), uint32(5), uint32(4), uint32(6))
+	}
 
-	// elements = append(elements, uint32(5), uint32(1), uint32(0), uint32(4))
-	// elements = append(elements, uint32(0), uint32(2), uint32(6), uint32(4))
-	// elements = append(elements, uint32(5), uint32(7), uint32(3), uint32(1))
+	this.vertexData.Stride = this.mesh.Stride()
+
+}
+
+// Update gets called every frame and accounts for all settings in the renderer as well as shifts animations
+func (this *modelRenderer) Update(delta float32) {
 
 	Model := mathgl.Ident4()
 
-	Model = s.GetParent().transform.GetUpdatedModel()
+	Model = this.GetParent().transform.GetUpdatedModel()
 
-	// transform all vertex data and combine it with other data
-	var data = make([]float32, 0, 9*4)
-	// for j := 0; j < 4; j++ {
-	// 	transformation := mathgl.Vec4{vertexData[j*3+0], vertexData[j*3+1], vertexData[j*3+2], 1}
-	// 	t := Model.Mul4x1(transformation)
+	vdata := this.vertexData.VertexData
+	var data = make([]float32, len(this.vertexData.VertexData)*2)
+	copy(data, vdata)
 
-	// 	data = append(data, t[0], t[1], t[2], r, g, b, a, 0, 0)
+	for i := 0; i < this.vertexData.Stride; i++ {
 
-	// }
-
-	//TODO: try quads out!
-
-	data = append(data, 3.000000, -3.000000, -3.000000, r+.1, g, b, a, -1, -1, 0.0)
-	data = append(data, 3.000000, -3.000000, 3.000000, r+.1, g, b, a, -1, -1, 0.0)
-	data = append(data, -3.000000, -3.000000, 3.000000, r, g+.1, b, a, -1, -1, 0.0)
-	data = append(data, -3.000000, -3.000000, -3.000000, r, g, b, a+.1, -1, -1, 0.0)
-	data = append(data, 3.000000, 3.000000, -3.0, r, g, b, a, 0, 0, 0.0)
-	data = append(data, 3.0, 3.000000, 3.0, r, g, b, a, 0, 0, 0.0)
-	data = append(data, -3.000000, 3.000000, 3.000000, r, g, b, a, 0, 0, 0.0)
-	data = append(data, -3.000000, 3.000000, -3.000000, r, g, b-.1, a, 0, 0, 0.0)
-
-	// data = append(data, -5.000000, -5.000000, 5.000000, r+.1, g, b, a, -1, -1, 0.0)
-	// data = append(data, -5.000000, 5.000000, 5.000000, r+.1, g, b, a, -1, -1, 0.0)
-	// data = append(data, -5.000000, -5.000000, -5.000000, r, g+.1, b, a, -1, -1, 0.0)
-	// data = append(data, -5.000000, 5.000000, -5.000000, r, g, b, a+.1, -1, -1, 0.0)
-	// data = append(data, 5.000000, -5.000000, 5.0, r, g, b, a, 0, 0, 0.0)
-	// data = append(data, 5.0, 5.000000, 5.0, r, g, b, a, 0, 0, 0.0)
-	// data = append(data, 5.000000, -5.000000, -5.000000, r, g, b, a, 0, 0, 0.0)
-	// data = append(data, 5.000000, 5.000000, -5.000000, r, g, b-.1, a, 0, 0, 0.0)
-
-	for i := 0; i < 8; i++ {
-		transformation := mathgl.Vec4{data[i*10+0], data[i*10+1], data[i*10+2], 1}
+		transformation := mathgl.Vec4{vdata[i*10+0], vdata[i*10+1], vdata[i*10+2], 1}
 		t := Model.Mul4x1(transformation)
 		data[i*10+0] = t[0]
 		data[i*10+1] = t[1]
 		data[i*10+2] = t[2]
+
 	}
 
 	// package everything up in an OpenGLVertexInfo
 	vertexInfo := Opengl.OpenGLVertexInfo{
 		VertexData: data,
-		Elements:   elements,
-		Stride:     8,
+		Elements:   this.vertexData.Elements,
+		Stride:     this.vertexData.Stride,
 	}
 
 	// send OpenGLVertex info to Opengl module
