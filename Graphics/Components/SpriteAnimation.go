@@ -5,34 +5,15 @@ import (
 	"GT/Graphics/Image"
 	"fmt"
 	"image"
-	"time"
 )
-
-// if keeping track of nanoseconds for updates, use this to convert to seconds
-const nanoToSeconds = 1000000000
-
-// AnimationImage contains relevant gl info for use with renderer via CurrentImage()
-type animationImage struct {
-	img image.Image
-	uvs []float32
-}
 
 // SpriteAnimation is a sequence of images and settings used by the renderer to animate sprites
 type spriteAnimation struct {
+	Animation
 
 	// list of images representing our spliced sprite sheet (animation)
-	animationImages []*animationImage
-
-	// animation properties and tracking
-	indexInAnimation int
-
-	framesSinceLastToggle int
-	timeOfLastToggle      float64
-	frequency             float64
-	frequencyIsInFrames   bool
-
-	oneTimeOnly   bool
-	shouldAnimate bool
+	animationImages []*Image.Image
+	meta            *animationHelper
 }
 
 // NewSpriteAnimation creates a renderer and initializes its animation map
@@ -40,15 +21,7 @@ func NewSpriteAnimation() *spriteAnimation {
 
 	// preset our defaults
 	animation := spriteAnimation{}
-	animation.indexInAnimation = 0
-
-	animation.frequency = 1
-	animation.frequencyIsInFrames = true
-	animation.framesSinceLastToggle = 0
-	animation.timeOfLastToggle = float64(time.Now().UnixNano()) / nanoToSeconds
-
-	animation.oneTimeOnly = false
-	animation.shouldAnimate = true
+	animation.meta = newAnimation()
 
 	return &animation
 }
@@ -57,20 +30,20 @@ func NewSpriteAnimation() *spriteAnimation {
 func (s *spriteAnimation) AppendAnimation(animIn *spriteAnimation) {
 	for i := 0; i < len(animIn.animationImages); i++ {
 		imgToAdd := animIn.animationImages[i]
-		s.animationImages = append(s.animationImages, &animationImage{imgToAdd.img, imgToAdd.uvs})
+		s.animationImages = append(s.animationImages, imgToAdd)
 	}
 }
 
-// AppendImage simply adds an image from the aggregate to the end of our animation
-func (s *spriteAnimation) AppendImage(imageLoc string) {
+// Append simply adds an image from the aggregate to the end of our animation
+func (s *spriteAnimation) Append(imageLoc string) {
 	img, err := Image.NewImage(imageLoc)
 	if err != nil {
 		fmt.Println("Cannot create image: " + err.Error())
 	}
-	s.animationImages = append(s.animationImages, &animationImage{img, img.UVs()})
+	s.animationImages = append(s.animationImages, &img)
 }
 
-func (s *spriteAnimation) RemoveImage(imageIdx int) {
+func (s *spriteAnimation) Remove(imageIdx int) {
 	// convert to zero based
 	imageIdx--
 
@@ -83,8 +56,8 @@ func (s *spriteAnimation) RemoveImage(imageIdx int) {
 	}
 }
 
-// ReorderImages simply swaps the order in which any two images are rendered ()
-func (s *spriteAnimation) ReorderImage(imageOneIdx int, imageTwoIdx int) {
+// Reorder simply swaps the order in which any two images are rendered ()
+func (s *spriteAnimation) Reorder(imageOneIdx int, imageTwoIdx int) {
 
 	// convert from one-based input to zero-based logic
 	listLength := len(s.animationImages)
@@ -104,22 +77,20 @@ func (s *spriteAnimation) ReorderImage(imageOneIdx int, imageTwoIdx int) {
 
 	imgTmp := s.animationImages[lowerIdx]
 
-	s.animationImages[lowerIdx].img = s.animationImages[higherIdx].img
-	s.animationImages[lowerIdx].uvs = s.animationImages[higherIdx].uvs
-	s.animationImages[higherIdx].img = imgTmp.img
-	s.animationImages[higherIdx].uvs = imgTmp.uvs
+	s.animationImages[lowerIdx] = s.animationImages[higherIdx]
+	s.animationImages[higherIdx] = imgTmp
 }
 
-// Frequency sets our animation's timing in either seconds or frames per toggle
+// SetFrequency sets our animation's timing in either seconds or frames per toggle
 // i.e. Frequency(4,true) sets to update every 4 frames
 // i.e. Frequency(0.25,false) sets to update every 1/4 of a second
-func (s *spriteAnimation) Frequency(freqIn float64, setFrequencyByTheFrame bool) {
-	s.frequency = freqIn
-	s.frequencyIsInFrames = setFrequencyByTheFrame
+func (s *spriteAnimation) SetFrequency(freqIn float64, setFrequencyByTheFrame bool) {
+	s.meta.frequency = freqIn
+	s.meta.frequencyIsInFrames = setFrequencyByTheFrame
 }
 
 func (s *spriteAnimation) SetAsOneTimeOnly(setOneTime bool) {
-	s.oneTimeOnly = setOneTime
+	s.meta.oneTimeOnly = setOneTime
 }
 
 // SpliceAndSetFullSheetAnimation manually cuts up an entire sprite sheet based on user defined frame dimensions
@@ -169,47 +140,20 @@ func (s *spriteAnimation) SpliceAndSetAnimation(imageLoc string, frameWidth int,
 				fmt.Println("Cannot create sub image: " + err.Error())
 			}
 
-			s.animationImages = append(s.animationImages, &animationImage{spriteSheetPart, spriteSheetPart.UVs()})
+			s.animationImages = append(s.animationImages, &spriteSheetPart)
 		}
 	}
 
 	// set the current image to the first in the new animation
-	s.indexInAnimation = 0
+	s.meta.indexInAnimation = 0
 }
 
 // currentImage returns the animation image associated with the current index in the animation
-func (s *spriteAnimation) currentImage() *animationImage {
+func (s *spriteAnimation) currentImage() *Image.Image {
 	// TODO: possibly make this return a blank image when we shouldn't animate?
-	return s.animationImages[s.indexInAnimation]
+	return s.animationImages[s.meta.indexInAnimation]
 }
 
-// Update internally evaluates and increments toggle logic then returns true if we did swap images
 func (s *spriteAnimation) update() bool {
-
-	// verify we have stuff to animate, then check if we are ready to toggle
-	if len(s.animationImages) > 0 && s.shouldAnimate {
-
-		// get the current time and check if our frequency has been met, if so then update the image
-		timeNow := float64(time.Now().UnixNano()) / nanoToSeconds
-		if s.frequencyIsInFrames && s.framesSinceLastToggle/int(s.frequency) == 1 ||
-			!s.frequencyIsInFrames && timeNow-s.timeOfLastToggle >= float64(s.frequency) {
-
-			// allow our animation to continue by resetting the index
-			if s.indexInAnimation == len(s.animationImages)-1 {
-				s.indexInAnimation = 0
-				if s.oneTimeOnly {
-					s.shouldAnimate = false
-				}
-			} else {
-				s.indexInAnimation++
-			}
-			s.framesSinceLastToggle = 0
-			s.timeOfLastToggle = float64(time.Now().UnixNano()) / nanoToSeconds
-
-			// indicate we have updated our current image
-			return true
-		}
-		s.framesSinceLastToggle++
-	}
-	return false
+	return s.meta.update(len(s.animationImages))
 }
