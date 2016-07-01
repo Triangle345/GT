@@ -116,27 +116,65 @@ func (s *SpriteRenderer) Update(delta float32) {
 	w := float32(s.img.Bounds().Dx())
 	h := float32(s.img.Bounds().Dy())
 
-	vertexData := []float32{-0.5 * w, 0.5 * h, 1.0, 0.5 * w, 0.5 * h, 1.0, 0.5 * w, -0.5 * h, 1.0, -0.5 * w, -0.5 * h, 1.0}
-
+	// vertexData := []float32{-0.5 * w, 0.5 * h, 1.0, 0.5 * w, 0.5 * h, 1.0, 0.5 * w, -0.5 * h, 1.0, -0.5 * w, -0.5 * h, 1.0}
+	//TODO put vertex data in Image along with UV
+	// vertexData := []float32{
+	// 	// first tri
+	// 	-0.5 * w, -0.5 * h, 1.0,
+	// 	0.5 * w, -0.5 * h, 1.0,
+	// 	-0.5 * w, 0.5 * h, 1.0,
+	// 	// second tri
+	// 	-0.5 * w, 0.5 * h, 1.0,
+	// 	0.5 * w, -0.5 * h, 1.0,
+	// 	0.5 * w, 0.5 * h, 1.0}
 	elements := []uint32{uint32(0), uint32(1), uint32(2), uint32(0), uint32(2), uint32(3)}
+
+	// make one bigger
+	vData := make([]float32, 0, 10*7)
+
+	r := s.r
+	g := s.g
+	b := s.b
+	a := s.a
+
+	vData = append(vData,
+		-0.5*w, -0.5*h, 1.0, r, g, b, a, s.uvs[0], s.uvs[1], Opengl.TEXTURED)
+
+	vData = append(vData,
+		0.5*w, -0.5*h, 1.0, r, g, b, a, s.uvs[2], s.uvs[3], Opengl.TEXTURED)
+
+	vData = append(vData,
+		-0.5*w, 0.5*h, 1.0, r, g, b, a, s.uvs[6], s.uvs[7], Opengl.TEXTURED)
+
+	// second tri
+	vData = append(vData,
+		-0.5*w, 0.5*h, 1.0, r, g, b, a, s.uvs[6], s.uvs[7], Opengl.TEXTURED)
+
+	vData = append(vData,
+		0.5*w, -0.5*h, 1.0, r, g, b, a, s.uvs[2], s.uvs[3], Opengl.TEXTURED)
+
+	vData = append(vData,
+		0.5*w, 0.5*h, 1.0, r, g, b, a, s.uvs[4], s.uvs[5], Opengl.TEXTURED)
 
 	Model := mathgl.Ident4()
 
 	Model = s.GetParent().transform.GetUpdatedModel()
 
 	// transform all vertex data and combine it with other data
-	var data = make([]float32, 0, 9*4)
-	for j := 0; j < 4; j++ {
-		transformation := mathgl.Vec4{vertexData[j*3+0], vertexData[j*3+1], vertexData[j*3+2], 1}
+	// var data = make([]float32, 0, 9*4)
+	for j := 0; j < (len(vData) / 10); j++ {
+		transformation := mathgl.Vec4{vData[j*10+0], vData[j*10+1], vData[j*10+2], 1}
 		t := Model.Mul4x1(transformation)
 
-		data = append(data, t[0], t[1], t[2], s.r, s.g, s.b, s.a, s.uvs[j*2+0], s.uvs[j*2+1], Opengl.TEXTURED)
-
+		//data = append(data, t[0], t[1], t[2] ,//s.r, s.g, s.b, s.a, s.uvs[j*2+0], s.uvs[j*2+1], Opengl.TEXTURED)
+		vData[j*10+0] = t[0]
+		vData[j*10+1] = t[1]
+		vData[j*10+2] = t[2]
 	}
 
 	// package everything up in an OpenGLVertexInfo
 	vertexInfo := Opengl.OpenGLVertexInfo{
-		VertexData: data,
+		VertexData: vData,
 		Elements:   elements,
 		Stride:     4,
 	}

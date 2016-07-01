@@ -187,7 +187,7 @@ func CreateBuffers() {
 	// var vbo uint32
 	gl.GenBuffers(1, &vbo)
 
-	gl.GenBuffers(1, &elementvbo)
+	// gl.GenBuffers(1, &elementvbo)
 
 	bindAggregateImage()
 
@@ -305,8 +305,8 @@ func BindBuffers() { //vertexData *OpenGLVertexInfo) {
 	gl.EnableVertexAttribArray(shaderMode)
 	gl.VertexAttribPointer(shaderMode, 1, gl.FLOAT, false, 4*10, gl.PtrOffset(9*4))
 
-	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, elementvbo)
-	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(vertexData.Elements)*4, gl.Ptr(vertexData.Elements), gl.STATIC_DRAW)
+	// gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, elementvbo)
+	// gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(vertexData.Elements)*4, gl.Ptr(vertexData.Elements), gl.STATIC_DRAW)
 
 	gl.ActiveTexture(gl.TEXTURE0)
 	gl.BindTexture(gl.TEXTURE_2D, 1)
@@ -340,15 +340,17 @@ func Draw() {
 
 	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
 	gl.BufferData(gl.ARRAY_BUFFER, len(vertexData.VertexData)*4, gl.Ptr(vertexData.VertexData), gl.DYNAMIC_DRAW)
-	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, elementvbo)
-	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(vertexData.Elements)*4, gl.Ptr(vertexData.Elements), gl.DYNAMIC_DRAW)
+	// gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, elementvbo)
+	// gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(vertexData.Elements)*4, gl.Ptr(vertexData.Elements), gl.DYNAMIC_DRAW)
 
 	MVP := projectionM.Mul4(viewM) //.Mul4(Model)
 
 	gl.UniformMatrix4fv(MVPid, 1, false, &MVP[0])
 	// vertexData.Print()
-	gl.DrawElements(gl.TRIANGLES, int32(len(vertexData.Elements)), gl.UNSIGNED_INT, nil)
+	// gl.DrawElements(gl.TRIANGLES, int32(len(vertexData.Elements)), gl.UNSIGNED_INT, nil)
 	// }
+
+	gl.DrawArrays(gl.TRIANGLES, 0, int32((len(vertexData.VertexData)/20)*3))
 	ClearVertexData()
 
 }

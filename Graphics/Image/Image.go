@@ -43,24 +43,79 @@ func getUVFromPosition(point image.Point) (u, v float32) {
 func getUVs(bounds image.Rectangle) []float32 {
 	var uvs []float32
 
-	bottomLeft := image.Point{bounds.Min.X, bounds.Max.Y}
-	u, v := getUVFromPosition(bottomLeft)
-	uvs = append(uvs, u, v)
-
-	bottomRight := image.Point{bounds.Max.X, bounds.Max.Y}
-	u, v = getUVFromPosition(bottomRight)
+	topLeft := image.Point{bounds.Min.X, bounds.Min.Y}
+	u, v := getUVFromPosition(topLeft)
 	uvs = append(uvs, u, v)
 
 	topRight := image.Point{bounds.Max.X, bounds.Min.Y}
 	u, v = getUVFromPosition(topRight)
 	uvs = append(uvs, u, v)
 
-	topLeft := image.Point{bounds.Min.X, bounds.Min.Y}
-	u, v = getUVFromPosition(topLeft)
+	bottomRight := image.Point{bounds.Max.X, bounds.Max.Y}
+	u, v = getUVFromPosition(bottomRight)
+	uvs = append(uvs, u, v)
+
+	bottomLeft := image.Point{bounds.Min.X, bounds.Max.Y}
+	u, v = getUVFromPosition(bottomLeft)
 	uvs = append(uvs, u, v)
 
 	return uvs
 }
+
+// func (this *Image) GetUVs() (BLU, BLV, BRU, BRV, TRU, TRV, TLU, TLV float32) {
+// 	BLU = this.uvs[0]
+// 	BLV = this.uvs[1]
+
+// 	BRU = this.uvs[2]
+// 	BRV = this.uvs[3]
+
+// 	TRU = this.uvs[4]
+// 	TRV = this.uvs[5]
+
+// 	TLU = this.uvs[6]
+// 	TLV = this.uvs[7]
+
+// 	return BLU, BLV, BRU, BRV, TRU, TRV, TLU, TLV
+// }
+
+// func (this *Image) GetVertexData() []float32 {
+// 	vData := []float32{}
+
+// 	w := this.Bounds().Dx()
+// 	h := this.Bounds().Dy()
+
+// 	// TODO maybe add rgba to Image?
+// 	//first tri
+// 	vData = append(vData,
+// 		-0.5*w, -0.5*h, 1.0, 0, 0, 0, 0, this.uvs[0], this.uvs[1], Opengl.TEXTURED)
+
+// 	vData = append(vData,
+// 		0.5*w, -0.5*h, 1.0, 0, 0, 0, 0, this.uvs[2], this.uvs[3], Opengl.TEXTURED)
+
+// 	vData = append(vData,
+// 		-0.5*w, 0.5*h, 1.0, 0, 0, 0, 0, this.uvs[6], this.uvs[7], Opengl.TEXTURED)
+
+// 	// second tri
+// 	vData = append(vData,
+// 		-0.5*w, 0.5*h, 1.0, 0, 0, 0, 0, this.uvs[6], this.uvs[7], Opengl.TEXTURED)
+
+// 	vData = append(vData,
+// 		0.5*w, -0.5*h, 1.0, 0, 0, 0, 0, this.uvs[2], this.uvs[3], Opengl.TEXTURED)
+
+// 	vData = append(vData,
+// 		0.5*w, 0.5*h, 1.0, 0, 0, 0, 0, this.uvs[4], this.uvs[5], Opengl.TEXTURED)
+
+// 	// first tri
+// 	// -0.5 * w, -0.5 * h, 1.0, this.uvs[0], this.uvs[1]
+// 	// 0.5 * w, -0.5 * h, 1.0,
+// 	// -0.5 * w, 0.5 * h, 1.0,
+// 	// // second tri
+// 	// -0.5 * w, 0.5 * h, 1.0,
+// 	// 0.5 * w, -0.5 * h, 1.0,
+// 	// 0.5 * w, 0.5 * h, 1.0
+
+// 	return vData
+// }
 
 // returns a new image that is just a sub image based on given bounds
 func (this *Image) SubImage(bounds image.Rectangle) (Image, error) {
