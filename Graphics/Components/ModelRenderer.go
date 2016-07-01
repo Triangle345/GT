@@ -5,6 +5,7 @@ import (
 	"GT/Graphics/G3D"
 	"GT/Graphics/Opengl"
 	"GT/Logging"
+	"fmt"
 
 	mathgl "github.com/go-gl/mathgl/mgl32"
 )
@@ -45,20 +46,31 @@ func (this *modelRenderer) SetModel(path string, mat string) {
 	this.mesh = mesh
 	this.mesh.RecalcElementStride()
 
-	r := float32(.3)
-	g := float32(.3)
-	b := float32(.3)
-	a := float32(1.000)
+	// r := float32(.3)
+	// g := float32(.3)
+	// b := float32(.3)
+	// a := float32(1.000)
 
+	this.vertexData.Stride = this.mesh.Stride()
 	this.vertexData.Elements = make([]uint32, 0, this.mesh.Stride()+1)
 
+	colors := make([]G3D.Color, this.mesh.Stride())
+	fmt.Println("Materials Color: ", this.mesh.Materials)
 	for _, face := range this.mesh.Faces {
+		fmt.Println("Material: ", face)
 		for _, vIdx := range face.V {
 			this.vertexData.Elements = append(this.vertexData.Elements, uint32(vIdx))
+			colors[vIdx] = this.mesh.Materials[face.Material].Diffuse
 		}
 	}
 
-	for _, v := range this.mesh.Vs {
+	// fmt.Println("Colors: ", colors)
+
+	for idx, v := range this.mesh.Vs {
+		r := colors[idx].R
+		g := colors[idx].G
+		b := colors[idx].B
+		a := float32(1.0)
 
 		this.vertexData.VertexData = append(this.vertexData.VertexData, v.X, v.Y, v.Z)     // vdata
 		this.vertexData.VertexData = append(this.vertexData.VertexData, r, g, b, a)        // color
@@ -66,8 +78,6 @@ func (this *modelRenderer) SetModel(path string, mat string) {
 		this.vertexData.VertexData = append(this.vertexData.VertexData, Opengl.NO_TEXTURE) //mode
 
 	}
-
-	this.vertexData.Stride = this.mesh.Stride()
 
 }
 

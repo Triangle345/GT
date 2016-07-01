@@ -10,15 +10,17 @@ type vertexNormal struct {
 
 type face struct {
 	V, UV, VN []int
+	Material  string
 }
 
 type Mesh struct {
-	Name   string
-	File   string
-	Vs     []vertex
-	VNs    []vertexNormal
-	Faces  []face
-	stride int
+	Name      string
+	File      string
+	Vs        []vertex
+	VNs       []vertexNormal
+	Faces     []face
+	stride    int
+	Materials map[string]*Material
 }
 
 func (this *Mesh) RecalcElementStride() {
@@ -51,11 +53,16 @@ func (this *Mesh) Stride() int {
 // Ke 0.000000 0.000000 0.000000
 // Ni 1.000000
 // d 1.000000
+
+type Color struct {
+	R, G, B float32
+}
+
 type Material struct {
-	Name                               string
-	File                               string
-	ambientR, ambientG, ambientB       float32
-	diffuseR, diffuseG, diffuseB       float32
-	specularR, specularG, specularB    float32
-	emmissionR, emmissionG, emmissionB float32
+	Name     string
+	File     string
+	Ambient  Color
+	Diffuse  Color
+	Specular Color
+	Emission Color
 }
