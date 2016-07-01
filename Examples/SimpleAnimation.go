@@ -64,12 +64,12 @@ func main() {
 	// you can append other animations or images
 	anim.AppendAnimation(anim2)
 	anim.AppendAnimation(anim3)
-	anim.AppendImage(GT.AssetsImages + "test.png")
-	anim.Frequency(0.25, false) // set frequency of toggle to every 1/4 second
+	anim.Append(GT.AssetsImages + "test.png")
+	anim.SetFrequency(0.25, false) // set frequency of toggle to every 1/4 second
 
 	// you can swap images in the animation, or remove them by number in the list
-	anim.ReorderImage(1, 27) // one-based input
-	anim.RemoveImage(1)      // remove test.png...
+	anim.Reorder(1, 27) // one-based input
+	anim.Remove(1)      // remove test.png...
 
 	anim.SetAsOneTimeOnly(true)
 
@@ -81,7 +81,7 @@ func main() {
 	node.AddComponent(rend)
 	node.AddComponent(&RunLeft{}) // TODO: remove this for a scripting example
 	//node.Transform().Scale(3, 3) // NOTE: scaling doesn't seem perfect for sub images/animations?
-	node.Transform().Translate(400, 400,0)
+	node.Transform().Translate(400, 400, 0)
 
 	// attach the node to our scene
 	simpleScene.RootNode.AddNode(node)

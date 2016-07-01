@@ -17,11 +17,8 @@ func (s *SpriteRenderer) Initialize() {
 
 // NewSpriteRenderer creates a renderer and initializes its animation map
 func NewSpriteRenderer() *SpriteRenderer {
-
 	sprite := SpriteRenderer{a: 1}
-
 	sprite.animationsMap = map[string]*spriteAnimation{}
-
 	return &sprite
 }
 
@@ -31,10 +28,10 @@ type SpriteRenderer struct {
 	//Parent *Components.Node
 	ChildComponent
 
-	// the image
+	// singular image
 	img image.Image
 
-	// list of images representing our spliced sprite sheet (animation)
+	// map of animations representing possible visuals for a sprite
 	animationsMap    map[string]*spriteAnimation
 	currentAnimation *spriteAnimation
 
@@ -52,8 +49,8 @@ func (s *SpriteRenderer) SetCurrentAnimation(mappedAnimationName string) {
 		fmt.Printf("couldn't find the animation" + mappedAnimationName)
 	}
 	s.currentAnimation = animationRetrieved
-	s.img = s.currentAnimation.currentImage().img
-	s.uvs = s.currentAnimation.currentImage().uvs
+	s.img = s.currentAnimation.currentImage()
+	s.uvs = s.currentAnimation.currentImage().UVs()
 }
 
 // AddAnimation maps a created animation inside the renderer
@@ -68,12 +65,12 @@ func (s *SpriteRenderer) AddAnimation(animationToAdd *spriteAnimation, nameToMap
 
 // StopAnimation tells our current animation that it should not animate (to be used when scripting)
 func (s *SpriteRenderer) StopAnimation() {
-	s.currentAnimation.shouldAnimate = false
+	s.currentAnimation.meta.shouldAnimate = false
 }
 
 // StartAnimation tells our current animation that it should animate (to be used when scripting)
 func (s *SpriteRenderer) StartAnimation() {
-	s.currentAnimation.shouldAnimate = true
+	s.currentAnimation.meta.shouldAnimate = true
 }
 
 // SetImage puts a designated image from the agregate into our image which will be rendered
@@ -149,8 +146,8 @@ func (s *SpriteRenderer) Update(delta float32) {
 
 	// run the animation update (if applicable) and set our renderer image if the animation toggled
 	if s.currentAnimation != nil && s.currentAnimation.update() {
-		s.img = s.currentAnimation.currentImage().img
-		s.uvs = s.currentAnimation.currentImage().uvs
+		s.img = s.currentAnimation.currentImage()
+		s.uvs = s.currentAnimation.currentImage().UVs()
 	}
 }
 
