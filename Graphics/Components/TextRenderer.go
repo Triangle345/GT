@@ -18,12 +18,6 @@ func NewTextRenderer() *TextRenderer {
 
 }
 
-type fontImage struct {
-	r       rune
-	runeImg Image.Image
-	uvs     []float32
-}
-
 type TextRenderer struct {
 	ChildComponent
 
@@ -33,7 +27,7 @@ type TextRenderer struct {
 
 	text string
 
-	runeImgs []*fontImage
+	runeImgs []Image.GameImage
 
 	// color
 	r, g, b, a float32
@@ -63,7 +57,7 @@ func (this *TextRenderer) SetText(text string) {
 			fmt.Println("Cannot create image: " + err.Error())
 		}
 
-		this.runeImgs = append(this.runeImgs, &fontImage{t, img, img.UVs()})
+		this.runeImgs = append(this.runeImgs, &img)
 
 	}
 
@@ -87,20 +81,11 @@ func (this *TextRenderer) Update(delta float32) {
 	scale := float32(this.size) / 100.0
 
 	for _, img := range this.runeImgs {
-		vData := img.runeImg.VertexData()
-		// get advance width
-		// fIdx := fInfo.Index(rune(this.text[i]))
-		// this gets teh bounds of the sub image
-		w := float32(img.runeImg.Bounds().Dx())
+		vData := img.VertexData()
+
+		w := float32(img.Bounds().Dx())
 		// h := float32(img.runeImg.Bounds().Dy())
 
-		//vertex_data := []float32{-0.5 * w, 0.5 * h, 1.0, 0.5 * w, 0.5 * h, 1.0, 0.5 * w, -0.5 * h, 1.0, -0.5 * w, -0.5 * h, 1.0}
-		// vertex_data := []float32{0, 0.5 * h, 1.0, w, 0.5 * h, 1.0, w, -0.5 * h, 1.0, 0, -0.5 * h, 1.0}
-
-		// elements := []uint32{uint32(0), uint32(1), uint32(2), uint32(0), uint32(2), uint32(3)}
-
-		// transform all vertex data and combine it with other data
-		// var data []float32 = make([]float32, 0, 9*4)
 		for j := 0; j < vData.NumVerts(); j++ {
 			x, y, z := vData.GetVertex(j)
 			transformation := mathgl.Vec4{x, y, z, 1}
@@ -119,12 +104,6 @@ func (this *TextRenderer) Update(delta float32) {
 		}
 
 		totalWidth += w
-		// package everything up in an OpenGLVertexInfo
-		// vertexInfo := Opengl.OpenGLVertexInfo{
-		// // VertexData: data,
-		// // Elements:   elements,
-		// // Stride:     4,
-		// }
 
 		// send OpenGLVertex info to Opengl module
 		Opengl.AddVertexData(1, vData)

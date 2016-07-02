@@ -9,6 +9,11 @@ import (
 	_ "image/png"
 )
 
+type GameImage interface {
+	image.Image
+	VertexData() *Opengl.OpenGLVertexInfo
+}
+
 type Image struct {
 	// data          *image.Image
 	*aggregateImageSection
@@ -19,9 +24,38 @@ type Image struct {
 	isFont bool
 }
 
-// UVs will return the uv coords for this image (based on aggregate image)
-func (this *Image) UVs() []float32 {
-	return this.uvs
+type FontImage struct {
+	Image
+	r rune
+}
+
+func (this *FontImage) VertexData() *Opengl.OpenGLVertexInfo {
+	v := Opengl.OpenGLVertexInfo{}
+
+	w := float32(this.Bounds().Dx())
+	h := float32(this.Bounds().Dy())
+
+	// first tri
+	idx := v.NewVertex(0*w, -0.5*h, 1.0)
+	v.SetUV(idx, this.uvs[0], this.uvs[1])
+
+	idx = v.NewVertex(1*w, -0.5*h, 1.0)
+	v.SetUV(idx, this.uvs[2], this.uvs[3])
+
+	idx = v.NewVertex(0*w, 0.5*h, 1.0)
+	v.SetUV(idx, this.uvs[6], this.uvs[7])
+
+	// second tri
+	idx = v.NewVertex(0*w, 0.5*h, 1.0)
+	v.SetUV(idx, this.uvs[6], this.uvs[7])
+
+	idx = v.NewVertex(1*w, -0.5*h, 1.0)
+	v.SetUV(idx, this.uvs[2], this.uvs[3])
+
+	idx = v.NewVertex(1*w, 0.5*h, 1.0)
+	v.SetUV(idx, this.uvs[4], this.uvs[5])
+
+	return &v
 }
 
 // SpriteSheetImage TODO: may be useful for sprite grouping in aggregate, SpriteRenderer will handle animations though
@@ -65,57 +99,33 @@ func getUVs(bounds image.Rectangle) []float32 {
 	return uvs
 }
 
-func (this *Image) generateVertexData() *Opengl.OpenGLVertexInfo {
-	// vData := []float32{}
-
+func (this *Image) VertexData() *Opengl.OpenGLVertexInfo {
 	v := Opengl.OpenGLVertexInfo{}
 
 	w := float32(this.Bounds().Dx())
 	h := float32(this.Bounds().Dy())
 
-	var minW, maxW float32 = -0.5, 0.5
-
-	// if this is a font, we have a slightly different layout
-	if this.isFont {
-		minW = float32(0.0)
-		maxW = float32(1.0)
-	}
-
 	// first tri
-	idx := v.NewVertex(minW*w, -0.5*h, 1.0)
+	idx := v.NewVertex(-0.5*w, -0.5*h, 1.0)
 	v.SetUV(idx, this.uvs[0], this.uvs[1])
 
-	idx = v.NewVertex(maxW*w, -0.5*h, 1.0)
+	idx = v.NewVertex(0.5*w, -0.5*h, 1.0)
 	v.SetUV(idx, this.uvs[2], this.uvs[3])
 
-	idx = v.NewVertex(minW*w, 0.5*h, 1.0)
+	idx = v.NewVertex(-0.5*w, 0.5*h, 1.0)
 	v.SetUV(idx, this.uvs[6], this.uvs[7])
 
 	// second tri
-	idx = v.NewVertex(minW*w, 0.5*h, 1.0)
+	idx = v.NewVertex(-0.5*w, 0.5*h, 1.0)
 	v.SetUV(idx, this.uvs[6], this.uvs[7])
 
-	idx = v.NewVertex(maxW*w, -0.5*h, 1.0)
+	idx = v.NewVertex(0.5*w, -0.5*h, 1.0)
 	v.SetUV(idx, this.uvs[2], this.uvs[3])
 
-	idx = v.NewVertex(maxW*w, 0.5*h, 1.0)
+	idx = v.NewVertex(0.5*w, 0.5*h, 1.0)
 	v.SetUV(idx, this.uvs[4], this.uvs[5])
 
-	// first tri
-	// -0.5 * w, -0.5 * h, 1.0, this.uvs[0], this.uvs[1]
-	// 0.5 * w, -0.5 * h, 1.0,
-	// -0.5 * w, 0.5 * h, 1.0,
-	// // second tri
-	// -0.5 * w, 0.5 * h, 1.0,
-	// 0.5 * w, -0.5 * h, 1.0,
-	// 0.5 * w, 0.5 * h, 1.0
-
-	// v.VertexData = vData
 	return &v
-}
-
-func (this *Image) VertexData() *Opengl.OpenGLVertexInfo {
-	return this.generateVertexData()
 }
 
 // returns a new image that is just a sub image based on given bounds
@@ -155,7 +165,7 @@ func NewImage(path string) (retImg Image, err error) {
 }
 
 // creates a new font rune image
-func NewFontImage(font string, r rune) (retImg Image, err error) {
+func NewFontImage(font string, r rune) (retImg FontImage, err error) {
 
 	if fontSec := AggrImg.GetFontImageSection(font); fontSec != nil {
 
@@ -163,9 +173,9 @@ func NewFontImage(font string, r rune) (retImg Image, err error) {
 
 		runeImg, _ := fontImg.SubImage(fontSec.FontSections[r])
 
-		return runeImg, nil
+		return FontImage{runeImg, r}, nil
 	}
 
-	return Image{}, fmt.Errorf("Cannot get valid font section for font: %s", font)
+	return FontImage{}, fmt.Errorf("Cannot get valid font section for font: %s", font)
 
 }
