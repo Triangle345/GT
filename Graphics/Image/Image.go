@@ -20,8 +20,6 @@ type Image struct {
 
 	// uvs for image
 	uvs []float32
-
-	isFont bool
 }
 
 type FontImage struct {
@@ -145,7 +143,6 @@ func (this *Image) SubImage(bounds image.Rectangle) (Image, error) {
 
 	img.section = image.Rectangle{origB.Min.Add(bounds.Min), origB.Min.Add(bounds.Max)}
 	img.uvs = getUVs(img.section)
-	img.isFont = this.isFont
 
 	return img, nil
 }
@@ -155,7 +152,7 @@ func NewImage(path string) (retImg Image, err error) {
 
 	if newImg := AggrImg.GetImageSection(path); newImg != nil {
 
-		imgRet := Image{newImg, getUVs(newImg.section), false}
+		imgRet := Image{newImg, getUVs(newImg.section)}
 
 		return imgRet, nil
 	}
@@ -169,7 +166,7 @@ func NewFontImage(font string, r rune) (retImg FontImage, err error) {
 
 	if fontSec := AggrImg.GetFontImageSection(font); fontSec != nil {
 
-		fontImg := Image{fontSec.aggregateImageSection, getUVs(fontSec.section), true}
+		fontImg := Image{fontSec.aggregateImageSection, getUVs(fontSec.section)}
 
 		runeImg, _ := fontImg.SubImage(fontSec.FontSections[r])
 
