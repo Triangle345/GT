@@ -29,7 +29,7 @@ type SpriteRenderer struct {
 	ChildComponent
 
 	// singular image
-	img Image.OGLImage
+	img Opengl.OGLVertexData
 
 	// map of animations representing possible visuals for a sprite
 	animationsMap    map[string]*spriteAnimation

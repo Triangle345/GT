@@ -26,7 +26,7 @@ func NewModelRenderer() *modelRenderer {
 type modelRenderer struct {
 	ChildComponent
 
-	mesh *G3D.Mesh
+	mesh Opengl.OGLVertexData
 
 	// uvs - store uvs for speed
 	uvs []float32
@@ -51,18 +51,42 @@ func (this *modelRenderer) SetModel(path string, mat string) {
 // Update gets called every frame and accounts for all settings in the renderer as well as shifts animations
 func (this *modelRenderer) Update(delta float32) {
 
-	vertexData := Opengl.OpenGLVertexInfo{}
+	// vertexData := Opengl.OpenGLVertexInfo{}
 
-	for _, face := range this.mesh.Faces {
-		for _, vIdx := range face.V {
-			c := this.mesh.Materials[face.Material].Diffuse
-			v := this.mesh.Vs[vIdx]
-			vdID := vertexData.NewVertex(v.X, v.Y, v.Z)
-			vertexData.SetColor(vdID, c.R, c.G, c.B, 1)
-			vertexData.SetMode(vdID, Opengl.NO_TEXTURE)
-		}
+	// for _, face := range this.mesh.Faces {
+	// 	for idx, vIdx := range face.V {
+	// 		c := this.mesh.Materials[face.Material].Diffuse
+	// 		v := this.mesh.Vs[vIdx]
+	// 		vdID := vertexData.NewVertex(v.X, v.Y, v.Z)
+	// 		vertexData.SetColor(vdID, c.R, c.G, c.B, 1)
 
-	}
+	// 		if len(face.UV) == 0 {
+	// 			vertexData.SetMode(vdID, Opengl.NO_TEXTURE)
+	// 		} else {
+	// 			tex := this.mesh.Materials[face.Material].DiffuseTex
+	// 			imgSec := Image.AggrImg.GetImageSection(GT.AssetsImages + tex)
+	// 			u := this.mesh.VTs[face.UV[idx]].U
+	// 			v := this.mesh.VTs[face.UV[idx]].V
+
+	// 			// x starts from left to right
+	// 			locX := int(float32(imgSec.Bounds().Dx()) * u)
+	// 			// y starts bottom to top so we need to convert.
+	// 			locY := int(float32(imgSec.Bounds().Max.Y) - float32(imgSec.Bounds().Dy())*v)
+
+	// 			locX += imgSec.Section.Min.X
+	// 			locY += imgSec.Section.Min.Y
+
+	// 			// TODO move GetUVFromPosition into maybe image aggregator
+	// 			newU, newV := Image.AggrImg.GetUVFromPosition(image.Point{locX, locY})
+
+	// 			vertexData.SetUV(vdID, newU, newV)
+	// 			vertexData.SetMode(vdID, Opengl.TEXTURED)
+	// 		}
+	// 	}
+
+	// }
+
+	vertexData := this.mesh.VertexData()
 
 	Model := mathgl.Ident4()
 
@@ -77,6 +101,6 @@ func (this *modelRenderer) Update(delta float32) {
 	}
 
 	// send OpenGLVertex info to Opengl module
-	Opengl.AddVertexData(1, &vertexData)
+	Opengl.AddVertexData(1, vertexData)
 
 }

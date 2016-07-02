@@ -68,6 +68,7 @@ func EngineStart() {
 	Image.LoadImages(AssetsImages)
 	Opengl.CreateBuffers()
 	Logging.Info("Engine initialization finished.")
+	// Image.AggrImg.Print("aggr.png")
 }
 
 func main() {

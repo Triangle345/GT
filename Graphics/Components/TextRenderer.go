@@ -8,7 +8,10 @@ import (
 	"GT/Graphics/Opengl"
 	"fmt"
 
+	"GT/Graphics/Font"
+
 	mathgl "github.com/go-gl/mathgl/mgl32"
+	"github.com/golang/freetype/truetype"
 )
 
 func NewTextRenderer() *TextRenderer {
@@ -27,7 +30,7 @@ type TextRenderer struct {
 
 	text string
 
-	runeImgs []Image.OGLImage
+	runeImgs []Opengl.OGLVertexData
 
 	// color
 	r, g, b, a float32
@@ -76,14 +79,16 @@ func (this *TextRenderer) Update(delta float32) {
 	Model := mathgl.Ident4()
 	Model = this.GetParent().transform.GetUpdatedModel()
 
-	// fInfo := truetype.Font(*Font.GetFont(this.font))
+	fInfo := truetype.Font(*Font.GetFont(this.font))
+
 	totalWidth := float32(0.0)
 	scale := float32(this.size) / 100.0
 
-	for _, img := range this.runeImgs {
+	for idx, img := range this.runeImgs {
 		vData := img.VertexData()
-
-		w := float32(img.Bounds().Dx())
+		i := fInfo.Index(rune(this.text[idx]))
+		hmetric := fInfo.HMetric(100, i)
+		w := float32(hmetric.AdvanceWidth) //float32(img.Bounds().Dx())
 		// h := float32(img.runeImg.Bounds().Dy())
 
 		for j := 0; j < vData.NumVerts(); j++ {

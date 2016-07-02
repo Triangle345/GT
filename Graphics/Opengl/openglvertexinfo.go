@@ -11,6 +11,19 @@ type OpenGLVertexInfo struct {
 	totalStride int
 }
 
+type OGLVertexData interface {
+	VertexData() *OpenGLVertexInfo
+}
+
+func (this *OpenGLVertexInfo) Clone() *OpenGLVertexInfo {
+	vinfo := OpenGLVertexInfo{}
+	vData := make([]float32, len(this.vertexData))
+	copy(vData, this.vertexData)
+
+	vinfo.vertexData = vData
+	return &vinfo
+}
+
 func (this *OpenGLVertexInfo) NewVertex(x, y, z float32) int {
 	this.vertexData = append(this.vertexData, x, y, z, 0, 0, 0, 1, 0, 0, TEXTURED)
 	return this.NumVerts() - 1

@@ -43,6 +43,21 @@ func parseVertex(i *int, dat []string) vertex {
 	return v
 }
 
+func parseVertexTexture(i *int, dat []string) vertexTexture {
+	*i++
+	vt := vertexTexture{}
+
+	f, _ := strconv.ParseFloat(dat[*i], 32)
+
+	vt.U = float32(f)
+
+	*i++
+	f, _ = strconv.ParseFloat(dat[*i], 32)
+	vt.V = float32(f)
+
+	return vt
+}
+
 func parseVertexNormal(i *int, dat []string) vertexNormal {
 	*i++
 	vn := vertexNormal{}
@@ -62,44 +77,40 @@ func parseVertexNormal(i *int, dat []string) vertexNormal {
 	return vn
 }
 
-func parseFace(i *int, dat []string) face {
-	*i++
-	f := face{}
-	fDat := strings.Split(dat[*i], "/")
+func populateFaceTriData(dat string, f *face) {
+	fDat := strings.Split(dat, "/")
 
 	// NOTE: subtract one because we want index and obj files do not do index
 	// first point of triangle
 	//TODO replace Atoi with parseuint for bigger values
-	v, _ := strconv.Atoi(fDat[0])
-	uv, _ := strconv.Atoi(fDat[1])
-	vn, _ := strconv.Atoi(fDat[2])
-	f.V = append(f.V, v-1)
-	f.UV = append(f.UV, uv-1)
-	f.VN = append(f.VN, vn-1)
+	if v, errV := strconv.Atoi(fDat[0]); errV == nil {
+		f.V = append(f.V, v-1)
+	}
+	if uv, errUV := strconv.Atoi(fDat[1]); errUV == nil {
+		f.UV = append(f.UV, uv-1)
+	}
+
+	if vn, errVN := strconv.Atoi(fDat[2]); errVN == nil {
+		f.VN = append(f.VN, vn-1)
+	}
+}
+
+func parseFace(i *int, dat []string) face {
+
+	f := face{}
+
+	// populate for three vertices - triangle
 
 	*i++
 
-	fDat = strings.Split(dat[*i], "/")
+	populateFaceTriData(dat[*i], &f)
 
-	// second point of triangle
-	v, _ = strconv.Atoi(fDat[0])
-	uv, _ = strconv.Atoi(fDat[1])
-	vn, _ = strconv.Atoi(fDat[2])
-	f.V = append(f.V, v-1)
-	f.UV = append(f.UV, uv-1)
-	f.VN = append(f.VN, vn-1)
+	*i++
+	populateFaceTriData(dat[*i], &f)
 
 	*i++
 
-	fDat = strings.Split(dat[*i], "/")
-
-	// third point of triangle
-	v, _ = strconv.Atoi(fDat[0])
-	uv, _ = strconv.Atoi(fDat[1])
-	vn, _ = strconv.Atoi(fDat[2])
-	f.V = append(f.V, v-1)
-	f.UV = append(f.UV, uv-1)
-	f.VN = append(f.VN, vn-1)
+	populateFaceTriData(dat[*i], &f)
 
 	return f
 }
@@ -147,6 +158,11 @@ func ParseOBJ(objLocation, matLocation string) (*Mesh, error) {
 			vn := parseVertexNormal(&i, strArray)
 			fmt.Println("Parsed Vertex normal: ", vn)
 			m.VNs = append(m.VNs, vn)
+
+		case "vt":
+			vt := parseVertexTexture(&i, strArray)
+			fmt.Println("Parsed Vertex texture: ", vt)
+			m.VTs = append(m.VTs, vt)
 
 		case "usemtl":
 			usemtl := parseUseMtl(&i, strArray)
@@ -210,6 +226,11 @@ func parseMat(matLocation string) (map[string]*Material, error) {
 			e := parseColor(&i, strArray)
 			fmt.Println("Parsed material emission: ", e)
 			m.Emission = e
+
+		case "map_Kd":
+			t := parseTexture(&i, strArray)
+			fmt.Println("Parsed material texture diffuse: ", t)
+			m.DiffuseTex = t
 		}
 
 	}
@@ -217,6 +238,11 @@ func parseMat(matLocation string) (map[string]*Material, error) {
 	fmt.Println("Materisls 001 :", mats["Material.001"])
 	fmt.Println("Materisls 002 :", mats["Material.002"])
 	return mats, nil
+}
+
+func parseTexture(i *int, dat []string) string {
+	*i++
+	return dat[*i]
 }
 
 func parseMtl(i *int, dat []string) string {

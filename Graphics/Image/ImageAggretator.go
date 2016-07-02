@@ -28,7 +28,7 @@ type FontImageSection struct {
 type aggregateImageSection struct {
 	image.Image
 	pathName string
-	section  image.Rectangle
+	Section  image.Rectangle
 }
 
 // AggregateImage is our class for grouping all images, sprites, etc. into one place.
@@ -42,6 +42,14 @@ type AggregateImage struct {
 	fontsSectionMap map[string]*FontImageSection
 
 	aggregateImage image.Image
+}
+
+func (this *AggregateImage) GetUVFromPosition(point image.Point) (u, v float32) {
+
+	u = float32(point.X) / float32(this.aggregateImage.Bounds().Dx())
+	v = float32(point.Y) / float32(this.aggregateImage.Bounds().Dy())
+
+	return
 }
 
 // loadTExtureImages populates image section maps
@@ -58,14 +66,14 @@ func loadTextureImages(location string) {
 		fmt.Println("Partition: ", part)
 
 		if part != nil {
-			imgSec.section = image.Rectangle{part.Bounds().Min,
+			imgSec.Section = image.Rectangle{part.Bounds().Min,
 				part.Bounds().Min.Add(imgSec.Bounds().Size())}
 
-			if imgSec.section.Bounds().Max.Y > maxHeight {
-				maxHeight = imgSec.section.Bounds().Max.Y
+			if imgSec.Section.Bounds().Max.Y > maxHeight {
+				maxHeight = imgSec.Section.Bounds().Max.Y
 			}
 			if imgSec.Bounds().Max.X > maxWidth {
-				maxWidth = imgSec.section.Bounds().Max.X
+				maxWidth = imgSec.Section.Bounds().Max.X
 			}
 		}
 
@@ -124,13 +132,13 @@ func LoadImages(path string) {
 	// draw all images
 	for _, imgSec := range AggrImg.images {
 
-		draw.Draw(rgbaFinal, imgSec.section, imgSec, image.Point{0, 0}, draw.Src) // draw images
+		draw.Draw(rgbaFinal, imgSec.Section, imgSec, image.Point{0, 0}, draw.Src) // draw images
 
 	}
 
 	for _, fontSec := range AggrImg.fonts {
 
-		draw.Draw(rgbaFinal, fontSec.section, fontSec, image.Point{0, 0}, draw.Src) // draw images
+		draw.Draw(rgbaFinal, fontSec.Section, fontSec, image.Point{0, 0}, draw.Src) // draw images
 
 	}
 

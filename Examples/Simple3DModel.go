@@ -16,7 +16,7 @@ type Spin struct {
 
 func (this *Spin) Initialize() {
 	//no initialize for RunLeft
-	this.Transform().Rotate(0, .2, 1, .2)
+	this.Transform().Rotate(0, .1, .5, .2)
 
 }
 
@@ -35,15 +35,21 @@ func main() {
 	node.AddComponent(&Spin{})
 	// create a model based on obj file
 	rend := Components.NewModelRenderer()
-	rend.SetModel(GT.AssetsModels+"test.obj", GT.AssetsModels+"test.mtl")
-
-	// attach the sprite to our node, and transform if desired
+	rend.SetModel(GT.AssetsModels+"textured_box.obj", GT.AssetsModels+"textured_box.mtl")
 	node.AddComponent(rend)
-	//node.Transform().Rotate(.2, 0, 1, 0)
-	// node.Transform().Translate(1, 2, 0)
+
+	node2 := Components.NewNode("new_image")
+	node2.AddComponent(&Spin{})
+	// create a model based on obj file
+	rend2 := Components.NewModelRenderer()
+	rend2.SetModel(GT.AssetsModels+"test.obj", GT.AssetsModels+"test.mtl")
+	node2.AddComponent(rend2)
+	node2.Transform().Translate(3, -3, 0)
+	// node2.Transform().Rotate(.3, .2, 1, .2)
 
 	// attach the node to our scene
 	simpleScene.RootNode.AddNode(node)
+	simpleScene.RootNode.AddNode(node2)
 
 	// start the scene to render our setup
 	simpleScene.Start()

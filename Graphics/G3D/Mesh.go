@@ -1,5 +1,12 @@
 package G3D
 
+import (
+	"GT"
+	"GT/Graphics/Image"
+	"GT/Graphics/Opengl"
+	"image"
+)
+
 type vertex struct {
 	X, Y, Z float32
 }
@@ -8,42 +15,61 @@ type vertexNormal struct {
 	X, Y, Z float32
 }
 
+type vertexTexture struct {
+	U, V float32
+}
+
 type face struct {
 	V, UV, VN []int
 	Material  string
 }
 
-type Mesh struct {
-	Name  string
-	File  string
-	Vs    []vertex
-	VNs   []vertexNormal
-	Faces []face
-	// stride    int
-	Materials map[string]*Material
+func (this *Mesh) VertexData() *Opengl.OpenGLVertexInfo {
+	vertexData := Opengl.OpenGLVertexInfo{}
+
+	for _, face := range this.Faces {
+		for idx, vIdx := range face.V {
+			c := this.Materials[face.Material].Diffuse
+			v := this.Vs[vIdx]
+			vdID := vertexData.NewVertex(v.X, v.Y, v.Z)
+			vertexData.SetColor(vdID, c.R, c.G, c.B, 1)
+
+			if len(face.UV) == 0 {
+				vertexData.SetMode(vdID, Opengl.NO_TEXTURE)
+			} else {
+				tex := this.Materials[face.Material].DiffuseTex
+				imgSec := Image.AggrImg.GetImageSection(GT.AssetsImages + tex)
+				u := this.VTs[face.UV[idx]].U
+				v := this.VTs[face.UV[idx]].V
+
+				// x starts from left to right
+				locX := int(float32(imgSec.Bounds().Dx()) * u)
+				// y starts bottom to top so we need to convert.
+				locY := int(float32(imgSec.Bounds().Max.Y) - float32(imgSec.Bounds().Dy())*v)
+
+				locX += imgSec.Section.Min.X
+				locY += imgSec.Section.Min.Y
+
+				// TODO move GetUVFromPosition into maybe image aggregator
+				newU, newV := Image.AggrImg.GetUVFromPosition(image.Point{locX, locY})
+
+				vertexData.SetUV(vdID, newU, newV)
+				vertexData.SetMode(vdID, Opengl.TEXTURED)
+			}
+		}
+	}
+	return &vertexData
 }
 
-// func (this *Mesh) RecalcElementStride() {
-// 	maxIdx := 0
-// 	for _, val := range this.Faces {
-// 		for _, val2 := range val.V {
-// 			if val2 > maxIdx {
-
-// 				maxIdx = val2
-// 			}
-// 		}
-// 	}
-
-// 	// add one since its the idx, we need count
-// 	this.stride = maxIdx + 1
-// }
-
-// func (this *Mesh) Stride() int {
-// 	if this.stride == 0 {
-// 		this.RecalcElementStride()
-// 	}
-// 	return this.stride
-// }
+type Mesh struct {
+	Name      string
+	File      string
+	Vs        []vertex
+	VNs       []vertexNormal
+	VTs       []vertexTexture
+	Faces     []face
+	Materials map[string]*Material
+}
 
 // newmtl Material
 // Ns 96.078431
@@ -59,10 +85,12 @@ type Color struct {
 }
 
 type Material struct {
-	Name     string
-	File     string
-	Ambient  Color
-	Diffuse  Color
-	Specular Color
-	Emission Color
+	Name       string
+	File       string
+	Ambient    Color
+	Diffuse    Color
+	Specular   Color
+	Emission   Color
+	DiffuseTex string
+	AmbientTex string
 }

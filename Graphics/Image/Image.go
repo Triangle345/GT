@@ -9,11 +9,6 @@ import (
 	_ "image/png"
 )
 
-type OGLImage interface {
-	image.Image
-	VertexData() *Opengl.OpenGLVertexInfo
-}
-
 type Image struct {
 	// data          *image.Image
 	*aggregateImageSection
@@ -24,7 +19,7 @@ type Image struct {
 
 type FontImage struct {
 	Image
-	r rune
+	R rune
 }
 
 func (this *FontImage) VertexData() *Opengl.OpenGLVertexInfo {
@@ -64,34 +59,26 @@ type SpriteSheetImage struct {
 
 // Bounds will "override" the normal image bounds
 func (this Image) Bounds() image.Rectangle {
-	return this.section
+	return this.Section
 }
 
-func getUVFromPosition(point image.Point) (u, v float32) {
-
-	u = float32(point.X) / float32(AggrImg.aggregateImage.Bounds().Dx())
-	v = float32(point.Y) / float32(AggrImg.aggregateImage.Bounds().Dy())
-
-	return
-}
-
-func getUVs(bounds image.Rectangle) []float32 {
+func generateUVs(bounds image.Rectangle) []float32 {
 	var uvs []float32
 
 	topLeft := image.Point{bounds.Min.X, bounds.Min.Y}
-	u, v := getUVFromPosition(topLeft)
+	u, v := AggrImg.GetUVFromPosition(topLeft)
 	uvs = append(uvs, u, v)
 
 	topRight := image.Point{bounds.Max.X, bounds.Min.Y}
-	u, v = getUVFromPosition(topRight)
+	u, v = AggrImg.GetUVFromPosition(topRight)
 	uvs = append(uvs, u, v)
 
 	bottomRight := image.Point{bounds.Max.X, bounds.Max.Y}
-	u, v = getUVFromPosition(bottomRight)
+	u, v = AggrImg.GetUVFromPosition(bottomRight)
 	uvs = append(uvs, u, v)
 
 	bottomLeft := image.Point{bounds.Min.X, bounds.Max.Y}
-	u, v = getUVFromPosition(bottomLeft)
+	u, v = AggrImg.GetUVFromPosition(bottomLeft)
 	uvs = append(uvs, u, v)
 
 	return uvs
@@ -141,8 +128,8 @@ func (this *Image) SubImage(bounds image.Rectangle) (Image, error) {
 
 	// this is actually a sub image within a subimage
 
-	img.section = image.Rectangle{origB.Min.Add(bounds.Min), origB.Min.Add(bounds.Max)}
-	img.uvs = getUVs(img.section)
+	img.Section = image.Rectangle{origB.Min.Add(bounds.Min), origB.Min.Add(bounds.Max)}
+	img.uvs = generateUVs(img.Section)
 
 	return img, nil
 }
@@ -152,8 +139,7 @@ func NewImage(path string) (retImg Image, err error) {
 
 	if newImg := AggrImg.GetImageSection(path); newImg != nil {
 
-		imgRet := Image{newImg, getUVs(newImg.section)}
-
+		imgRet := Image{newImg, generateUVs(newImg.Section)}
 		return imgRet, nil
 	}
 
@@ -167,8 +153,7 @@ func NewFontImage(font string, r rune) (retImg FontImage, err error) {
 
 	if fontSec := AggrImg.GetFontImageSection(font); fontSec != nil {
 
-		fontImg := Image{fontSec.aggregateImageSection, getUVs(fontSec.section)}
-
+		fontImg := Image{fontSec.aggregateImageSection, generateUVs(fontSec.Section)}
 		runeImg, _ := fontImg.SubImage(fontSec.FontSections[r])
 
 		return FontImage{runeImg, r}, nil
