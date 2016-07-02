@@ -14,36 +14,36 @@ type face struct {
 }
 
 type Mesh struct {
-	Name      string
-	File      string
-	Vs        []vertex
-	VNs       []vertexNormal
-	Faces     []face
-	stride    int
+	Name  string
+	File  string
+	Vs    []vertex
+	VNs   []vertexNormal
+	Faces []face
+	// stride    int
 	Materials map[string]*Material
 }
 
-func (this *Mesh) RecalcElementStride() {
-	maxIdx := 0
-	for _, val := range this.Faces {
-		for _, val2 := range val.V {
-			if val2 > maxIdx {
+// func (this *Mesh) RecalcElementStride() {
+// 	maxIdx := 0
+// 	for _, val := range this.Faces {
+// 		for _, val2 := range val.V {
+// 			if val2 > maxIdx {
 
-				maxIdx = val2
-			}
-		}
-	}
+// 				maxIdx = val2
+// 			}
+// 		}
+// 	}
 
-	// add one since its the idx, we need count
-	this.stride = maxIdx + 1
-}
+// 	// add one since its the idx, we need count
+// 	this.stride = maxIdx + 1
+// }
 
-func (this *Mesh) Stride() int {
-	if this.stride == 0 {
-		this.RecalcElementStride()
-	}
-	return this.stride
-}
+// func (this *Mesh) Stride() int {
+// 	if this.stride == 0 {
+// 		this.RecalcElementStride()
+// 	}
+// 	return this.stride
+// }
 
 // newmtl Material
 // Ns 96.078431

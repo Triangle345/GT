@@ -21,6 +21,10 @@ func (this *OpenGLVertexInfo) SetUV(vIdx int, u, v float32) {
 	this.vertexData[vIdx*int(NUM_ATTRIBUTES)+8] = v
 }
 
+func (this *OpenGLVertexInfo) SetMode(vIdx int, m float32) {
+	this.vertexData[vIdx*int(NUM_ATTRIBUTES)+9] = m
+}
+
 func (this *OpenGLVertexInfo) SetColor(vIdx int, r, g, b, a float32) {
 	this.vertexData[vIdx*int(NUM_ATTRIBUTES)+3] = r
 	this.vertexData[vIdx*int(NUM_ATTRIBUTES)+4] = g

@@ -11,6 +11,7 @@ import (
 
 type Spin struct {
 	Components.ScriptComponent
+	rot float32
 }
 
 func (this *Spin) Initialize() {
@@ -32,11 +33,9 @@ func main() {
 	simpleScene, _ := Graphics.New3DScene()
 	node := Components.NewNode("new_image")
 	node.AddComponent(&Spin{})
-	// create a png based sprite
+	// create a model based on obj file
 	rend := Components.NewModelRenderer()
 	rend.SetModel(GT.AssetsModels+"test.obj", GT.AssetsModels+"test.mtl")
-	// myImagePath, _ := filepath.Abs("../Assets/Images/test.png")
-	//rend.SetImage(GT.AssetsImages + "test.png")
 
 	// attach the sprite to our node, and transform if desired
 	node.AddComponent(rend)
