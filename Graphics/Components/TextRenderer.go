@@ -7,7 +7,6 @@ import (
 	"GT/Graphics/Image"
 	"GT/Graphics/Opengl"
 	"fmt"
-	"image"
 
 	mathgl "github.com/go-gl/mathgl/mgl32"
 )
@@ -21,7 +20,7 @@ func NewTextRenderer() *TextRenderer {
 
 type fontImage struct {
 	r       rune
-	runeImg image.Image
+	runeImg Image.Image
 	uvs     []float32
 }
 
@@ -88,22 +87,23 @@ func (this *TextRenderer) Update(delta float32) {
 	scale := float32(this.size) / 100.0
 
 	for _, img := range this.runeImgs {
-
+		vData := img.runeImg.VertexData()
 		// get advance width
 		// fIdx := fInfo.Index(rune(this.text[i]))
 		// this gets teh bounds of the sub image
 		w := float32(img.runeImg.Bounds().Dx())
-		h := float32(img.runeImg.Bounds().Dy())
+		// h := float32(img.runeImg.Bounds().Dy())
 
 		//vertex_data := []float32{-0.5 * w, 0.5 * h, 1.0, 0.5 * w, 0.5 * h, 1.0, 0.5 * w, -0.5 * h, 1.0, -0.5 * w, -0.5 * h, 1.0}
-		vertex_data := []float32{0, 0.5 * h, 1.0, w, 0.5 * h, 1.0, w, -0.5 * h, 1.0, 0, -0.5 * h, 1.0}
+		// vertex_data := []float32{0, 0.5 * h, 1.0, w, 0.5 * h, 1.0, w, -0.5 * h, 1.0, 0, -0.5 * h, 1.0}
 
-		elements := []uint32{uint32(0), uint32(1), uint32(2), uint32(0), uint32(2), uint32(3)}
+		// elements := []uint32{uint32(0), uint32(1), uint32(2), uint32(0), uint32(2), uint32(3)}
 
 		// transform all vertex data and combine it with other data
-		var data []float32 = make([]float32, 0, 9*4)
-		for j := 0; j < 4; j++ {
-			transformation := mathgl.Vec4{vertex_data[j*3+0], vertex_data[j*3+1], vertex_data[j*3+2], 1}
+		// var data []float32 = make([]float32, 0, 9*4)
+		for j := 0; j < vData.NumVerts(); j++ {
+			x, y, z := vData.GetVertex(j)
+			transformation := mathgl.Vec4{x, y, z, 1}
 
 			// apply font transforms
 			t := mathgl.Translate3D(totalWidth, 0, 0).Mul4x1(transformation)
@@ -112,20 +112,22 @@ func (this *TextRenderer) Update(delta float32) {
 
 			t = Model.Mul4x1(t)
 
-			data = append(data, t[0], t[1], t[2], this.r, this.g, this.b, this.a, img.uvs[j*2+0], img.uvs[j*2+1], 1.0)
+			// data = append(data, t[0], t[1], t[2], this.r, this.g, this.b, this.a, img.uvs[j*2+0], img.uvs[j*2+1], 1.0)
+			vData.SetVertex(j, t[0], t[1], t[3])
+			vData.SetColor(j, this.r, this.g, this.b, this.a)
 
 		}
 
 		totalWidth += w
 		// package everything up in an OpenGLVertexInfo
-		vertexInfo := Opengl.OpenGLVertexInfo{
-			VertexData: data,
-			Elements:   elements,
-			Stride:     4,
-		}
+		// vertexInfo := Opengl.OpenGLVertexInfo{
+		// // VertexData: data,
+		// // Elements:   elements,
+		// // Stride:     4,
+		// }
 
 		// send OpenGLVertex info to Opengl module
-		Opengl.AddVertexData(1, &vertexInfo)
+		Opengl.AddVertexData(1, vData)
 
 	}
 

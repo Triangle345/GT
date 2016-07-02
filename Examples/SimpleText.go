@@ -15,6 +15,11 @@ func random(min, max int) int {
 	return rand.Intn(max-min) + min
 }
 
+type MySpin struct {
+	Components.ScriptComponent
+	scale float32
+}
+
 func main() {
 
 	fmt.Println("starting")
@@ -41,7 +46,7 @@ func main() {
 
 	node2 := Components.NewNode("Text2")
 	node2.Transform().Rotate(.3, 0, 0, 1)
-	node2.Transform().Translate(150, 100, 0)
+	node2.Transform().Translate(150, 150, 0)
 	node2.AddComponent(textRend2)
 
 	s.RootNode.AddNode(node1)

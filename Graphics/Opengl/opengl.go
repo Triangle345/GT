@@ -13,12 +13,16 @@ import (
 	"strings"
 )
 
+const (
+	NUM_ATTRIBUTES int32 = 10
+)
+
 var program uint32
 var viewM mathgl.Mat4
 var projectionM mathgl.Mat4
 var MVPid int32
 
-var vertexDataTest OpenGLVertexInfo = OpenGLVertexInfo{Stride: 4, Elements: make([]uint32, 0, 9999999), VertexData: make([]float32, 0, 9999999)}
+var vertexDataTest OpenGLVertexInfo = OpenGLVertexInfo{Stride: 4, Elements: make([]uint32, 0, 9999999), vertexData: make([]float32, 0, 9999999)}
 
 var aggregateImage image.Image
 
@@ -221,59 +225,6 @@ func ClearVertexData() {
 	vertexDataTest.Clear()
 }
 
-type OpenGLVertexInfo struct {
-	VertexData []float32
-	Elements   []uint32
-
-	// TODO: make stride private and set it statically using new OpenGLVertexInfo2D or something
-	Stride      int
-	totalStride int
-}
-
-// TODO: need to put this in as part of vertex info and into hashhash
-func (this *OpenGLVertexInfo) adjustElements(o *OpenGLVertexInfo) {
-
-	for k, _ := range o.Elements {
-		o.Elements[k] += uint32(this.totalStride)
-		// fmt.Println(i.Elements[k])
-	}
-
-	//TODO: add argument of stride to add stride of other vertexinfo
-	this.totalStride += o.Stride
-}
-
-func (i *OpenGLVertexInfo) append(o *OpenGLVertexInfo) {
-	i.adjustElements(o)
-
-	i.VertexData = append(i.VertexData, o.VertexData...)
-	i.Elements = append(i.Elements, o.Elements...)
-
-	//i.Stride += o.Stride
-
-}
-
-func (i *OpenGLVertexInfo) Clear() {
-
-	i.VertexData = make([]float32, 0, 1000000)
-	i.Elements = make([]uint32, 0, 1000000)
-	i.totalStride = 0
-
-}
-
-func (i OpenGLVertexInfo) Print() {
-	fmt.Printf("--------------------------------------------------\n")
-	for _, v := range i.VertexData {
-		fmt.Printf("inside data:%f \n", v)
-	}
-	fmt.Printf("+++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
-	for _, v := range i.Elements {
-		fmt.Printf("inside element:%f \n", v)
-	}
-	fmt.Printf("stride %d \n", i.Stride)
-	fmt.Printf("Total stride %d \n", i.totalStride)
-
-}
-
 func BindBuffers() { //vertexData *OpenGLVertexInfo) {
 
 	// fmt.Println(program)
@@ -282,28 +233,28 @@ func BindBuffers() { //vertexData *OpenGLVertexInfo) {
 	vertexData := &vertexDataTest
 
 	// check to see if there are any vertices at all to bind
-	if len(vertexData.VertexData) == 0 {
+	if len(vertexData.vertexData) == 0 {
 		return
 	}
 
 	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
-	gl.BufferData(gl.ARRAY_BUFFER, len(vertexData.VertexData)*4, gl.Ptr(vertexData.VertexData), gl.DYNAMIC_DRAW)
+	gl.BufferData(gl.ARRAY_BUFFER, len(vertexData.vertexData)*4, gl.Ptr(vertexData.vertexData), gl.DYNAMIC_DRAW)
 
 	positionAttrib := uint32(gl.GetAttribLocation(program, gl.Str("vertexPosition_modelspace\x00")))
 	gl.EnableVertexAttribArray(positionAttrib)
-	gl.VertexAttribPointer(positionAttrib, 3, gl.FLOAT, false, 4*10, gl.PtrOffset(0))
+	gl.VertexAttribPointer(positionAttrib, 3, gl.FLOAT, false, 4*NUM_ATTRIBUTES, gl.PtrOffset(0))
 
 	colorAttrib := uint32(gl.GetAttribLocation(program, gl.Str("vertexColor\x00")))
 	gl.EnableVertexAttribArray(colorAttrib)
-	gl.VertexAttribPointer(colorAttrib, 4, gl.FLOAT, false, 4*10, gl.PtrOffset(3*4))
+	gl.VertexAttribPointer(colorAttrib, 4, gl.FLOAT, false, 4*NUM_ATTRIBUTES, gl.PtrOffset(3*4))
 
 	uvAttrib := uint32(gl.GetAttribLocation(program, gl.Str("vertexUV\x00")))
 	gl.EnableVertexAttribArray(uvAttrib)
-	gl.VertexAttribPointer(uvAttrib, 2, gl.FLOAT, false, 4*10, gl.PtrOffset(7*4))
+	gl.VertexAttribPointer(uvAttrib, 2, gl.FLOAT, false, 4*NUM_ATTRIBUTES, gl.PtrOffset(7*4))
 
 	shaderMode := uint32(gl.GetAttribLocation(program, gl.Str("mode\x00")))
 	gl.EnableVertexAttribArray(shaderMode)
-	gl.VertexAttribPointer(shaderMode, 1, gl.FLOAT, false, 4*10, gl.PtrOffset(9*4))
+	gl.VertexAttribPointer(shaderMode, 1, gl.FLOAT, false, 4*NUM_ATTRIBUTES, gl.PtrOffset(9*4))
 
 	// gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, elementvbo)
 	// gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(vertexData.Elements)*4, gl.Ptr(vertexData.Elements), gl.STATIC_DRAW)
@@ -325,7 +276,7 @@ func Draw() {
 	vertexData := &vertexDataTest
 
 	// check to see if there are any vertices at all to draw
-	if len(vertexData.VertexData) == 0 {
+	if len(vertexData.vertexData) == 0 {
 		return
 	}
 
@@ -339,7 +290,7 @@ func Draw() {
 	//gl.BufferSubData(gl.ARRAY_BUFFER, 0, len(vertexData.VertexData)*4, gl.Ptr(vertexData.VertexData))
 
 	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
-	gl.BufferData(gl.ARRAY_BUFFER, len(vertexData.VertexData)*4, gl.Ptr(vertexData.VertexData), gl.DYNAMIC_DRAW)
+	gl.BufferData(gl.ARRAY_BUFFER, len(vertexData.vertexData)*4, gl.Ptr(vertexData.vertexData), gl.DYNAMIC_DRAW)
 	// gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, elementvbo)
 	// gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(vertexData.Elements)*4, gl.Ptr(vertexData.Elements), gl.DYNAMIC_DRAW)
 
@@ -350,7 +301,8 @@ func Draw() {
 	// gl.DrawElements(gl.TRIANGLES, int32(len(vertexData.Elements)), gl.UNSIGNED_INT, nil)
 	// }
 
-	gl.DrawArrays(gl.TRIANGLES, 0, int32((len(vertexData.VertexData)/20)*3))
+	numTriVerts := int32((len(vertexData.vertexData) / (int(NUM_ATTRIBUTES) * 2)) * 3)
+	gl.DrawArrays(gl.TRIANGLES, 0, numTriVerts)
 	ClearVertexData()
 
 }

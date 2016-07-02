@@ -19,32 +19,7 @@ type TestGame struct {
 	*Graphics.BaseScene
 }
 
-type Bunny struct {
-	Components.ChildComponent
-	posX, posY, speedX, speedY float32
-}
 
-//TODO: create base class for component and/or node to impelemnt parent stuff because i forgot
-
-func (this *Bunny) Initialize() {
-
-}
-
-func (this *Bunny) Update(delta float32) {
-
-	this.posX += this.speedX
-	this.posY += this.speedY
-	this.speedY += 9.8
-
-	if this.posX > 100 {
-		this.speedX *= -1
-		this.posX = 100
-	}
-
-	g := float32(random(0, 10) + 3)
-	g *= .4
-
-}
 
 func main() {
 
@@ -55,7 +30,7 @@ func main() {
 	s, _ := Graphics.NewBasicScene()
 	g := TestGame{BaseScene: &s}
 
-	for i := 0; i < 300; i++ {
+	for i := 0; i < 500; i++ {
 		nodebak := Components.NewNode("Person")
 		nodebak.Transform().Translate(400, 400,0)
 		node := Components.NewNode("Person2")
@@ -66,7 +41,6 @@ func main() {
 		rend.SetImage(GT.AssetsImages + "test.png")
 		nodebak.Transform().Rotate(20,0,0,1)
 		nodebak.AddComponent(rend)
-		nodebak.AddComponent(&Bunny{})
 
 		rend2 := Components.NewSpriteRenderer()
 		rend2.SetSubImage(GT.AssetsImages+"smiley.png", image.Rectangle{image.Point{30, 30}, image.Point{50, 50}})

@@ -1,6 +1,7 @@
 package Image
 
 import (
+	"GT/Graphics/Opengl"
 	"fmt"
 	"image"
 
@@ -14,6 +15,8 @@ type Image struct {
 
 	// uvs for image
 	uvs []float32
+
+	isFont bool
 }
 
 // UVs will return the uv coords for this image (based on aggregate image)
@@ -62,60 +65,58 @@ func getUVs(bounds image.Rectangle) []float32 {
 	return uvs
 }
 
-// func (this *Image) GetUVs() (BLU, BLV, BRU, BRV, TRU, TRV, TLU, TLV float32) {
-// 	BLU = this.uvs[0]
-// 	BLV = this.uvs[1]
+func (this *Image) generateVertexData() *Opengl.OpenGLVertexInfo {
+	// vData := []float32{}
 
-// 	BRU = this.uvs[2]
-// 	BRV = this.uvs[3]
+	v := Opengl.OpenGLVertexInfo{}
 
-// 	TRU = this.uvs[4]
-// 	TRV = this.uvs[5]
+	w := float32(this.Bounds().Dx())
+	h := float32(this.Bounds().Dy())
 
-// 	TLU = this.uvs[6]
-// 	TLV = this.uvs[7]
+	var minW, maxW float32 = -0.5, 0.5
 
-// 	return BLU, BLV, BRU, BRV, TRU, TRV, TLU, TLV
-// }
+	// if this is a font, we have a slightly different layout
+	if this.isFont {
+		minW = float32(0.0)
+		maxW = float32(1.0)
+	}
 
-// func (this *Image) GetVertexData() []float32 {
-// 	vData := []float32{}
+	// first tri
+	idx := v.NewVertex(minW*w, -0.5*h, 1.0)
+	v.SetUV(idx, this.uvs[0], this.uvs[1])
 
-// 	w := this.Bounds().Dx()
-// 	h := this.Bounds().Dy()
+	idx = v.NewVertex(maxW*w, -0.5*h, 1.0)
+	v.SetUV(idx, this.uvs[2], this.uvs[3])
 
-// 	// TODO maybe add rgba to Image?
-// 	//first tri
-// 	vData = append(vData,
-// 		-0.5*w, -0.5*h, 1.0, 0, 0, 0, 0, this.uvs[0], this.uvs[1], Opengl.TEXTURED)
+	idx = v.NewVertex(minW*w, 0.5*h, 1.0)
+	v.SetUV(idx, this.uvs[6], this.uvs[7])
 
-// 	vData = append(vData,
-// 		0.5*w, -0.5*h, 1.0, 0, 0, 0, 0, this.uvs[2], this.uvs[3], Opengl.TEXTURED)
+	// second tri
+	idx = v.NewVertex(minW*w, 0.5*h, 1.0)
+	v.SetUV(idx, this.uvs[6], this.uvs[7])
 
-// 	vData = append(vData,
-// 		-0.5*w, 0.5*h, 1.0, 0, 0, 0, 0, this.uvs[6], this.uvs[7], Opengl.TEXTURED)
+	idx = v.NewVertex(maxW*w, -0.5*h, 1.0)
+	v.SetUV(idx, this.uvs[2], this.uvs[3])
 
-// 	// second tri
-// 	vData = append(vData,
-// 		-0.5*w, 0.5*h, 1.0, 0, 0, 0, 0, this.uvs[6], this.uvs[7], Opengl.TEXTURED)
+	idx = v.NewVertex(maxW*w, 0.5*h, 1.0)
+	v.SetUV(idx, this.uvs[4], this.uvs[5])
 
-// 	vData = append(vData,
-// 		0.5*w, -0.5*h, 1.0, 0, 0, 0, 0, this.uvs[2], this.uvs[3], Opengl.TEXTURED)
+	// first tri
+	// -0.5 * w, -0.5 * h, 1.0, this.uvs[0], this.uvs[1]
+	// 0.5 * w, -0.5 * h, 1.0,
+	// -0.5 * w, 0.5 * h, 1.0,
+	// // second tri
+	// -0.5 * w, 0.5 * h, 1.0,
+	// 0.5 * w, -0.5 * h, 1.0,
+	// 0.5 * w, 0.5 * h, 1.0
 
-// 	vData = append(vData,
-// 		0.5*w, 0.5*h, 1.0, 0, 0, 0, 0, this.uvs[4], this.uvs[5], Opengl.TEXTURED)
+	// v.VertexData = vData
+	return &v
+}
 
-// 	// first tri
-// 	// -0.5 * w, -0.5 * h, 1.0, this.uvs[0], this.uvs[1]
-// 	// 0.5 * w, -0.5 * h, 1.0,
-// 	// -0.5 * w, 0.5 * h, 1.0,
-// 	// // second tri
-// 	// -0.5 * w, 0.5 * h, 1.0,
-// 	// 0.5 * w, -0.5 * h, 1.0,
-// 	// 0.5 * w, 0.5 * h, 1.0
-
-// 	return vData
-// }
+func (this *Image) VertexData() *Opengl.OpenGLVertexInfo {
+	return this.generateVertexData()
+}
 
 // returns a new image that is just a sub image based on given bounds
 func (this *Image) SubImage(bounds image.Rectangle) (Image, error) {
@@ -134,6 +135,7 @@ func (this *Image) SubImage(bounds image.Rectangle) (Image, error) {
 
 	img.section = image.Rectangle{origB.Min.Add(bounds.Min), origB.Min.Add(bounds.Max)}
 	img.uvs = getUVs(img.section)
+	img.isFont = this.isFont
 
 	return img, nil
 }
@@ -143,7 +145,7 @@ func NewImage(path string) (retImg Image, err error) {
 
 	if newImg := AggrImg.GetImageSection(path); newImg != nil {
 
-		imgRet := Image{newImg, getUVs(newImg.section)}
+		imgRet := Image{newImg, getUVs(newImg.section), false}
 
 		return imgRet, nil
 	}
@@ -157,7 +159,8 @@ func NewFontImage(font string, r rune) (retImg Image, err error) {
 
 	if fontSec := AggrImg.GetFontImageSection(font); fontSec != nil {
 
-		fontImg := Image{fontSec.aggregateImageSection, getUVs(fontSec.section)}
+		fontImg := Image{fontSec.aggregateImageSection, getUVs(fontSec.section), true}
+
 		runeImg, _ := fontImg.SubImage(fontSec.FontSections[r])
 
 		return runeImg, nil

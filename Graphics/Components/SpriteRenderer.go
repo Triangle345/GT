@@ -29,7 +29,7 @@ type SpriteRenderer struct {
 	ChildComponent
 
 	// singular image
-	img image.Image
+	img *Image.Image
 
 	// map of animations representing possible visuals for a sprite
 	animationsMap    map[string]*spriteAnimation
@@ -37,9 +37,6 @@ type SpriteRenderer struct {
 
 	// color
 	r, g, b, a float32
-
-	// uvs - store uvs for speed
-	uvs []float32
 }
 
 // SetCurrentAnimation takes a animation's name and tries to set that as the current animation
@@ -50,7 +47,7 @@ func (s *SpriteRenderer) SetCurrentAnimation(mappedAnimationName string) {
 	}
 	s.currentAnimation = animationRetrieved
 	s.img = s.currentAnimation.currentImage()
-	s.uvs = s.currentAnimation.currentImage().UVs()
+
 }
 
 // AddAnimation maps a created animation inside the renderer
@@ -80,8 +77,9 @@ func (s *SpriteRenderer) SetImage(imageLoc string) {
 	if err != nil {
 		fmt.Println("Cannot create image: " + err.Error())
 	}
-	s.uvs = img.UVs()
-	s.img = img
+
+	s.img = &img
+
 }
 
 // SetSubImage sets a designated part of an image for this sprite renderer
@@ -101,8 +99,7 @@ func (s *SpriteRenderer) SetSubImage(imageLoc string, bounds image.Rectangle) {
 	}
 
 	// this.uvs = Image.GetUVs(img.Bounds())
-	s.uvs = img.UVs()
-	s.img = img
+	s.img = &img
 }
 
 // Update gets called every frame and accounts for all settings in the renderer as well as shifts animations
@@ -113,8 +110,8 @@ func (s *SpriteRenderer) Update(delta float32) {
 	}
 
 	// this gets teh bounds of the sub image
-	w := float32(s.img.Bounds().Dx())
-	h := float32(s.img.Bounds().Dy())
+	// w := float32(s.img.Bounds().Dx())
+	// h := float32(s.img.Bounds().Dy())
 
 	// vertexData := []float32{-0.5 * w, 0.5 * h, 1.0, 0.5 * w, 0.5 * h, 1.0, 0.5 * w, -0.5 * h, 1.0, -0.5 * w, -0.5 * h, 1.0}
 	//TODO put vertex data in Image along with UV
@@ -127,34 +124,39 @@ func (s *SpriteRenderer) Update(delta float32) {
 	// 	-0.5 * w, 0.5 * h, 1.0,
 	// 	0.5 * w, -0.5 * h, 1.0,
 	// 	0.5 * w, 0.5 * h, 1.0}
-	elements := []uint32{uint32(0), uint32(1), uint32(2), uint32(0), uint32(2), uint32(3)}
+	// elements := []uint32{uint32(0), uint32(1), uint32(2), uint32(0), uint32(2), uint32(3)}
 
 	// make one bigger
-	vData := make([]float32, 0, 10*7)
+	// vData := make([]float32, 0, 10*7)
 
 	r := s.r
 	g := s.g
 	b := s.b
 	a := s.a
 
-	vData = append(vData,
-		-0.5*w, -0.5*h, 1.0, r, g, b, a, s.uvs[0], s.uvs[1], Opengl.TEXTURED)
+	// vData = append(vData,
+	// 	-0.5*w, -0.5*h, 1.0, r, g, b, a, s.uvs[0], s.uvs[1], Opengl.TEXTURED)
 
-	vData = append(vData,
-		0.5*w, -0.5*h, 1.0, r, g, b, a, s.uvs[2], s.uvs[3], Opengl.TEXTURED)
+	// vData = append(vData,
+	// 	0.5*w, -0.5*h, 1.0, r, g, b, a, s.uvs[2], s.uvs[3], Opengl.TEXTURED)
 
-	vData = append(vData,
-		-0.5*w, 0.5*h, 1.0, r, g, b, a, s.uvs[6], s.uvs[7], Opengl.TEXTURED)
+	// vData = append(vData,
+	// 	-0.5*w, 0.5*h, 1.0, r, g, b, a, s.uvs[6], s.uvs[7], Opengl.TEXTURED)
 
-	// second tri
-	vData = append(vData,
-		-0.5*w, 0.5*h, 1.0, r, g, b, a, s.uvs[6], s.uvs[7], Opengl.TEXTURED)
+	// // second tri
+	// vData = append(vData,
+	// 	-0.5*w, 0.5*h, 1.0, r, g, b, a, s.uvs[6], s.uvs[7], Opengl.TEXTURED)
 
-	vData = append(vData,
-		0.5*w, -0.5*h, 1.0, r, g, b, a, s.uvs[2], s.uvs[3], Opengl.TEXTURED)
+	// vData = append(vData,
+	// 	0.5*w, -0.5*h, 1.0, r, g, b, a, s.uvs[2], s.uvs[3], Opengl.TEXTURED)
 
-	vData = append(vData,
-		0.5*w, 0.5*h, 1.0, r, g, b, a, s.uvs[4], s.uvs[5], Opengl.TEXTURED)
+	// vData = append(vData,
+	// 	0.5*w, 0.5*h, 1.0, r, g, b, a, s.uvs[4], s.uvs[5], Opengl.TEXTURED)
+
+	vData := s.img.VertexData()
+	// fmt.Println("vData: ", vData)
+	// vDataCopy := make([]float32, len(vData))
+	// copy(vDataCopy, vData)
 
 	Model := mathgl.Ident4()
 
@@ -162,30 +164,38 @@ func (s *SpriteRenderer) Update(delta float32) {
 
 	// transform all vertex data and combine it with other data
 	// var data = make([]float32, 0, 9*4)
-	for j := 0; j < (len(vData) / 10); j++ {
-		transformation := mathgl.Vec4{vData[j*10+0], vData[j*10+1], vData[j*10+2], 1}
+	for j := 0; j < vData.NumVerts(); j++ {
+		x, y, z := vData.GetVertex(j)
+		transformation := mathgl.Vec4{x, y, z, 1}
 		t := Model.Mul4x1(transformation)
 
 		//data = append(data, t[0], t[1], t[2] ,//s.r, s.g, s.b, s.a, s.uvs[j*2+0], s.uvs[j*2+1], Opengl.TEXTURED)
-		vData[j*10+0] = t[0]
-		vData[j*10+1] = t[1]
-		vData[j*10+2] = t[2]
+		// vDataCopy[j*10+0] = t[0]
+		// vDataCopy[j*10+1] = t[1]
+		// vDataCopy[j*10+2] = t[2]
+
+		// vDataCopy[j*10+3] = r
+		// vDataCopy[j*10+4] = g
+		// vDataCopy[j*10+5] = b
+		// vDataCopy[j*10+6] = a
+		vData.SetVertex(j, t[0], t[1], t[2])
+		vData.SetColor(j, r, g, b, a)
 	}
 
 	// package everything up in an OpenGLVertexInfo
-	vertexInfo := Opengl.OpenGLVertexInfo{
-		VertexData: vData,
-		Elements:   elements,
-		Stride:     4,
-	}
+	// vertexInfo := Opengl.OpenGLVertexInfo{
+	// 	VertexData: vDataCopy,
+	// 	Elements:   elements,
+	// 	Stride:     4,
+	// }
 
 	// send OpenGLVertex info to Opengl module
-	Opengl.AddVertexData(1, &vertexInfo)
+	Opengl.AddVertexData(1, vData)
 
 	// run the animation update (if applicable) and set our renderer image if the animation toggled
 	if s.currentAnimation != nil && s.currentAnimation.update() {
 		s.img = s.currentAnimation.currentImage()
-		s.uvs = s.currentAnimation.currentImage().UVs()
+
 	}
 }
 
