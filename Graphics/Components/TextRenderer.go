@@ -27,7 +27,7 @@ type TextRenderer struct {
 
 	text string
 
-	runeImgs []Image.GameImage
+	runeImgs []Image.OGLImage
 
 	// color
 	r, g, b, a float32

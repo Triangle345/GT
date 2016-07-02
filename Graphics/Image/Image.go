@@ -9,7 +9,7 @@ import (
 	_ "image/png"
 )
 
-type GameImage interface {
+type OGLImage interface {
 	image.Image
 	VertexData() *Opengl.OpenGLVertexInfo
 }
