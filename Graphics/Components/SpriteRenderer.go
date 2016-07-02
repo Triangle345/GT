@@ -29,7 +29,7 @@ type SpriteRenderer struct {
 	ChildComponent
 
 	// singular image
-	img *Image.Image
+	img Image.GameImage
 
 	// map of animations representing possible visuals for a sprite
 	animationsMap    map[string]*spriteAnimation

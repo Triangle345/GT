@@ -12,7 +12,7 @@ type spriteAnimation struct {
 	Animation
 
 	// list of images representing our spliced sprite sheet (animation)
-	animationImages []*Image.Image
+	animationImages []Image.GameImage
 	meta            *animationHelper
 }
 
@@ -149,7 +149,7 @@ func (s *spriteAnimation) SpliceAndSetAnimation(imageLoc string, frameWidth int,
 }
 
 // currentImage returns the animation image associated with the current index in the animation
-func (s *spriteAnimation) currentImage() *Image.Image {
+func (s *spriteAnimation) currentImage() Image.GameImage {
 	// TODO: possibly make this return a blank image when we shouldn't animate?
 	return s.animationImages[s.meta.indexInAnimation]
 }

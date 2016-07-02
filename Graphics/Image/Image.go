@@ -162,6 +162,7 @@ func NewImage(path string) (retImg Image, err error) {
 }
 
 // creates a new font rune image
+//TODO create interface ImageSection that has a "recursive" getSection function
 func NewFontImage(font string, r rune) (retImg FontImage, err error) {
 
 	if fontSec := AggrImg.GetFontImageSection(font); fontSec != nil {
