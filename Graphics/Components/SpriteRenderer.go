@@ -3,40 +3,30 @@ package Components
 
 import (
 	"GT/Graphics/Image"
-	"GT/Graphics/Opengl"
 	"fmt"
 	"image"
-
-	mathgl "github.com/go-gl/mathgl/mgl32"
 )
-
-// Initialize is necessary for the renderer to be utilized as a Component
-func (s *SpriteRenderer) Initialize() {
-
-}
 
 // NewSpriteRenderer creates a renderer and initializes its animation map
 func NewSpriteRenderer() *SpriteRenderer {
-	sprite := SpriteRenderer{a: 1}
+	sprite := SpriteRenderer{}
 	sprite.animationsMap = map[string]*spriteAnimation{}
 	return &sprite
 }
 
 // SpriteRenderer is a component which allows a sprite to be drawn or animated
 type SpriteRenderer struct {
-	// the parent node
-	//Parent *Components.Node
-	ChildComponent
+	// ChildComponent
+	Renderer
 
 	// singular image
-	img Opengl.OGLVertexData
+	// img Opengl.RenderObject
 
 	// map of animations representing possible visuals for a sprite
 	animationsMap    map[string]*spriteAnimation
 	currentAnimation *spriteAnimation
 
-	// color
-	r, g, b, a float32
+	img *Image.Image
 }
 
 // SetCurrentAnimation takes a animation's name and tries to set that as the current animation
@@ -100,6 +90,7 @@ func (s *SpriteRenderer) SetSubImage(imageLoc string, bounds image.Rectangle) {
 
 	// this.uvs = Image.GetUVs(img.Bounds())
 	s.img = &img
+
 }
 
 // Update gets called every frame and accounts for all settings in the renderer as well as shifts animations
@@ -109,30 +100,7 @@ func (s *SpriteRenderer) Update(delta float32) {
 		return
 	}
 
-	r := s.r
-	g := s.g
-	b := s.b
-	a := s.a
-
-	vData := s.img.VertexData()
-
-	Model := mathgl.Ident4()
-
-	Model = s.GetParent().transform.GetUpdatedModel()
-
-	// transform all vertex data and combine it with other data
-
-	for j := 0; j < vData.NumVerts(); j++ {
-		x, y, z := vData.GetVertex(j)
-		transformation := mathgl.Vec4{x, y, z, 1}
-		t := Model.Mul4x1(transformation)
-
-		vData.SetVertex(j, t[0], t[1], t[2])
-		vData.SetColor(j, r, g, b, a)
-	}
-
-	// send OpenGLVertex info to Opengl module
-	Opengl.AddVertexData(1, vData)
+	s.Render(s.img)
 
 	// run the animation update (if applicable) and set our renderer image if the animation toggled
 	if s.currentAnimation != nil && s.currentAnimation.update() {
@@ -143,8 +111,5 @@ func (s *SpriteRenderer) Update(delta float32) {
 
 // SetColor allows us to modify image coloring of whatever is set in the Renderer
 func (s *SpriteRenderer) SetColor(r, g, b, a float32) {
-	s.r = r
-	s.g = g
-	s.b = b
-	s.a = a
+	s.Color = Image.Color{r, g, b, a}
 }

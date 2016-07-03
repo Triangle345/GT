@@ -30,7 +30,7 @@ type TextRenderer struct {
 
 	text string
 
-	runeImgs []Opengl.OGLVertexData
+	runeImgs []Opengl.RenderObject
 
 	// color
 	r, g, b, a float32

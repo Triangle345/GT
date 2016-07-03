@@ -11,7 +11,7 @@ type OpenGLVertexInfo struct {
 	totalStride int
 }
 
-type OGLVertexData interface {
+type RenderObject interface {
 	VertexData() *OpenGLVertexInfo
 }
 

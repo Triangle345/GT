@@ -9,6 +9,11 @@ import (
 	_ "image/png"
 )
 
+// Color represents floating point unit color 0 to 1
+type Color struct {
+	R, G, B, A float32
+}
+
 type Image struct {
 	// data          *image.Image
 	*aggregateImageSection
