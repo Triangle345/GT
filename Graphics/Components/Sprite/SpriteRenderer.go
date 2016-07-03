@@ -112,5 +112,5 @@ func (s *SpriteRenderer) Update(delta float32) {
 
 // SetColor allows us to modify image coloring of whatever is set in the Renderer
 func (s *SpriteRenderer) SetColor(r, g, b, a float32) {
-	s.Color = Image.Color{r, g, b, a}
+	s.Color = &Image.Color{r, g, b, a}
 }

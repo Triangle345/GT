@@ -11,12 +11,12 @@ import (
 // Contains helper methods
 type Renderer struct {
 	ChildComponent
-	Color           Image.Color
+	Color           *Image.Color
 	customTransform func(mathgl.Vec4) mathgl.Vec4
 }
 
 func (this *Renderer) Initialize() {
-	this.Color.A = 1
+	//this.Color.A = 1
 
 }
 
@@ -44,8 +44,10 @@ func (this *Renderer) Render(obj Opengl.RenderObject) {
 
 		vData.SetVertex(j, t[0], t[1], t[2])
 
-		c := this.Color
-		vData.SetColor(j, c.R, c.G, c.B, c.A)
+		if this.Color != nil {
+			c := this.Color
+			vData.SetColor(j, c.R, c.G, c.B, c.A)
+		}
 
 	}
 

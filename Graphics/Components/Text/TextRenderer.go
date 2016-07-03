@@ -131,5 +131,5 @@ func (this *TextRenderer) Update(delta float32) {
 }
 
 func (s *TextRenderer) SetColor(r, g, b, a float32) {
-	s.Color = Image.Color{r, g, b, a}
+	s.Color = &Image.Color{r, g, b, a}
 }
