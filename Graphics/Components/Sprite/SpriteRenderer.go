@@ -1,7 +1,8 @@
-// Package Components ...
-package Components
+// Package Sprite ...
+package Sprite
 
 import (
+	"GT/Graphics/Components"
 	"GT/Graphics/Image"
 	"fmt"
 	"image"
@@ -17,7 +18,7 @@ func NewSpriteRenderer() *SpriteRenderer {
 // SpriteRenderer is a component which allows a sprite to be drawn or animated
 type SpriteRenderer struct {
 	// ChildComponent
-	Renderer
+	Components.Renderer
 
 	// singular image
 	// img Opengl.RenderObject
@@ -52,12 +53,12 @@ func (s *SpriteRenderer) AddAnimation(animationToAdd *spriteAnimation, nameToMap
 
 // StopAnimation tells our current animation that it should not animate (to be used when scripting)
 func (s *SpriteRenderer) StopAnimation() {
-	s.currentAnimation.meta.shouldAnimate = false
+	s.currentAnimation.meta.ShouldAnimate = false
 }
 
 // StartAnimation tells our current animation that it should animate (to be used when scripting)
 func (s *SpriteRenderer) StartAnimation() {
-	s.currentAnimation.meta.shouldAnimate = true
+	s.currentAnimation.meta.ShouldAnimate = true
 }
 
 // SetImage puts a designated image from the agregate into our image which will be rendered

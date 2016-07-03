@@ -9,18 +9,18 @@ import (
 const nanoToSeconds = 1000000000
 
 // this helper is to be packaged with your specific Animation in order to keep track of image switching
-type animationHelper struct {
+type AnimationHelper struct {
 
 	// animation properties and tracking
-	indexInAnimation int
+	IndexInAnimation int
 
 	framesSinceLastToggle int
 	timeOfLastToggle      float64
-	frequency             float64
-	frequencyIsInFrames   bool
+	Frequency             float64
+	FrequencyIsInFrames   bool
 
-	oneTimeOnly   bool
-	shouldAnimate bool
+	OneTimeOnly   bool
+	ShouldAnimate bool
 }
 
 // Animation interface provides Model and Sprite the same method names
@@ -39,42 +39,42 @@ type Animation interface {
 	SetOneTimeOnly(bool)
 }
 
-func newAnimation() *animationHelper {
+func NewAnimation() *AnimationHelper {
 
 	// preset our defaults
-	a := animationHelper{}
-	a.indexInAnimation = 0
+	a := AnimationHelper{}
+	a.IndexInAnimation = 0
 
-	a.frequency = 1
-	a.frequencyIsInFrames = true
+	a.Frequency = 1
+	a.FrequencyIsInFrames = true
 	a.framesSinceLastToggle = 0
 	a.timeOfLastToggle = float64(time.Now().UnixNano()) / nanoToSeconds
 
-	a.oneTimeOnly = false
-	a.shouldAnimate = true
+	a.OneTimeOnly = false
+	a.ShouldAnimate = true
 
 	return &a
 }
 
 // Update internally evaluates and increments toggle logic then returns true if we did swap images
-func (a *animationHelper) update(listSize int) bool {
+func (a *AnimationHelper) Update(listSize int) bool {
 
 	// verify we have stuff to animate, then check if we are ready to toggle
-	if listSize > 0 && a.shouldAnimate {
+	if listSize > 0 && a.ShouldAnimate {
 
 		// get the current time and check if our frequency has been met, if so then update the image
 		timeNow := float64(time.Now().UnixNano()) / nanoToSeconds
-		if a.frequencyIsInFrames && a.framesSinceLastToggle/int(a.frequency) == 1 ||
-			!a.frequencyIsInFrames && timeNow-a.timeOfLastToggle >= float64(a.frequency) {
+		if a.FrequencyIsInFrames && a.framesSinceLastToggle/int(a.Frequency) == 1 ||
+			!a.FrequencyIsInFrames && timeNow-a.timeOfLastToggle >= float64(a.Frequency) {
 
 			// allow our animation to continue by resetting the index
-			if a.indexInAnimation == listSize-1 {
-				a.indexInAnimation = 0
-				if a.oneTimeOnly {
-					a.shouldAnimate = false
+			if a.IndexInAnimation == listSize-1 {
+				a.IndexInAnimation = 0
+				if a.OneTimeOnly {
+					a.ShouldAnimate = false
 				}
 			} else {
-				a.indexInAnimation++
+				a.IndexInAnimation++
 			}
 			a.framesSinceLastToggle = 0
 			a.timeOfLastToggle = float64(time.Now().UnixNano()) / nanoToSeconds

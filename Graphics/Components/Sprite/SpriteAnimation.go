@@ -1,7 +1,8 @@
-// Package Components ...
-package Components
+// Package Sprite ...
+package Sprite
 
 import (
+	"GT/Graphics/Components"
 	"GT/Graphics/Image"
 	"fmt"
 	"image"
@@ -9,11 +10,11 @@ import (
 
 // SpriteAnimation is a sequence of images and settings used by the renderer to animate sprites
 type spriteAnimation struct {
-	Animation
+	Components.Animation
 
 	// list of images representing our spliced sprite sheet (animation)
 	animationImages []*Image.Image
-	meta            *animationHelper
+	meta            *Components.AnimationHelper
 }
 
 // NewSpriteAnimation creates a renderer and initializes its animation map
@@ -21,7 +22,7 @@ func NewSpriteAnimation() *spriteAnimation {
 
 	// preset our defaults
 	animation := spriteAnimation{}
-	animation.meta = newAnimation()
+	animation.meta = Components.NewAnimation()
 
 	return &animation
 }
@@ -85,12 +86,12 @@ func (s *spriteAnimation) Reorder(imageOneIdx int, imageTwoIdx int) {
 // i.e. Frequency(4,true) sets to update every 4 frames
 // i.e. Frequency(0.25,false) sets to update every 1/4 of a second
 func (s *spriteAnimation) SetFrequency(freqIn float64, setFrequencyByTheFrame bool) {
-	s.meta.frequency = freqIn
-	s.meta.frequencyIsInFrames = setFrequencyByTheFrame
+	s.meta.Frequency = freqIn
+	s.meta.FrequencyIsInFrames = setFrequencyByTheFrame
 }
 
 func (s *spriteAnimation) SetAsOneTimeOnly(setOneTime bool) {
-	s.meta.oneTimeOnly = setOneTime
+	s.meta.OneTimeOnly = setOneTime
 }
 
 // SpliceAndSetFullSheetAnimation manually cuts up an entire sprite sheet based on user defined frame dimensions
@@ -145,15 +146,15 @@ func (s *spriteAnimation) SpliceAndSetAnimation(imageLoc string, frameWidth int,
 	}
 
 	// set the current image to the first in the new animation
-	s.meta.indexInAnimation = 0
+	s.meta.IndexInAnimation = 0
 }
 
 // currentImage returns the animation image associated with the current index in the animation
 func (s *spriteAnimation) currentImage() *Image.Image {
 	// TODO: possibly make this return a blank image when we shouldn't animate?
-	return s.animationImages[s.meta.indexInAnimation]
+	return s.animationImages[s.meta.IndexInAnimation]
 }
 
 func (s *spriteAnimation) update() bool {
-	return s.meta.update(len(s.animationImages))
+	return s.meta.Update(len(s.animationImages))
 }

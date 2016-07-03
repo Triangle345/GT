@@ -1,5 +1,5 @@
 // Package Graphics
-package Components
+package Model
 
 import (
 	"GT/Graphics/G3D"
