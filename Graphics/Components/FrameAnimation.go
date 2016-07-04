@@ -5,7 +5,6 @@ import (
 	"GT/Graphics/Image"
 	"GT/Graphics/Opengl"
 	"fmt"
-	"image"
 )
 
 // SpriteAnimation is a sequence of images and settings used by the renderer to animate sprites
@@ -14,11 +13,11 @@ type FrameAnimation struct {
 
 	// list of images representing our spliced sprite sheet (animation)
 	animationImages []Opengl.RenderObject
-	meta            *AnimationHelper
+	meta            *AnimationHandler
 }
 
-// NewSpriteAnimation creates a renderer and initializes its animation map
-func NewFrameAnimation() *FrameAnimation {
+// NewFrameAnimation creates a renderer and initializes its animation map
+func newFrameAnimation() *FrameAnimation {
 
 	// preset our defaults
 	animation := FrameAnimation{}
@@ -92,61 +91,6 @@ func (s *FrameAnimation) SetFrequency(freqIn float64, setFrequencyByTheFrame boo
 
 func (s *FrameAnimation) SetAsOneTimeOnly(setOneTime bool) {
 	s.meta.OneTimeOnly = setOneTime
-}
-
-// SpliceAndSetFullSheetAnimation manually cuts up an entire sprite sheet based on user defined frame dimensions
-func (s *FrameAnimation) SpliceAndSetFullSheetAnimation(imageLoc string, frameWidth int, frameHeight int) {
-
-	// to set an entire sheet as an animation, set the Frames and Row Numbers to 0
-	s.SpliceAndSetAnimation(imageLoc, frameWidth, frameHeight, 0, 0)
-}
-
-// SpliceAndSetAnimation manually cuts up a row of a sprite sheet based on user defined dimensions and sets it as the current animation
-func (s *FrameAnimation) SpliceAndSetAnimation(imageLoc string, frameWidth int, frameHeight int, noOfFrames int, rowNum int) {
-
-	img, err := Image.NewImage(imageLoc)
-	if err != nil {
-		fmt.Println("Cannot create image: " + err.Error())
-	}
-
-	// throw warnings for bad input
-	numOfRows := float32(img.Bounds().Dy() / frameHeight)
-	numOfColumns := float32(img.Bounds().Dx() / frameWidth)
-	if float32(noOfFrames) > numOfColumns || numOfColumns < 1 {
-		fmt.Println("WARNING: frames out of bounds")
-	}
-	if float32(rowNum) > numOfRows || numOfRows < 1 {
-		fmt.Println("WARNING: row desired out of bounds")
-	}
-
-	for j := 0; j < img.Bounds().Dy(); j += frameHeight {
-
-		// only use our desired row (if specified)
-		if rowNum != 0 && j/frameHeight != rowNum-1 {
-			continue
-		}
-
-		// splice the row by the amount of intended images
-		for i := 0; i < img.Bounds().Dx(); i += frameWidth {
-
-			// only grab our desired number of frames (if specified)
-			if noOfFrames != 0 && i/frameWidth >= noOfFrames {
-				continue
-			}
-
-			// splice image from row, and insert piece into array
-			b := image.Rect(i, j, i+frameWidth, j+frameHeight)
-			spriteSheetPart, err := img.SubImage(b)
-			if err != nil {
-				fmt.Println("Cannot create sub image: " + err.Error())
-			}
-
-			s.animationImages = append(s.animationImages, &spriteSheetPart)
-		}
-	}
-
-	// set the current image to the first in the new animation
-	s.meta.IndexInAnimation = 0
 }
 
 // currentImage returns the animation image associated with the current index in the animation

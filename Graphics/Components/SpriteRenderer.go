@@ -28,6 +28,68 @@ type SpriteRenderer struct {
 	img Opengl.RenderObject
 }
 
+// SpliceAndSetFullSheetAnimation manually cuts up an entire sprite sheet based on user defined frame dimensions
+func (s *SpriteRenderer) SpliceAndSetFullSheetAnimation(imageLoc string, frameWidth int, frameHeight int) *FrameAnimation {
+
+	// to set an entire sheet as an animation, set the Frames and Row Numbers to 0
+	fa := s.SpliceAndSetAnimation(imageLoc, frameWidth, frameHeight, 0, 0)
+
+	return fa
+}
+
+// SpliceAndSetAnimation manually cuts up a row of a sprite sheet based on user defined dimensions and sets it as the current animation
+func (s *SpriteRenderer) SpliceAndSetAnimation(imageLoc string,
+	frameWidth, frameHeight, noOfFrames, rowNum int) *FrameAnimation {
+
+	fa := newFrameAnimation()
+
+	img, err := Image.NewImage(imageLoc)
+	if err != nil {
+		fmt.Println("Cannot create image: " + err.Error())
+	}
+
+	// throw warnings for bad input
+	numOfRows := float32(img.Bounds().Dy() / frameHeight)
+	numOfColumns := float32(img.Bounds().Dx() / frameWidth)
+	if float32(noOfFrames) > numOfColumns || numOfColumns < 1 {
+		fmt.Println("WARNING: frames out of bounds")
+	}
+	if float32(rowNum) > numOfRows || numOfRows < 1 {
+		fmt.Println("WARNING: row desired out of bounds")
+	}
+
+	for j := 0; j < img.Bounds().Dy(); j += frameHeight {
+
+		// only use our desired row (if specified)
+		if rowNum != 0 && j/frameHeight != rowNum-1 {
+			continue
+		}
+
+		// splice the row by the amount of intended images
+		for i := 0; i < img.Bounds().Dx(); i += frameWidth {
+
+			// only grab our desired number of frames (if specified)
+			if noOfFrames != 0 && i/frameWidth >= noOfFrames {
+				continue
+			}
+
+			// splice image from row, and insert piece into array
+			b := image.Rect(i, j, i+frameWidth, j+frameHeight)
+			spriteSheetPart, err := img.SubImage(b)
+			if err != nil {
+				fmt.Println("Cannot create sub image: " + err.Error())
+			}
+
+			fa.animationImages = append(fa.animationImages, &spriteSheetPart)
+		}
+	}
+
+	// set the current image to the first in the new animation
+	fa.meta.IndexInAnimation = 0
+
+	return fa
+}
+
 // SetCurrentAnimation takes a animation's name and tries to set that as the current animation
 func (s *SpriteRenderer) SetCurrentAnimation(mappedAnimationName string) {
 	animationRetrieved, ok := s.animationsMap[mappedAnimationName]

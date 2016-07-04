@@ -9,7 +9,8 @@ import (
 const nanoToSeconds = 1000000000
 
 // this helper is to be packaged with your specific Animation in order to keep track of image switching
-type AnimationHelper struct {
+type AnimationHandler struct {
+	animationMap map[string]*FrameAnimation
 
 	// animation properties and tracking
 	IndexInAnimation int
@@ -39,10 +40,10 @@ type Animation interface {
 	SetOneTimeOnly(bool)
 }
 
-func NewAnimation() *AnimationHelper {
+func NewAnimation() *AnimationHandler {
 
 	// preset our defaults
-	a := AnimationHelper{}
+	a := AnimationHandler{}
 	a.IndexInAnimation = 0
 
 	a.Frequency = 1
@@ -57,7 +58,7 @@ func NewAnimation() *AnimationHelper {
 }
 
 // Update internally evaluates and increments toggle logic then returns true if we did swap images
-func (a *AnimationHelper) Update(listSize int) bool {
+func (a *AnimationHandler) Update(listSize int) bool {
 
 	// verify we have stuff to animate, then check if we are ready to toggle
 	if listSize > 0 && a.ShouldAnimate {

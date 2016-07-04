@@ -46,24 +46,31 @@ func main() {
 
 	// create our renderer and our animation objects
 	rend := Components.NewSpriteRenderer()
-	anim := Components.NewFrameAnimation()
-	anim2 := Components.NewFrameAnimation()
-	anim3 := Components.NewFrameAnimation()
+	// anim := Components.NewFrameAnimation()
+	// anim2 := Components.NewFrameAnimation()
+	// anim3 := Components.NewFrameAnimation()
+
+	anim := rend.SpliceAndSetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 4, 1)
+	anim.AppendAnimation(rend.SpliceAndSetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 6, 2))
+	anim.AppendAnimation(rend.SpliceAndSetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 5, 3))
+	anim.AppendAnimation(rend.SpliceAndSetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 4, 4))
+	anim.AppendAnimation(rend.SpliceAndSetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 3, 5))
+	anim.AppendAnimation(rend.SpliceAndSetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 4, 6))
 
 	// set or append our animation(s) based on an image, and user defined framing / splice logic
-	anim.SpliceAndSetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 4, 1)
-	anim.SpliceAndSetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 6, 2)
-	anim2.SpliceAndSetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 5, 3)
-	anim2.SpliceAndSetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 4, 4)
-	anim3.SpliceAndSetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 3, 5)
-	anim3.SpliceAndSetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 4, 6)
+	// anim.SpliceAndSetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 4, 1)
+	// anim.SpliceAndSetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 6, 2)
+	// anim2.SpliceAndSetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 5, 3)
+	// anim2.SpliceAndSetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 4, 4)
+	// anim3.SpliceAndSetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 3, 5)
+	// anim3.SpliceAndSetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 4, 6)
 
 	// if you can make use of a full sprite sheet for one animation, then use the SpliceAndSetFullSheet method
 	//anim2.SpliceAndSetFullSheetAnimation(GT.AssetsImages+"tomatohead1.png", 12, 12)
 
 	// you can append other animations or images
-	anim.AppendAnimation(anim2)
-	anim.AppendAnimation(anim3)
+	// anim.AppendAnimation(anim2)
+	// anim.AppendAnimation(anim3)
 	anim.Append(GT.AssetsImages + "test.png")
 	anim.SetFrequency(0.25, false) // set frequency of toggle to every 1/4 second
 

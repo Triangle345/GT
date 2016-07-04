@@ -45,7 +45,7 @@ func main() {
 	rend2.SetModel(GT.AssetsModels+"walk.obj", GT.AssetsModels+"walk.mtl")
 	node2.AddComponent(rend2)
 	node2.Transform().Translate(3, -3, 0)
-	// node2.Transform().Rotate(.3, .2, 1, .2)
+	node2.Transform().Rotate(.3, 0, 1, 0)
 
 	// attach the node to our scene
 	simpleScene.RootNode.AddNode(node)

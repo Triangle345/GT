@@ -174,8 +174,7 @@ func CreateBuffers() {
 	gl.BindFragDataLocation(program, 0, gl.Str("color\x00"))
 	gl.GetUniformLocation(program, gl.Str("myTextureSampler\x00"))
 
-	matrixID := gl.GetUniformLocation(program, gl.Str("MVP\x00"))
-	MVPid = matrixID
+	MVPid = gl.GetUniformLocation(program, gl.Str("MVP\x00"))
 
 	// View := mathgl.LookAt(0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0)
 
@@ -298,12 +297,15 @@ func Draw() {
 	MVP := projectionM.Mul4(viewM) //.Mul4(Model)
 
 	gl.UniformMatrix4fv(MVPid, 1, false, &MVP[0])
+
 	// vertexData.Print()
 	// gl.DrawElements(gl.TRIANGLES, int32(len(vertexData.Elements)), gl.UNSIGNED_INT, nil)
 	// }
 
 	numTriVerts := int32((len(vertexData.vertexData) / (int(NUM_ATTRIBUTES) * 2)) * 3)
+
 	gl.DrawArrays(gl.TRIANGLES, 0, numTriVerts)
+
 	ClearVertexData()
 
 }
