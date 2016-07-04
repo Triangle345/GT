@@ -5,9 +5,10 @@ const (
 	TEXTURED   float32 = 1.1
 )
 
-const (
-	vertexShaderSource = `
-#version 300 es
+func VertexShader() string {
+	return `
+
+#version ` + OGL_VERSION + ` 
 
 // Input vertex data, different for all executions of this shader.
 in vec3 vertexPosition_modelspace;
@@ -28,10 +29,6 @@ out vec4 fragmentColor;
 // Values that stay constant for the whole mesh.
 uniform mat4 MVP;
 
-
-
-
-
 void main(){
 
 
@@ -50,8 +47,13 @@ void main(){
 
 }
 ` + "\x00"
-	fragmentShaderSource = `
-#version 300 es
+
+}
+
+func FragmentShader() string {
+	return `
+
+#version ` + OGL_VERSION + ` 
 
 
 // Interpolated values from the vertex shaders
@@ -93,4 +95,8 @@ void main()
      }
 }
 ` + "\x00"
+}
+
+var (
+	OGL_VERSION string = "130"
 )

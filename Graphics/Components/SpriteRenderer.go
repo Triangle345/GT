@@ -1,9 +1,9 @@
-// Package Sprite ...
-package Sprite
+// Package Components ...
+package Components
 
 import (
-	"GT/Graphics/Components"
 	"GT/Graphics/Image"
+	"GT/Graphics/Opengl"
 	"fmt"
 	"image"
 )
@@ -18,16 +18,14 @@ func NewSpriteRenderer() *SpriteRenderer {
 // SpriteRenderer is a component which allows a sprite to be drawn or animated
 type SpriteRenderer struct {
 	// ChildComponent
-	Components.Renderer
-
-	// singular image
-	// img Opengl.RenderObject
+	Renderer
 
 	// map of animations representing possible visuals for a sprite
 	animationsMap    map[string]*spriteAnimation
 	currentAnimation *spriteAnimation
 
-	img *Image.Image
+	// singular image
+	img Opengl.RenderObject
 }
 
 // SetCurrentAnimation takes a animation's name and tries to set that as the current animation

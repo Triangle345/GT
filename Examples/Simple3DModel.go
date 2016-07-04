@@ -6,7 +6,6 @@ import (
 	"GT"
 	"GT/Graphics"
 	"GT/Graphics/Components"
-	"GT/Graphics/Components/Model"
 	"fmt"
 )
 
@@ -35,14 +34,14 @@ func main() {
 	node := Components.NewNode("new_image")
 	node.AddComponent(&Spin{})
 	// create a model based on obj file
-	rend := Model.NewModelRenderer()
+	rend := Components.NewModelRenderer()
 	rend.SetModel(GT.AssetsModels+"textured_box.obj", GT.AssetsModels+"textured_box.mtl")
 	node.AddComponent(rend)
 
 	node2 := Components.NewNode("new_image")
 	node2.AddComponent(&Spin{})
 	// create a model based on obj file
-	rend2 := Model.NewModelRenderer()
+	rend2 := Components.NewModelRenderer()
 	rend2.SetModel(GT.AssetsModels+"test.obj", GT.AssetsModels+"test.mtl")
 	node2.AddComponent(rend2)
 	node2.Transform().Translate(3, -3, 0)

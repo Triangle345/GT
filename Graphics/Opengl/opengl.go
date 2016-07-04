@@ -79,8 +79,9 @@ func bindAggregateImage() uint32 {
 func compileShader(source string, shaderType uint32) (uint32, error) {
 	shader := gl.CreateShader(shaderType)
 
-	csource := gl.Str(source)
-	gl.ShaderSource(shader, 1, &csource, nil)
+	csource, free := gl.Strs(source)
+	gl.ShaderSource(shader, 1, csource, nil)
+	free()
 	gl.CompileShader(shader)
 
 	var status int32
@@ -162,7 +163,7 @@ func Clear(r, g, b, a float32) {
 func CreateBuffers() {
 
 	var err error
-	program, err = MakeProgram(vertexShaderSource, fragmentShaderSource)
+	program, err = MakeProgram(VertexShader(), FragmentShader())
 	// defer program.Delete()
 
 	if err != nil {

@@ -6,7 +6,6 @@ import (
 	"GT"
 	"GT/Graphics"
 	"GT/Graphics/Components"
-	"GT/Graphics/Components/Sprite"
 	"fmt"
 )
 
@@ -46,10 +45,10 @@ func main() {
 	node := Components.NewNode("new_image")
 
 	// create our renderer and our animation objects
-	rend := Sprite.NewSpriteRenderer()
-	anim := Sprite.NewSpriteAnimation()
-	anim2 := Sprite.NewSpriteAnimation()
-	anim3 := Sprite.NewSpriteAnimation()
+	rend := Components.NewSpriteRenderer()
+	anim := Components.NewSpriteAnimation()
+	anim2 := Components.NewSpriteAnimation()
+	anim3 := Components.NewSpriteAnimation()
 
 	// set or append our animation(s) based on an image, and user defined framing / splice logic
 	anim.SpliceAndSetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 4, 1)

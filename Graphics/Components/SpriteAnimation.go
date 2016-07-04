@@ -1,20 +1,20 @@
 // Package Sprite ...
-package Sprite
+package Components
 
 import (
-	"GT/Graphics/Components"
 	"GT/Graphics/Image"
+	"GT/Graphics/Opengl"
 	"fmt"
 	"image"
 )
 
 // SpriteAnimation is a sequence of images and settings used by the renderer to animate sprites
 type spriteAnimation struct {
-	Components.Animation
+	Animation
 
 	// list of images representing our spliced sprite sheet (animation)
-	animationImages []*Image.Image
-	meta            *Components.AnimationHelper
+	animationImages []Opengl.RenderObject
+	meta            *AnimationHelper
 }
 
 // NewSpriteAnimation creates a renderer and initializes its animation map
@@ -22,7 +22,7 @@ func NewSpriteAnimation() *spriteAnimation {
 
 	// preset our defaults
 	animation := spriteAnimation{}
-	animation.meta = Components.NewAnimation()
+	animation.meta = NewAnimation()
 
 	return &animation
 }
@@ -150,7 +150,7 @@ func (s *spriteAnimation) SpliceAndSetAnimation(imageLoc string, frameWidth int,
 }
 
 // currentImage returns the animation image associated with the current index in the animation
-func (s *spriteAnimation) currentImage() *Image.Image {
+func (s *spriteAnimation) currentImage() Opengl.RenderObject {
 	// TODO: possibly make this return a blank image when we shouldn't animate?
 	return s.animationImages[s.meta.IndexInAnimation]
 }

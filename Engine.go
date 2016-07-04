@@ -15,6 +15,7 @@ import (
 
 var (
 	Assets       = flag.String("Assets", "./Assets", "Location of Assets folder")
+	OGL_VERSION  = flag.String("OGL_VERSION", "130", "OpenGL version used. The actual version in shaders")
 	AssetsFonts  string
 	AssetsImages string
 	AssetsModels string
@@ -54,6 +55,7 @@ func readFlags() {
 	Logging.Info("Images Path: ", AssetsImages)
 	Logging.Info("Fonts Path: ", AssetsFonts)
 	Logging.Info("Models Path: ", AssetsModels)
+	Logging.Info("OGL Version Used: ", *OGL_VERSION)
 }
 
 // EngineStart initializes everything in order within the engine. Should be called first
@@ -62,6 +64,7 @@ func EngineStart() {
 	readFlags()
 
 	Window.Start()
+	Opengl.OGL_VERSION = *OGL_VERSION
 	Opengl.Start()
 
 	Font.LoadFonts(AssetsFonts)

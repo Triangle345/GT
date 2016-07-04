@@ -1,8 +1,7 @@
 // Package Graphics
-package Model
+package Components
 
 import (
-	"GT/Graphics/Components"
 	"GT/Graphics/G3D"
 	"GT/Graphics/Opengl"
 	"GT/Logging"
@@ -18,7 +17,7 @@ func NewModelRenderer() *modelRenderer {
 
 // SpriteRenderer is a component which allows a sprite to be drawn or animated
 type modelRenderer struct {
-	Components.Renderer
+	Renderer
 
 	mesh Opengl.RenderObject
 

@@ -1,10 +1,9 @@
 // Package Text
-package Text
+package Components
 
 import (
 	// "github.com/go-gl/gl/v3.2-core/gl"
 
-	"GT/Graphics/Components"
 	"GT/Graphics/Image"
 	"GT/Graphics/Opengl"
 	"fmt"
@@ -26,7 +25,7 @@ func NewTextRenderer() *TextRenderer {
 }
 
 type TextRenderer struct {
-	Components.Renderer
+	Renderer
 
 	size int
 
