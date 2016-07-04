@@ -44,23 +44,6 @@ func (this *modelRenderer) SetModel(path string, mat string) {
 // Update gets called every frame and accounts for all settings in the renderer as well as shifts animations
 func (this *modelRenderer) Update(delta float32) {
 
-	// vertexData := this.mesh.VertexData()
-
-	// Model := mathgl.Ident4()
-
-	// Model = this.GetParent().Transform().GetUpdatedModel()
-
-	// for i := 0; i < vertexData.NumVerts(); i++ {
-	// 	x, y, z := vertexData.GetVertex(i)
-	// 	transformation := mathgl.Vec4{x, y, z, 1}
-	// 	t := Model.Mul4x1(transformation)
-	// 	vertexData.SetVertex(i, t[0], t[1], t[2])
-
-	// }
-
-	// // send OpenGLVertex info to Opengl module
-	// Opengl.AddVertexData(1, vertexData)
-
 	this.Render(this.mesh)
 
 }

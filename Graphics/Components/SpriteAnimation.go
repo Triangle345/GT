@@ -9,7 +9,7 @@ import (
 )
 
 // SpriteAnimation is a sequence of images and settings used by the renderer to animate sprites
-type spriteAnimation struct {
+type FrameAnimation struct {
 	Animation
 
 	// list of images representing our spliced sprite sheet (animation)
@@ -18,17 +18,17 @@ type spriteAnimation struct {
 }
 
 // NewSpriteAnimation creates a renderer and initializes its animation map
-func NewSpriteAnimation() *spriteAnimation {
+func NewFrameAnimation() *FrameAnimation {
 
 	// preset our defaults
-	animation := spriteAnimation{}
+	animation := FrameAnimation{}
 	animation.meta = NewAnimation()
 
 	return &animation
 }
 
 // AppendAnimation adds a list of images to the end of our animation
-func (s *spriteAnimation) AppendAnimation(animIn *spriteAnimation) {
+func (s *FrameAnimation) AppendAnimation(animIn *FrameAnimation) {
 	for i := 0; i < len(animIn.animationImages); i++ {
 		imgToAdd := animIn.animationImages[i]
 		s.animationImages = append(s.animationImages, imgToAdd)
@@ -36,7 +36,7 @@ func (s *spriteAnimation) AppendAnimation(animIn *spriteAnimation) {
 }
 
 // Append simply adds an image from the aggregate to the end of our animation
-func (s *spriteAnimation) Append(imageLoc string) {
+func (s *FrameAnimation) Append(imageLoc string) {
 	img, err := Image.NewImage(imageLoc)
 	if err != nil {
 		fmt.Println("Cannot create image: " + err.Error())
@@ -44,7 +44,7 @@ func (s *spriteAnimation) Append(imageLoc string) {
 	s.animationImages = append(s.animationImages, &img)
 }
 
-func (s *spriteAnimation) Remove(imageIdx int) {
+func (s *FrameAnimation) Remove(imageIdx int) {
 	// convert to zero based
 	imageIdx--
 
@@ -58,7 +58,7 @@ func (s *spriteAnimation) Remove(imageIdx int) {
 }
 
 // Reorder simply swaps the order in which any two images are rendered ()
-func (s *spriteAnimation) Reorder(imageOneIdx int, imageTwoIdx int) {
+func (s *FrameAnimation) Reorder(imageOneIdx int, imageTwoIdx int) {
 
 	// convert from one-based input to zero-based logic
 	listLength := len(s.animationImages)
@@ -85,24 +85,24 @@ func (s *spriteAnimation) Reorder(imageOneIdx int, imageTwoIdx int) {
 // SetFrequency sets our animation's timing in either seconds or frames per toggle
 // i.e. Frequency(4,true) sets to update every 4 frames
 // i.e. Frequency(0.25,false) sets to update every 1/4 of a second
-func (s *spriteAnimation) SetFrequency(freqIn float64, setFrequencyByTheFrame bool) {
+func (s *FrameAnimation) SetFrequency(freqIn float64, setFrequencyByTheFrame bool) {
 	s.meta.Frequency = freqIn
 	s.meta.FrequencyIsInFrames = setFrequencyByTheFrame
 }
 
-func (s *spriteAnimation) SetAsOneTimeOnly(setOneTime bool) {
+func (s *FrameAnimation) SetAsOneTimeOnly(setOneTime bool) {
 	s.meta.OneTimeOnly = setOneTime
 }
 
 // SpliceAndSetFullSheetAnimation manually cuts up an entire sprite sheet based on user defined frame dimensions
-func (s *spriteAnimation) SpliceAndSetFullSheetAnimation(imageLoc string, frameWidth int, frameHeight int) {
+func (s *FrameAnimation) SpliceAndSetFullSheetAnimation(imageLoc string, frameWidth int, frameHeight int) {
 
 	// to set an entire sheet as an animation, set the Frames and Row Numbers to 0
 	s.SpliceAndSetAnimation(imageLoc, frameWidth, frameHeight, 0, 0)
 }
 
 // SpliceAndSetAnimation manually cuts up a row of a sprite sheet based on user defined dimensions and sets it as the current animation
-func (s *spriteAnimation) SpliceAndSetAnimation(imageLoc string, frameWidth int, frameHeight int, noOfFrames int, rowNum int) {
+func (s *FrameAnimation) SpliceAndSetAnimation(imageLoc string, frameWidth int, frameHeight int, noOfFrames int, rowNum int) {
 
 	img, err := Image.NewImage(imageLoc)
 	if err != nil {
@@ -150,11 +150,11 @@ func (s *spriteAnimation) SpliceAndSetAnimation(imageLoc string, frameWidth int,
 }
 
 // currentImage returns the animation image associated with the current index in the animation
-func (s *spriteAnimation) currentImage() Opengl.RenderObject {
+func (s *FrameAnimation) currentImage() Opengl.RenderObject {
 	// TODO: possibly make this return a blank image when we shouldn't animate?
 	return s.animationImages[s.meta.IndexInAnimation]
 }
 
-func (s *spriteAnimation) update() bool {
+func (s *FrameAnimation) update() bool {
 	return s.meta.Update(len(s.animationImages))
 }

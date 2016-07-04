@@ -39,10 +39,10 @@ func main() {
 	node.AddComponent(rend)
 
 	node2 := Components.NewNode("new_image")
-	node2.AddComponent(&Spin{})
+	// node2.AddComponent(&Spin{})
 	// create a model based on obj file
 	rend2 := Components.NewModelRenderer()
-	rend2.SetModel(GT.AssetsModels+"test.obj", GT.AssetsModels+"test.mtl")
+	rend2.SetModel(GT.AssetsModels+"walk.obj", GT.AssetsModels+"walk.mtl")
 	node2.AddComponent(rend2)
 	node2.Transform().Translate(3, -3, 0)
 	// node2.Transform().Rotate(.3, .2, 1, .2)

@@ -11,7 +11,7 @@ import (
 // NewSpriteRenderer creates a renderer and initializes its animation map
 func NewSpriteRenderer() *SpriteRenderer {
 	sprite := SpriteRenderer{}
-	sprite.animationsMap = map[string]*spriteAnimation{}
+	sprite.animationsMap = map[string]*FrameAnimation{}
 	return &sprite
 }
 
@@ -21,8 +21,8 @@ type SpriteRenderer struct {
 	Renderer
 
 	// map of animations representing possible visuals for a sprite
-	animationsMap    map[string]*spriteAnimation
-	currentAnimation *spriteAnimation
+	animationsMap    map[string]*FrameAnimation
+	currentAnimation *FrameAnimation
 
 	// singular image
 	img Opengl.RenderObject
@@ -40,7 +40,7 @@ func (s *SpriteRenderer) SetCurrentAnimation(mappedAnimationName string) {
 }
 
 // AddAnimation maps a created animation inside the renderer
-func (s *SpriteRenderer) AddAnimation(animationToAdd *spriteAnimation, nameToMap string) {
+func (s *SpriteRenderer) AddAnimation(animationToAdd *FrameAnimation, nameToMap string) {
 	_, ok := s.animationsMap[nameToMap]
 	if !ok {
 		s.animationsMap[nameToMap] = animationToAdd

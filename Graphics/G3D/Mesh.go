@@ -4,6 +4,7 @@ import (
 	"GT"
 	"GT/Graphics/Image"
 	"GT/Graphics/Opengl"
+	"GT/Logging"
 	"image"
 )
 
@@ -34,11 +35,19 @@ func (this *Mesh) VertexData() *Opengl.OpenGLVertexInfo {
 			vdID := vertexData.NewVertex(v.X, v.Y, v.Z)
 			vertexData.SetColor(vdID, c.R, c.G, c.B, 1)
 
-			if len(face.UV) == 0 {
+			tex := this.Materials[face.Material].DiffuseTex
+
+			if len(face.UV) == 0 || tex == "" {
 				vertexData.SetMode(vdID, Opengl.NO_TEXTURE)
 			} else {
-				tex := this.Materials[face.Material].DiffuseTex
+
 				imgSec := Image.AggrImg.GetImageSection(GT.AssetsImages + tex)
+
+				if imgSec == nil {
+					Logging.Info("Cannot open: ", GT.AssetsImages+tex, " For Mat: ", face.Material)
+
+				}
+
 				u := this.VTs[face.UV[idx]].U
 				v := this.VTs[face.UV[idx]].V
 

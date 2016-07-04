@@ -46,9 +46,9 @@ func main() {
 
 	// create our renderer and our animation objects
 	rend := Components.NewSpriteRenderer()
-	anim := Components.NewSpriteAnimation()
-	anim2 := Components.NewSpriteAnimation()
-	anim3 := Components.NewSpriteAnimation()
+	anim := Components.NewFrameAnimation()
+	anim2 := Components.NewFrameAnimation()
+	anim3 := Components.NewFrameAnimation()
 
 	// set or append our animation(s) based on an image, and user defined framing / splice logic
 	anim.SpliceAndSetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 4, 1)
