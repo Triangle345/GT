@@ -5,15 +5,46 @@ import (
 	"GT/Graphics/Image"
 	"GT/Graphics/Opengl"
 	"fmt"
+	"time"
 )
+
+type Meta struct {
+	// animation properties and tracking
+	IndexInAnimation int
+
+	framesSinceLastToggle int
+	timeOfLastToggle      float64
+	Frequency             float64
+	FrequencyIsInFrames   bool
+
+	OneTimeOnly   bool
+	ShouldAnimate bool
+}
+
+func NewMeta() *Meta {
+
+	// preset our defaults
+	a := Meta{}
+	a.IndexInAnimation = 0
+
+	a.Frequency = 1
+	a.FrequencyIsInFrames = true
+	a.framesSinceLastToggle = 0
+	a.timeOfLastToggle = float64(time.Now().UnixNano()) / nanoToSeconds
+
+	a.OneTimeOnly = false
+	a.ShouldAnimate = true
+
+	return &a
+}
 
 // SpriteAnimation is a sequence of images and settings used by the renderer to animate sprites
 type FrameAnimation struct {
-	Animation
+	// Animation
 
 	// list of images representing our spliced sprite sheet (animation)
 	animationImages []Opengl.RenderObject
-	meta            *AnimationHandler
+	meta            *Meta
 }
 
 // NewFrameAnimation creates a renderer and initializes its animation map
@@ -21,7 +52,7 @@ func newFrameAnimation() *FrameAnimation {
 
 	// preset our defaults
 	animation := FrameAnimation{}
-	animation.meta = NewAnimation()
+	animation.meta = NewMeta()
 
 	return &animation
 }
@@ -101,4 +132,36 @@ func (s *FrameAnimation) currentImage() Opengl.RenderObject {
 
 func (s *FrameAnimation) update() bool {
 	return s.meta.Update(len(s.animationImages))
+}
+
+// Update internally evaluates and increments toggle logic then returns true if we did swap images
+func (a *Meta) Update(listSize int) bool {
+
+	meta := a
+	// verify we have stuff to animate, then check if we are ready to toggle
+	if listSize > 0 && meta.ShouldAnimate {
+
+		// get the current time and check if our frequency has been met, if so then update the image
+		timeNow := float64(time.Now().UnixNano()) / nanoToSeconds
+		if meta.FrequencyIsInFrames && meta.framesSinceLastToggle/int(meta.Frequency) == 1 ||
+			!meta.FrequencyIsInFrames && timeNow-meta.timeOfLastToggle >= float64(meta.Frequency) {
+
+			// allow our animation to continue by resetting the index
+			if meta.IndexInAnimation == listSize-1 {
+				meta.IndexInAnimation = 0
+				if meta.OneTimeOnly {
+					meta.ShouldAnimate = false
+				}
+			} else {
+				meta.IndexInAnimation++
+			}
+			meta.framesSinceLastToggle = 0
+			meta.timeOfLastToggle = float64(time.Now().UnixNano()) / nanoToSeconds
+
+			// indicate we have updated our current image
+			return true
+		}
+		meta.framesSinceLastToggle++
+	}
+	return false
 }

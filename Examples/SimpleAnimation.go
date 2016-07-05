@@ -57,14 +57,6 @@ func main() {
 	anim.AppendAnimation(rend.SpliceAndSetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 3, 5))
 	anim.AppendAnimation(rend.SpliceAndSetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 4, 6))
 
-	// set or append our animation(s) based on an image, and user defined framing / splice logic
-	// anim.SpliceAndSetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 4, 1)
-	// anim.SpliceAndSetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 6, 2)
-	// anim2.SpliceAndSetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 5, 3)
-	// anim2.SpliceAndSetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 4, 4)
-	// anim3.SpliceAndSetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 3, 5)
-	// anim3.SpliceAndSetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 4, 6)
-
 	// if you can make use of a full sprite sheet for one animation, then use the SpliceAndSetFullSheet method
 	//anim2.SpliceAndSetFullSheetAnimation(GT.AssetsImages+"tomatohead1.png", 12, 12)
 
@@ -80,9 +72,9 @@ func main() {
 
 	anim.SetAsOneTimeOnly(true)
 
-	rend.AddAnimation(anim, "dog_left_facing")
-	rend.SetCurrentAnimation("dog_left_facing") // script components can make use of this...
-	//simpleScene.SetFPS(30)
+	rend.AnimationHandler.AddAnimation(anim, "dog_left_facing")
+	rend.AnimationHandler.SetCurrentAnimation("dog_left_facing") // script components can make use of this...
+	// simpleScene.SetFPS(30)
 
 	// attach the sprite to our node, and transform if desired
 	node.AddComponent(rend)

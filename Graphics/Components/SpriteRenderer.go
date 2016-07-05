@@ -11,7 +11,9 @@ import (
 // NewSpriteRenderer creates a renderer and initializes its animation map
 func NewSpriteRenderer() *SpriteRenderer {
 	sprite := SpriteRenderer{}
-	sprite.animationsMap = map[string]*FrameAnimation{}
+	// sprite.animationsMap = map[string]*FrameAnimation{}
+	sprite.AnimationHandler = &AnimationHandler{animationsMap: map[string]*FrameAnimation{}}
+
 	return &sprite
 }
 
@@ -20,9 +22,11 @@ type SpriteRenderer struct {
 	// ChildComponent
 	Renderer
 
+	AnimationHandler *AnimationHandler
+
 	// map of animations representing possible visuals for a sprite
-	animationsMap    map[string]*FrameAnimation
-	currentAnimation *FrameAnimation
+	// animationsMap    map[string]*FrameAnimation
+	// currentAnimation *FrameAnimation
 
 	// singular image
 	img Opengl.RenderObject
@@ -76,10 +80,10 @@ func (s *SpriteRenderer) SpliceAndSetAnimation(imageLoc string,
 			// splice image from row, and insert piece into array
 			b := image.Rect(i, j, i+frameWidth, j+frameHeight)
 			spriteSheetPart, err := img.SubImage(b)
+
 			if err != nil {
 				fmt.Println("Cannot create sub image: " + err.Error())
 			}
-
 			fa.animationImages = append(fa.animationImages, &spriteSheetPart)
 		}
 	}
@@ -88,37 +92,6 @@ func (s *SpriteRenderer) SpliceAndSetAnimation(imageLoc string,
 	fa.meta.IndexInAnimation = 0
 
 	return fa
-}
-
-// SetCurrentAnimation takes a animation's name and tries to set that as the current animation
-func (s *SpriteRenderer) SetCurrentAnimation(mappedAnimationName string) {
-	animationRetrieved, ok := s.animationsMap[mappedAnimationName]
-	if !ok {
-		fmt.Printf("couldn't find the animation" + mappedAnimationName)
-	}
-	s.currentAnimation = animationRetrieved
-	s.img = s.currentAnimation.currentImage()
-
-}
-
-// AddAnimation maps a created animation inside the renderer
-func (s *SpriteRenderer) AddAnimation(animationToAdd *FrameAnimation, nameToMap string) {
-	_, ok := s.animationsMap[nameToMap]
-	if !ok {
-		s.animationsMap[nameToMap] = animationToAdd
-	} else {
-		fmt.Printf("the animation " + nameToMap + " already exists, please try a different name")
-	}
-}
-
-// StopAnimation tells our current animation that it should not animate (to be used when scripting)
-func (s *SpriteRenderer) StopAnimation() {
-	s.currentAnimation.meta.ShouldAnimate = false
-}
-
-// StartAnimation tells our current animation that it should animate (to be used when scripting)
-func (s *SpriteRenderer) StartAnimation() {
-	s.currentAnimation.meta.ShouldAnimate = true
 }
 
 // SetImage puts a designated image from the agregate into our image which will be rendered
@@ -157,17 +130,24 @@ func (s *SpriteRenderer) SetSubImage(imageLoc string, bounds image.Rectangle) {
 // Update gets called every frame and accounts for all settings in the renderer as well as shifts animations
 func (s *SpriteRenderer) Update(delta float32) {
 
+	// fmt.Println("Anim update: ", s.AnimationHandler.currentAnimation.update())
+	// run the animation update (if applicable) and set our renderer image if the animation toggled
+	if s.AnimationHandler.currentAnimation != nil {
+		// just care about updating the animation handler, thats it. We
+		// want current image always if available
+		s.AnimationHandler.currentAnimation.update()
+		s.img = s.AnimationHandler.CurrentAnimation().currentImage()
+		// fmt.Println("New image: ", s.img.VertexData())
+
+	}
+	// s.SetImage(GT.AssetsImages + "smiley.png")
 	if s.img == nil {
 		return
 	}
 
+	// fmt.Println("CURRENT animation: ", s.img.VertexData())
 	s.Render(s.img)
 
-	// run the animation update (if applicable) and set our renderer image if the animation toggled
-	if s.currentAnimation != nil && s.currentAnimation.update() {
-		s.img = s.currentAnimation.currentImage()
-
-	}
 }
 
 // SetColor allows us to modify image coloring of whatever is set in the Renderer

@@ -16,7 +16,7 @@ type Renderer struct {
 }
 
 func (this *Renderer) Initialize() {
-	//this.Color.A = 1
+	// this.Color.A = 1
 
 }
 
@@ -50,6 +50,8 @@ func (this *Renderer) Render(obj Opengl.RenderObject) {
 		}
 
 	}
+
+	// fmt.Println("Vertex Data: ", vData)
 
 	// send OpenGLVertex info to Opengl module
 	Opengl.AddVertexData(1, vData)
