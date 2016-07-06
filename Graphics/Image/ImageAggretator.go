@@ -15,8 +15,6 @@ import (
 //TODO: create some way of doing this automatically maybe based on some config file
 var AggrImg *AggregateImage
 
-var imageBuddy *partition
-
 // FontImageSection keeps track of where our fonts are within the aggregate image
 type FontImageSection struct {
 	// image.Image
@@ -41,6 +39,8 @@ type AggregateImage struct {
 	fonts           []*FontImageSection
 	fontsSectionMap map[string]*FontImageSection
 
+	imageBuddy *partition
+
 	aggregateImage image.Image
 }
 
@@ -61,7 +61,7 @@ func loadTextureImages(location string) {
 
 	for _, imgSec := range AggrImg.images {
 
-		part := imageBuddy.Insert(imgSec.pathName, imgSec.Bounds().Dx(), imgSec.Bounds().Dy())
+		part := AggrImg.imageBuddy.Insert(imgSec.pathName, imgSec.Bounds().Dx(), imgSec.Bounds().Dy())
 
 		fmt.Println("Partition: ", part)
 
@@ -93,7 +93,7 @@ func loadFontImages() {
 		fontImg := f.GetImage()
 
 		// find free space for fonts
-		part := imageBuddy.Insert(f.Name(), fontImg.Bounds().Dx(), fontImg.Bounds().Dy())
+		part := AggrImg.imageBuddy.Insert(f.Name(), fontImg.Bounds().Dx(), fontImg.Bounds().Dy())
 
 		// create section
 		sec := image.Rectangle{part.Bounds().Min, part.Bounds().Min.Add(fontImg.Bounds().Size())}
@@ -118,7 +118,7 @@ func LoadImages(path string) {
 	AggrImg = &AggregateImage{sectionMap: map[string]*aggregateImageSection{}, fontsSectionMap: map[string]*FontImageSection{}}
 
 	// TODO need to figure out a way to setup opengl and window context to use video card probe
-	imageBuddy = NewBuddyAggregator(int(Opengl.Probe().MaxTextureSize))
+	AggrImg.imageBuddy = NewBuddyAggregator(int(Opengl.Probe().MaxTextureSize))
 
 	loadTextureImages(path)
 	loadFontImages()
@@ -145,7 +145,7 @@ func LoadImages(path string) {
 	// store the final aggregate image
 	AggrImg.aggregateImage = rgbaFinal
 
-	Opengl.SetAggregateImage(AggrImg.aggregateImage)
+	Opengl.AddAggregateImage(AggrImg.aggregateImage)
 }
 
 func (this *AggregateImage) loadImage(imgPath string) error {

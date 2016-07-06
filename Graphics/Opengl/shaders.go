@@ -1,5 +1,7 @@
 package Opengl
 
+import "strconv"
+
 const (
 	NO_TEXTURE float32 = 0.1
 	TEXTURED   float32 = 1.1
@@ -51,6 +53,8 @@ void main(){
 }
 
 func FragmentShader() string {
+	strTexUnits := strconv.Itoa(texUnits)
+
 	return `
 
 #version ` + OGL_VERSION + ` 
@@ -69,7 +73,7 @@ in mediump vec2 UV;
 out mediump vec4 color;
 
 // Values that stay constant for the whole mesh.
-uniform sampler2D myTextureSampler;
+uniform sampler2D myTextureSampler[` + strTexUnits + `];
 
 void main()
 {
@@ -84,7 +88,7 @@ void main()
 
     // Do we display textures or not?
     if (int(modeOut) == 1) {
-        mediump vec4 tex = texture2D( myTextureSampler, UV );
+        mediump vec4 tex = texture2D( myTextureSampler[0], UV );
     
         tex.a *= fragmentColor[3];
         // color = tex.rgba;

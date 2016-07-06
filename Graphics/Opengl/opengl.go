@@ -22,14 +22,18 @@ var viewM mathgl.Mat4
 var projectionM mathgl.Mat4
 var MVPid int32
 
+var textures []uint32
+
+// texture units probed from video card
+var texUnits int
 var vertexDataTest OpenGLVertexInfo = OpenGLVertexInfo{Stride: 4, Elements: make([]uint32, 0, 9999999), vertexData: make([]float32, 0, 9999999)}
 
-var aggregateImage image.Image
+var aggregateImages []image.Image
 
-var vao, vbo, colorvbo, uvvbo, tvbo, rvbo, svbo, elementvbo uint32
+var vao, vbo uint32
 
-func SetAggregateImage(img image.Image) {
-	aggregateImage = img
+func AddAggregateImage(img image.Image) {
+	aggregateImages = append(aggregateImages, img)
 }
 
 func Start() {
@@ -37,6 +41,9 @@ func Start() {
 	if err := gl.Init(); err != nil {
 		fmt.Println("Cannot initialize OGL: " + err.Error())
 	}
+
+	texUnits = int(Probe().MaxTextureImageUnits)
+	textures = make([]uint32, texUnits)
 }
 
 func SetViewPort(width, height int32) {
@@ -44,15 +51,14 @@ func SetViewPort(width, height int32) {
 	gl.Viewport(0, 0, int32(width), int32(height))
 }
 
-func bindAggregateImage() uint32 {
+func bindAggregateImage(img image.Image) uint32 {
 
-	if rgba, ok := aggregateImage.(*image.RGBA); ok {
-		var texture uint32
+	if rgba, ok := img.(*image.RGBA); ok {
 
-		gl.GenTextures(1, &texture)
+		gl.GenTextures(1, &textures[0])
 
-		// gl.ActiveTexture(gl.TEXTURE1)
-		gl.BindTexture(gl.TEXTURE_2D, texture)
+		gl.ActiveTexture(gl.TEXTURE0)
+		gl.BindTexture(gl.TEXTURE_2D, textures[0])
 		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR)
 		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
 		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
@@ -67,7 +73,14 @@ func bindAggregateImage() uint32 {
 			os.Exit(-1)
 		}
 
-		return texture
+		gl.Uniform1i(gl.GetUniformLocation(program, gl.Str("myTextureSampler[0]\x00")), 0)
+		if ok := gl.GetError(); ok != gl.NO_ERROR {
+
+			fmt.Println("1- Cannot load Image in location: ./: ", ok)
+			os.Exit(-1)
+		}
+
+		return textures[0]
 	} else {
 		fmt.Println("Image not RGBA at location: ./")
 		os.Exit(-1)
@@ -75,6 +88,43 @@ func bindAggregateImage() uint32 {
 
 	return 0
 }
+
+// func bindAggregateImage2() uint32 {
+
+// 	img := aggregateImage.(*image.RGBA).SubImage(image.Rect(100, 100, 400, 400))
+
+// 	if rgba, ok := img.(*image.RGBA); ok {
+// 		// var texture [10]uint32
+
+// 		gl.GenTextures(1, &textures[1])
+// 		// gl.GenTextures(1, &texture[1])
+
+// 		gl.ActiveTexture(gl.TEXTURE0 + 1)
+
+// 		gl.BindTexture(gl.TEXTURE_2D, textures[1])
+
+// 		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR)
+// 		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+// 		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+// 		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+// 		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_R, gl.CLAMP_TO_EDGE)
+// 		gl.TexImage2D(gl.TEXTURE_2D, 0, gl.RGBA, int32(rgba.Rect.Size().X), int32(rgba.Rect.Size().Y), 0, gl.RGBA, gl.UNSIGNED_BYTE, gl.Ptr(rgba.Pix))
+// 		gl.GenerateMipmap(gl.TEXTURE_2D)
+// 		gl.Uniform1i(gl.GetUniformLocation(program, gl.Str("myTextureSampler[1]\x00")), 1)
+
+// 		if ok := gl.GetError(); ok != gl.NO_ERROR {
+
+// 			fmt.Println("Cannot load Image in location: ./: ", ok)
+// 			os.Exit(-1)
+// 		}
+// 		return textures[1]
+// 	} else {
+// 		fmt.Println("Image not RGBA at location: ./")
+// 		os.Exit(-1)
+// 	}
+
+// 	return 0
+// }
 
 func compileShader(source string, shaderType uint32) (uint32, error) {
 	shader := gl.CreateShader(shaderType)
@@ -130,7 +180,11 @@ func MakeProgram(vert, frag string) (uint32, error) {
 
 	gl.DeleteShader(vertexShader)
 	gl.DeleteShader(fragmentShader)
+	if ok := gl.GetError(); ok != gl.NO_ERROR {
 
+		return 0, errors.New("Error in Make Program : " + string(ok))
+
+	}
 	return program, nil
 }
 
@@ -172,7 +226,6 @@ func CreateBuffers() {
 	}
 
 	gl.BindFragDataLocation(program, 0, gl.Str("color\x00"))
-	gl.GetUniformLocation(program, gl.Str("myTextureSampler\x00"))
 
 	MVPid = gl.GetUniformLocation(program, gl.Str("MVP\x00"))
 
@@ -192,8 +245,12 @@ func CreateBuffers() {
 	gl.GenBuffers(1, &vbo)
 
 	// gl.GenBuffers(1, &elementvbo)
+	// fmt.Println(program)
+	gl.UseProgram(program)
 
-	bindAggregateImage()
+	for _, img := range aggregateImages {
+		bindAggregateImage(img)
+	}
 
 }
 
@@ -227,9 +284,6 @@ func ClearVertexData() {
 
 func BindBuffers() { //vertexData *OpenGLVertexInfo) {
 
-	// fmt.Println(program)
-	gl.UseProgram(program)
-
 	vertexData := &vertexDataTest
 
 	// check to see if there are any vertices at all to bind
@@ -259,8 +313,8 @@ func BindBuffers() { //vertexData *OpenGLVertexInfo) {
 	// gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, elementvbo)
 	// gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(vertexData.Elements)*4, gl.Ptr(vertexData.Elements), gl.STATIC_DRAW)
 
-	gl.ActiveTexture(gl.TEXTURE0)
-	gl.BindTexture(gl.TEXTURE_2D, 1)
+	// gl.ActiveTexture(gl.TEXTURE0)
+	// gl.BindTexture(gl.TEXTURE_2D, 1)
 }
 
 func Draw() {
@@ -312,6 +366,5 @@ func Draw() {
 
 func Cleanup() {
 	gl.DeleteBuffers(1, &vbo)
-	gl.DeleteBuffers(1, &colorvbo)
-	gl.DeleteBuffers(1, &uvvbo)
+
 }
