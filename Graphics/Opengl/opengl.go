@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	NUM_ATTRIBUTES int32 = 10
+	NUM_ATTRIBUTES int32 = 11
 )
 
 var program uint32
@@ -92,43 +92,6 @@ func bindAggregateImage(img image.Image, idx int) uint32 {
 
 	return 0
 }
-
-// func bindAggregateImage2() uint32 {
-
-// 	img := aggregateImage.(*image.RGBA).SubImage(image.Rect(100, 100, 400, 400))
-
-// 	if rgba, ok := img.(*image.RGBA); ok {
-// 		// var texture [10]uint32
-
-// 		gl.GenTextures(1, &textures[1])
-// 		// gl.GenTextures(1, &texture[1])
-
-// 		gl.ActiveTexture(gl.TEXTURE0 + 1)
-
-// 		gl.BindTexture(gl.TEXTURE_2D, textures[1])
-
-// 		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR)
-// 		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
-// 		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
-// 		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
-// 		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_R, gl.CLAMP_TO_EDGE)
-// 		gl.TexImage2D(gl.TEXTURE_2D, 0, gl.RGBA, int32(rgba.Rect.Size().X), int32(rgba.Rect.Size().Y), 0, gl.RGBA, gl.UNSIGNED_BYTE, gl.Ptr(rgba.Pix))
-// 		gl.GenerateMipmap(gl.TEXTURE_2D)
-// 		gl.Uniform1i(gl.GetUniformLocation(program, gl.Str("myTextureSampler[1]\x00")), 1)
-
-// 		if ok := gl.GetError(); ok != gl.NO_ERROR {
-
-// 			fmt.Println("Cannot load Image in location: ./: ", ok)
-// 			os.Exit(-1)
-// 		}
-// 		return textures[1]
-// 	} else {
-// 		fmt.Println("Image not RGBA at location: ./")
-// 		os.Exit(-1)
-// 	}
-
-// 	return 0
-// }
 
 func compileShader(source string, shaderType uint32) (uint32, error) {
 	shader := gl.CreateShader(shaderType)
@@ -313,6 +276,10 @@ func BindBuffers() { //vertexData *OpenGLVertexInfo) {
 	shaderMode := uint32(gl.GetAttribLocation(program, gl.Str("mode\x00")))
 	gl.EnableVertexAttribArray(shaderMode)
 	gl.VertexAttribPointer(shaderMode, 1, gl.FLOAT, false, 4*NUM_ATTRIBUTES, gl.PtrOffset(9*4))
+
+	samplerIdx := uint32(gl.GetAttribLocation(program, gl.Str("samplerIdx\x00")))
+	gl.EnableVertexAttribArray(samplerIdx)
+	gl.VertexAttribPointer(samplerIdx, 1, gl.FLOAT, false, 4*NUM_ATTRIBUTES, gl.PtrOffset(10*4))
 
 	// gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, elementvbo)
 	// gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(vertexData.Elements)*4, gl.Ptr(vertexData.Elements), gl.STATIC_DRAW)

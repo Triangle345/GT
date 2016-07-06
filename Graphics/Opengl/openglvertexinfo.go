@@ -25,7 +25,7 @@ func (this *OpenGLVertexInfo) Clone() *OpenGLVertexInfo {
 }
 
 func (this *OpenGLVertexInfo) NewVertex(x, y, z float32) int {
-	this.vertexData = append(this.vertexData, x, y, z, 0, 0, 0, 1, 0, 0, TEXTURED)
+	this.vertexData = append(this.vertexData, x, y, z, 0, 0, 0, 1, 0, 0, TEXTURED, 0)
 	return this.NumVerts() - 1
 }
 
@@ -49,6 +49,11 @@ func (this *OpenGLVertexInfo) SetVertex(vIdx int, x, y, z float32) {
 	this.vertexData[vIdx*int(NUM_ATTRIBUTES)+0] = x
 	this.vertexData[vIdx*int(NUM_ATTRIBUTES)+1] = y
 	this.vertexData[vIdx*int(NUM_ATTRIBUTES)+2] = z
+}
+
+func (this *OpenGLVertexInfo) SetAggregateId(vIdx, aId int) {
+	// add .1 to int and convert to float so we can round down in shader
+	this.vertexData[vIdx*int(NUM_ATTRIBUTES)+10] = float32(aId) + float32(0.1)
 }
 
 func (this *OpenGLVertexInfo) GetVertex(vIdx int) (x, y, z float32) {

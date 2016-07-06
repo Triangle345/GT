@@ -56,6 +56,19 @@ func GetUVFromPosition(point image.Point) (u, v float32) {
 
 	return
 }
+func newAggregateImage() *AggregateImage {
+	newIdx := len(aggregateImages)
+
+	aggrImg := &AggregateImage{}
+	aggrImg.id = newIdx
+
+	aggrImg.imageBuddy = NewBuddyAggregator(int(Opengl.Probe().MaxTextureSize))
+
+	aggregateImages = append(aggregateImages, aggrImg)
+
+	return aggrImg
+
+}
 
 // loadTExtureImages populates image section maps
 func loadTextureImages(location string) {
@@ -65,14 +78,7 @@ func loadTextureImages(location string) {
 	maxHeight := 0
 	maxWidth := 0
 
-	aggrIdx := 0
-
-	aggrImg := &AggregateImage{}
-	aggrImg.id = aggrIdx
-
-	aggrImg.imageBuddy = NewBuddyAggregator(int(Opengl.Probe().MaxTextureSize))
-
-	aggregateImages = append(aggregateImages, aggrImg)
+	aggrImg := newAggregateImage()
 
 	for _, imgSec := range walker.images {
 
@@ -95,7 +101,7 @@ func loadTextureImages(location string) {
 			sectionMap[imgSec.pathName] = imgSec
 		} else {
 			// no more room in this partition, need to get new one
-
+			aggrImg = newAggregateImage()
 		}
 
 	}
@@ -163,6 +169,7 @@ func LoadImages(path string) {
 
 			}
 		} else {
+			// draw fonts on only the last sheet as a brand new sheet is made for just them
 			for _, fontSec := range fonts {
 
 				draw.Draw(rgbaFinal, fontSec.Section, fontSec, image.Point{0, 0}, draw.Src) // draw images

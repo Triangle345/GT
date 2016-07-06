@@ -19,8 +19,13 @@ in vec4 vertexColor;
 
 in vec2 vertexUV;
 
+// mode set
 in float mode;
 out float modeOut;
+
+//sampleridx set
+in float samplerIdx;
+out float samplerIdxOut;
 
 // Output data ; will be interpolated for each fragment.
 out vec2 UV;
@@ -43,6 +48,9 @@ void main(){
 
     // display uv textures?
     modeOut = mode;
+    
+    // which sampler to use
+    samplerIdxOut = samplerIdx;
 
     // UV of the vertex. No special space for this one.
     UV = vertexUV;
@@ -65,6 +73,9 @@ in mediump vec4 fragmentColor;
 
 // Display uv?
 in mediump float modeOut;
+
+// which sampler to use
+in mediump float samplerIdxOut;
 
 // Interpolated values from the vertex shaders
 in mediump vec2 UV;

@@ -36,22 +36,28 @@ func (this *FontImage) VertexData() *Opengl.OpenGLVertexInfo {
 	// first tri
 	idx := v.NewVertex(0*w, -0.5*h, 1.0)
 	v.SetUV(idx, this.uvs[0], this.uvs[1])
+	v.SetAggregateId(idx, this.aggrId)
 
 	idx = v.NewVertex(1*w, -0.5*h, 1.0)
 	v.SetUV(idx, this.uvs[2], this.uvs[3])
+	v.SetAggregateId(idx, this.aggrId)
 
 	idx = v.NewVertex(0*w, 0.5*h, 1.0)
 	v.SetUV(idx, this.uvs[6], this.uvs[7])
+	v.SetAggregateId(idx, this.aggrId)
 
 	// second tri
 	idx = v.NewVertex(0*w, 0.5*h, 1.0)
 	v.SetUV(idx, this.uvs[6], this.uvs[7])
+	v.SetAggregateId(idx, this.aggrId)
 
 	idx = v.NewVertex(1*w, -0.5*h, 1.0)
 	v.SetUV(idx, this.uvs[2], this.uvs[3])
+	v.SetAggregateId(idx, this.aggrId)
 
 	idx = v.NewVertex(1*w, 0.5*h, 1.0)
 	v.SetUV(idx, this.uvs[4], this.uvs[5])
+	v.SetAggregateId(idx, this.aggrId)
 
 	return &v
 }
@@ -98,22 +104,28 @@ func (this *Image) VertexData() *Opengl.OpenGLVertexInfo {
 	// first tri
 	idx := v.NewVertex(-0.5*w, -0.5*h, 1.0)
 	v.SetUV(idx, this.uvs[0], this.uvs[1])
+	v.SetAggregateId(idx, this.aggrId)
 
 	idx = v.NewVertex(0.5*w, -0.5*h, 1.0)
 	v.SetUV(idx, this.uvs[2], this.uvs[3])
+	v.SetAggregateId(idx, this.aggrId)
 
 	idx = v.NewVertex(-0.5*w, 0.5*h, 1.0)
 	v.SetUV(idx, this.uvs[6], this.uvs[7])
+	v.SetAggregateId(idx, this.aggrId)
 
 	// second tri
 	idx = v.NewVertex(-0.5*w, 0.5*h, 1.0)
 	v.SetUV(idx, this.uvs[6], this.uvs[7])
+	v.SetAggregateId(idx, this.aggrId)
 
 	idx = v.NewVertex(0.5*w, -0.5*h, 1.0)
 	v.SetUV(idx, this.uvs[2], this.uvs[3])
+	v.SetAggregateId(idx, this.aggrId)
 
 	idx = v.NewVertex(0.5*w, 0.5*h, 1.0)
 	v.SetUV(idx, this.uvs[4], this.uvs[5])
+	v.SetAggregateId(idx, this.aggrId)
 
 	return &v
 }
