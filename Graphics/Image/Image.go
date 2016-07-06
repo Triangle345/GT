@@ -71,19 +71,19 @@ func generateUVs(bounds image.Rectangle) []float32 {
 	var uvs []float32
 
 	topLeft := image.Point{bounds.Min.X, bounds.Min.Y}
-	u, v := AggrImg.GetUVFromPosition(topLeft)
+	u, v := GetUVFromPosition(topLeft)
 	uvs = append(uvs, u, v)
 
 	topRight := image.Point{bounds.Max.X, bounds.Min.Y}
-	u, v = AggrImg.GetUVFromPosition(topRight)
+	u, v = GetUVFromPosition(topRight)
 	uvs = append(uvs, u, v)
 
 	bottomRight := image.Point{bounds.Max.X, bounds.Max.Y}
-	u, v = AggrImg.GetUVFromPosition(bottomRight)
+	u, v = GetUVFromPosition(bottomRight)
 	uvs = append(uvs, u, v)
 
 	bottomLeft := image.Point{bounds.Min.X, bounds.Max.Y}
-	u, v = AggrImg.GetUVFromPosition(bottomLeft)
+	u, v = GetUVFromPosition(bottomLeft)
 	uvs = append(uvs, u, v)
 
 	return uvs
@@ -142,7 +142,7 @@ func (this *Image) SubImage(bounds image.Rectangle) (Image, error) {
 // creates a new image
 func NewImage(path string) (retImg Image, err error) {
 
-	if newImg := AggrImg.GetImageSection(path); newImg != nil {
+	if newImg := GetImageSection(path); newImg != nil {
 
 		imgRet := Image{newImg, generateUVs(newImg.Section)}
 		return imgRet, nil
@@ -156,7 +156,7 @@ func NewImage(path string) (retImg Image, err error) {
 //TODO create interface ImageSection that has a "recursive" getSection function
 func NewFontImage(font string, r rune) (retImg FontImage, err error) {
 
-	if fontSec := AggrImg.GetFontImageSection(font); fontSec != nil {
+	if fontSec := GetFontImageSection(font); fontSec != nil {
 
 		fontImg := Image{fontSec.aggregateImageSection, generateUVs(fontSec.Section)}
 		runeImg, _ := fontImg.SubImage(fontSec.FontSections[r])

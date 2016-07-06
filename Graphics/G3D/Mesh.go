@@ -41,7 +41,7 @@ func (this *Mesh) VertexData() *Opengl.OpenGLVertexInfo {
 				vertexData.SetMode(vdID, Opengl.NO_TEXTURE)
 			} else {
 
-				imgSec := Image.AggrImg.GetImageSection(GT.AssetsImages + tex)
+				imgSec := Image.GetImageSection(GT.AssetsImages + tex)
 
 				if imgSec == nil {
 					Logging.Info("Cannot open: ", GT.AssetsImages+tex, " For Mat: ", face.Material)
@@ -60,7 +60,7 @@ func (this *Mesh) VertexData() *Opengl.OpenGLVertexInfo {
 				locY += imgSec.Section.Min.Y
 
 				// TODO move GetUVFromPosition into maybe image aggregator
-				newU, newV := Image.AggrImg.GetUVFromPosition(image.Point{locX, locY})
+				newU, newV := Image.GetUVFromPosition(image.Point{locX, locY})
 
 				vertexData.SetUV(vdID, newU, newV)
 				vertexData.SetMode(vdID, Opengl.TEXTURED)

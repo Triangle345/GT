@@ -12,8 +12,15 @@ import (
 	"strings"
 )
 
+var images []*aggregateImageSection
+var sectionMap = map[string]*aggregateImageSection{}
+
+var fonts []*FontImageSection
+var fontsSectionMap = map[string]*FontImageSection{}
+
 //TODO: create some way of doing this automatically maybe based on some config file
-var AggrImg *AggregateImage
+// var AggrImg *AggregateImage
+var aggregateImages []*AggregateImage
 
 // FontImageSection keeps track of where our fonts are within the aggregate image
 type FontImageSection struct {
@@ -27,41 +34,49 @@ type aggregateImageSection struct {
 	image.Image
 	pathName string
 	Section  image.Rectangle
+	aggrId   int
 }
 
 // AggregateImage is our class for grouping all images, sprites, etc. into one place.
 // This will improve performance over loading an image every time it's needed.
 // Instead we only need to select a space of our pre-rendered composite image
 type AggregateImage struct {
-	images     []*aggregateImageSection
-	sectionMap map[string]*aggregateImageSection
-
-	fonts           []*FontImageSection
-	fontsSectionMap map[string]*FontImageSection
-
 	imageBuddy *partition
 
 	aggregateImage image.Image
+
+	id int
 }
 
-func (this *AggregateImage) GetUVFromPosition(point image.Point) (u, v float32) {
-
-	u = float32(point.X) / float32(this.aggregateImage.Bounds().Dx())
-	v = float32(point.Y) / float32(this.aggregateImage.Bounds().Dy())
+func GetUVFromPosition(point image.Point) (u, v float32) {
+	//TODO make clean and safe
+	bounds := aggregateImages[0].aggregateImage.Bounds()
+	u = float32(point.X) / float32(bounds.Dx())
+	v = float32(point.Y) / float32(bounds.Dy())
 
 	return
 }
 
 // loadTExtureImages populates image section maps
 func loadTextureImages(location string) {
-	AggrImg.fileWalker(location)
+	walker := pngWalker{}
+	walker.fileWalker(location)
 
 	maxHeight := 0
 	maxWidth := 0
 
-	for _, imgSec := range AggrImg.images {
+	aggrIdx := 0
 
-		part := AggrImg.imageBuddy.Insert(imgSec.pathName, imgSec.Bounds().Dx(), imgSec.Bounds().Dy())
+	aggrImg := &AggregateImage{}
+	aggrImg.id = aggrIdx
+
+	aggrImg.imageBuddy = NewBuddyAggregator(int(Opengl.Probe().MaxTextureSize))
+
+	aggregateImages = append(aggregateImages, aggrImg)
+
+	for _, imgSec := range walker.images {
+
+		part := aggrImg.imageBuddy.Insert(imgSec.pathName, imgSec.Bounds().Dx(), imgSec.Bounds().Dy())
 
 		fmt.Println("Partition: ", part)
 
@@ -75,6 +90,12 @@ func loadTextureImages(location string) {
 			if imgSec.Bounds().Max.X > maxWidth {
 				maxWidth = imgSec.Section.Bounds().Max.X
 			}
+			imgSec.aggrId = aggrImg.id
+			images = append(images, imgSec)
+			sectionMap[imgSec.pathName] = imgSec
+		} else {
+			// no more room in this partition, need to get new one
+
 		}
 
 	}
@@ -86,24 +107,31 @@ func loadTextureImages(location string) {
 
 // loadFontImages populates font sections
 func loadFontImages() {
-	fonts := Font.GetFonts()
+	fontsInfo := Font.GetFonts()
 
-	for _, f := range fonts {
+	aggrImg := &AggregateImage{}
+	aggrImg.id = len(aggregateImages)
+
+	aggrImg.imageBuddy = NewBuddyAggregator(int(Opengl.Probe().MaxTextureSize))
+
+	aggregateImages = append(aggregateImages, aggrImg)
+
+	for _, f := range fontsInfo {
 
 		fontImg := f.GetImage()
 
 		// find free space for fonts
-		part := AggrImg.imageBuddy.Insert(f.Name(), fontImg.Bounds().Dx(), fontImg.Bounds().Dy())
+		part := aggrImg.imageBuddy.Insert(f.Name(), fontImg.Bounds().Dx(), fontImg.Bounds().Dy())
 
 		// create section
 		sec := image.Rectangle{part.Bounds().Min, part.Bounds().Min.Add(fontImg.Bounds().Size())}
 
 		// create font section with section created from insertion
-		fontSec := &FontImageSection{&aggregateImageSection{fontImg, f.Name(), sec}, f.GetSectionMap()}
+		fontSec := &FontImageSection{&aggregateImageSection{fontImg, f.Name(), sec, aggrImg.id}, f.GetSectionMap()}
 
 		// add font section to lists
-		AggrImg.fonts = append(AggrImg.fonts, fontSec)
-		AggrImg.fontsSectionMap[f.Name()] = fontSec
+		fonts = append(fonts, fontSec)
+		fontsSectionMap[f.Name()] = fontSec
 
 	}
 }
@@ -115,11 +143,6 @@ func loadFontImages() {
  */
 func LoadImages(path string) {
 
-	AggrImg = &AggregateImage{sectionMap: map[string]*aggregateImageSection{}, fontsSectionMap: map[string]*FontImageSection{}}
-
-	// TODO need to figure out a way to setup opengl and window context to use video card probe
-	AggrImg.imageBuddy = NewBuddyAggregator(int(Opengl.Probe().MaxTextureSize))
-
 	loadTextureImages(path)
 	loadFontImages()
 
@@ -129,26 +152,31 @@ func LoadImages(path string) {
 
 	rgbaFinal := image.NewRGBA(finalImg)
 
-	// draw all images
-	for _, imgSec := range AggrImg.images {
+	for idx, aggrImg := range aggregateImages {
 
-		draw.Draw(rgbaFinal, imgSec.Section, imgSec, image.Point{0, 0}, draw.Src) // draw images
+		if idx < len(aggregateImages) {
 
+			// draw all images
+			for _, imgSec := range images {
+
+				draw.Draw(rgbaFinal, imgSec.Section, imgSec, image.Point{0, 0}, draw.Src) // draw images
+
+			}
+		} else {
+			for _, fontSec := range fonts {
+
+				draw.Draw(rgbaFinal, fontSec.Section, fontSec, image.Point{0, 0}, draw.Src) // draw images
+
+			}
+		}
+		// store the final aggregate image
+		aggrImg.aggregateImage = rgbaFinal
+
+		Opengl.AddAggregateImage(aggrImg.aggregateImage)
 	}
-
-	for _, fontSec := range AggrImg.fonts {
-
-		draw.Draw(rgbaFinal, fontSec.Section, fontSec, image.Point{0, 0}, draw.Src) // draw images
-
-	}
-
-	// store the final aggregate image
-	AggrImg.aggregateImage = rgbaFinal
-
-	Opengl.AddAggregateImage(AggrImg.aggregateImage)
 }
 
-func (this *AggregateImage) loadImage(imgPath string) error {
+func (this *pngWalker) loadImage(imgPath string) error {
 	imgFile, err := os.Open(imgPath)
 	if err != nil {
 		fmt.Println(err)
@@ -162,17 +190,21 @@ func (this *AggregateImage) loadImage(imgPath string) error {
 		return err
 	}
 
-	sec := &aggregateImageSection{img, imgPath, image.Rectangle{}}
+	sec := &aggregateImageSection{img, imgPath, image.Rectangle{}, -1}
 
 	// populate both section map and image list with section
 	this.images = append(this.images, sec)
 
-	this.sectionMap[imgPath] = sec
+	//sectionMap[imgPath] = sec
 
 	return nil
 }
 
-func (this *AggregateImage) fileVisitor(path string, f os.FileInfo, err error) error {
+type pngWalker struct {
+	images []*aggregateImageSection
+}
+
+func (this *pngWalker) fileVisitor(path string, f os.FileInfo, err error) error {
 
 	if strings.Contains(path, ".png") {
 		fmt.Printf("Processing: %s\n", path)
@@ -181,20 +213,20 @@ func (this *AggregateImage) fileVisitor(path string, f os.FileInfo, err error) e
 	return nil
 }
 
-func (this *AggregateImage) fileWalker(path string) {
+func (this *pngWalker) fileWalker(path string) {
 	filepath.Walk(path, this.fileVisitor)
 }
 
 // GetImageSEction returns the image section based on named image
-func (this *AggregateImage) GetImageSection(path string) *aggregateImageSection {
+func GetImageSection(path string) *aggregateImageSection {
 
-	return this.sectionMap[path]
+	return sectionMap[path]
 }
 
 // GetFontImageSection returns FontImageSection based on named font
-func (this *AggregateImage) GetFontImageSection(font string) *FontImageSection {
+func GetFontImageSection(font string) *FontImageSection {
 
-	return this.fontsSectionMap[font]
+	return fontsSectionMap[font]
 }
 
 func (this *AggregateImage) Print(path string) {

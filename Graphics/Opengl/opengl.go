@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strconv"
 
 	"github.com/go-gl/gl/v3.3-core/gl"
 
@@ -51,14 +52,16 @@ func SetViewPort(width, height int32) {
 	gl.Viewport(0, 0, int32(width), int32(height))
 }
 
-func bindAggregateImage(img image.Image) uint32 {
+func bindAggregateImage(img image.Image, idx int) uint32 {
+
+	newIdx := idx
 
 	if rgba, ok := img.(*image.RGBA); ok {
 
-		gl.GenTextures(1, &textures[0])
+		gl.GenTextures(1, &textures[newIdx])
 
-		gl.ActiveTexture(gl.TEXTURE0)
-		gl.BindTexture(gl.TEXTURE_2D, textures[0])
+		gl.ActiveTexture(gl.TEXTURE0 + uint32(newIdx))
+		gl.BindTexture(gl.TEXTURE_2D, textures[newIdx])
 		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR)
 		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
 		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
@@ -72,15 +75,16 @@ func bindAggregateImage(img image.Image) uint32 {
 			fmt.Println("Cannot load Image in location: ./")
 			os.Exit(-1)
 		}
-
-		gl.Uniform1i(gl.GetUniformLocation(program, gl.Str("myTextureSampler[0]\x00")), 0)
+		idxS := strconv.Itoa(newIdx)
+		fmt.Println("idx: ", int32(newIdx), "myTextureSampler["+idxS+"]\x00")
+		gl.Uniform1i(gl.GetUniformLocation(program, gl.Str("myTextureSampler["+idxS+"]\x00")), int32(newIdx))
 		if ok := gl.GetError(); ok != gl.NO_ERROR {
 
 			fmt.Println("1- Cannot load Image in location: ./: ", ok)
 			os.Exit(-1)
 		}
 
-		return textures[0]
+		return textures[newIdx]
 	} else {
 		fmt.Println("Image not RGBA at location: ./")
 		os.Exit(-1)
@@ -248,8 +252,8 @@ func CreateBuffers() {
 	// fmt.Println(program)
 	gl.UseProgram(program)
 
-	for _, img := range aggregateImages {
-		bindAggregateImage(img)
+	for idx, img := range aggregateImages {
+		bindAggregateImage(img, idx)
 	}
 
 }
