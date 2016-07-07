@@ -153,9 +153,11 @@ func (this *Image) SubImage(bounds image.Rectangle) (Image, error) {
 
 // creates a new image
 func NewImage(path string) (retImg Image, err error) {
+	// fmt.Println("CREATING New Img: ", path)
 
 	if newImg := GetImageSection(path); newImg != nil {
 
+		// fmt.Println("SECTION ", newImg)
 		imgRet := Image{newImg, generateUVs(newImg.Section)}
 		return imgRet, nil
 	}

@@ -61,6 +61,7 @@ func newAggregateImage() *AggregateImage {
 
 	aggrImg := &AggregateImage{}
 	aggrImg.id = newIdx
+	fmt.Println("img id: ", aggrImg.id)
 
 	aggrImg.imageBuddy = NewBuddyAggregator(int(Opengl.Probe().MaxTextureSize))
 
@@ -86,23 +87,25 @@ func loadTextureImages(location string) {
 
 		fmt.Println("Partition: ", part)
 
-		if part != nil {
-			imgSec.Section = image.Rectangle{part.Bounds().Min,
-				part.Bounds().Min.Add(imgSec.Bounds().Size())}
-
-			if imgSec.Section.Bounds().Max.Y > maxHeight {
-				maxHeight = imgSec.Section.Bounds().Max.Y
-			}
-			if imgSec.Bounds().Max.X > maxWidth {
-				maxWidth = imgSec.Section.Bounds().Max.X
-			}
-			imgSec.aggrId = aggrImg.id
-			images = append(images, imgSec)
-			sectionMap[imgSec.pathName] = imgSec
-		} else {
+		if part == nil {
 			// no more room in this partition, need to get new one
 			aggrImg = newAggregateImage()
+			part = aggrImg.imageBuddy.Insert(imgSec.pathName, imgSec.Bounds().Dx(), imgSec.Bounds().Dy())
+
 		}
+
+		imgSec.Section = image.Rectangle{part.Bounds().Min,
+			part.Bounds().Min.Add(imgSec.Bounds().Size())}
+
+		if imgSec.Section.Bounds().Max.Y > maxHeight {
+			maxHeight = imgSec.Section.Bounds().Max.Y
+		}
+		if imgSec.Bounds().Max.X > maxWidth {
+			maxWidth = imgSec.Section.Bounds().Max.X
+		}
+		imgSec.aggrId = aggrImg.id
+		images = append(images, imgSec)
+		sectionMap[imgSec.pathName] = imgSec
 
 	}
 
@@ -149,35 +152,37 @@ func LoadImages(path string) {
 
 	// create empty image to hold all images
 	texSize := int(Opengl.Probe().MaxTextureSize)
-	for idx, aggrImg := range aggregateImages {
+	for _, aggrImg := range aggregateImages {
 
 		finalImg := image.Rectangle{image.Point{0, 0}, image.Point{texSize, texSize}}
 
 		rgbaFinal := image.NewRGBA(finalImg)
-
-		if idx < len(aggregateImages)-1 {
-
-			// draw all images
-			for _, imgSec := range images {
-
-				draw.Draw(rgbaFinal, imgSec.Section, imgSec, image.Point{0, 0}, draw.Src) // draw images
-
-			}
-		} else {
-			// draw fonts on only the last sheet as a brand new sheet is made for just them
-			// dont feel like keeping track of fonts really, not a priority right now
-			for _, fontSec := range fonts {
-
-				draw.Draw(rgbaFinal, fontSec.Section, fontSec, image.Point{0, 0}, draw.Src) // draw images
-
-			}
-		}
 		// store the final aggregate image
 		aggrImg.aggregateImage = rgbaFinal
-		// fmt.Println("Idx: " + strconv.Itoa(idx))
-		// aggrImg.Print("aggrimg" + strconv.Itoa(idx) + ".png")
+
 		Opengl.AddAggregateImage(aggrImg.aggregateImage)
 	}
+
+	// draw all images   img.(*image.RGBA)
+	for _, imgSec := range images {
+		img := aggregateImages[imgSec.aggrId].aggregateImage
+		rgbaFinal, _ := img.(*image.RGBA)
+		draw.Draw(rgbaFinal, imgSec.Section, imgSec, image.Point{0, 0}, draw.Src) // draw images
+	}
+
+	// now fonts
+	for _, fontSec := range fonts {
+		img := aggregateImages[fontSec.aggrId].aggregateImage
+		rgbaFinal, _ := img.(*image.RGBA)
+		draw.Draw(rgbaFinal, fontSec.Section, fontSec, image.Point{0, 0}, draw.Src) // draw images
+
+	}
+
+	//TODO add flag for displaying this
+	// for idx, aggrImg := range aggregateImages {
+	//
+	// 	aggrImg.Print("aggrimg" + strconv.Itoa(idx) + ".png")
+	// }
 }
 
 func (this *pngWalker) loadImage(imgPath string) error {
