@@ -165,6 +165,7 @@ func LoadImages(path string) {
 			}
 		} else {
 			// draw fonts on only the last sheet as a brand new sheet is made for just them
+			// dont feel like keeping track of fonts really, not a priority right now
 			for _, fontSec := range fonts {
 
 				draw.Draw(rgbaFinal, fontSec.Section, fontSec, image.Point{0, 0}, draw.Src) // draw images
