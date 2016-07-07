@@ -30,6 +30,7 @@ func main() {
 	s, _ := Graphics.NewBasicScene()
 	g := TestGame{BaseScene: &s}
 
+	// 500 sprites does about 38 fps on my laptop
 	for i := 0; i < 500; i++ {
 		nodebak := Components.NewNode("Person")
 		nodebak.Transform().Translate(400, 400,0)

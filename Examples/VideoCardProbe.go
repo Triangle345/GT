@@ -12,4 +12,5 @@ func main() {
 	probe := Opengl.Probe()
 	Logging.Info("Max Texture Size: ", probe.MaxTextureSize)
 	Logging.Info("Max Texture Image Units: ", probe.MaxTextureImageUnits)
+	Logging.Info("Shader Version: ", probe.ShaderVersion)
 }

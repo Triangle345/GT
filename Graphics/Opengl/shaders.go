@@ -7,6 +7,14 @@ const (
 	TEXTURED   float32 = 1.1
 )
 
+func samplerIdx(idx int) string {
+	strIdx := strconv.Itoa(idx)
+	return `    
+    if (int(samplerIdxOut) == ` + strIdx + `) {
+        tex = texture2D( myTextureSampler[` + strIdx + `], UV );
+    }`
+}
+
 func VertexShader() string {
 	return `
 
@@ -63,8 +71,15 @@ void main(){
 func FragmentShader() string {
 	strTexUnits := strconv.Itoa(texUnits)
 
-	return `
+	samplerIdxStr := ""
 
+	// texNum := int(Probe().MaxTextureImageUnits)
+
+	for i := 0; i < texUnits; i++ {
+		samplerIdxStr += samplerIdx(i)
+	}
+
+	return `
 #version ` + OGL_VERSION + ` 
 
 
@@ -88,18 +103,19 @@ uniform sampler2D myTextureSampler[` + strTexUnits + `];
 
 void main()
 {
-
     // // Output color = red
     // color = vec4(fragmentColor,1.0);
 
     // Output color = color of the texture at the specified UV
     //color = texture2D( myTextureSampler, UV ).rgba;
-
     
+    mediump vec4 tex ;
+    
+   ` + samplerIdxStr + `
 
     // Do we display textures or not?
     if (int(modeOut) == 1) {
-        mediump vec4 tex = texture2D( myTextureSampler[0], UV );
+        // mediump vec4 tex = texture2D( myTextureSampler[0], UV );
     
         tex.a *= fragmentColor[3];
         // color = tex.rgba;

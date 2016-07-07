@@ -115,12 +115,7 @@ func loadTextureImages(location string) {
 func loadFontImages() {
 	fontsInfo := Font.GetFonts()
 
-	aggrImg := &AggregateImage{}
-	aggrImg.id = len(aggregateImages)
-
-	aggrImg.imageBuddy = NewBuddyAggregator(int(Opengl.Probe().MaxTextureSize))
-
-	aggregateImages = append(aggregateImages, aggrImg)
+	aggrImg := newAggregateImage()
 
 	for _, f := range fontsInfo {
 
@@ -154,13 +149,13 @@ func LoadImages(path string) {
 
 	// create empty image to hold all images
 	texSize := int(Opengl.Probe().MaxTextureSize)
-	finalImg := image.Rectangle{image.Point{0, 0}, image.Point{texSize, texSize}}
-
-	rgbaFinal := image.NewRGBA(finalImg)
-
 	for idx, aggrImg := range aggregateImages {
 
-		if idx < len(aggregateImages) {
+		finalImg := image.Rectangle{image.Point{0, 0}, image.Point{texSize, texSize}}
+
+		rgbaFinal := image.NewRGBA(finalImg)
+
+		if idx < len(aggregateImages)-1 {
 
 			// draw all images
 			for _, imgSec := range images {
@@ -178,7 +173,8 @@ func LoadImages(path string) {
 		}
 		// store the final aggregate image
 		aggrImg.aggregateImage = rgbaFinal
-
+		// fmt.Println("Idx: " + strconv.Itoa(idx))
+		// aggrImg.Print("aggrimg" + strconv.Itoa(idx) + ".png")
 		Opengl.AddAggregateImage(aggrImg.aggregateImage)
 	}
 }

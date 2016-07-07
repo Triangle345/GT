@@ -70,11 +70,7 @@ func bindAggregateImage(img image.Image, idx int) uint32 {
 
 		gl.TexImage2D(gl.TEXTURE_2D, 0, gl.RGBA, int32(rgba.Rect.Size().X), int32(rgba.Rect.Size().Y), 0, gl.RGBA, gl.UNSIGNED_BYTE, gl.Ptr(rgba.Pix))
 		gl.GenerateMipmap(gl.TEXTURE_2D)
-		if gl.GetError() != gl.NO_ERROR {
 
-			fmt.Println("Cannot load Image in location: ./")
-			os.Exit(-1)
-		}
 		idxS := strconv.Itoa(newIdx)
 		fmt.Println("idx: ", int32(newIdx), "myTextureSampler["+idxS+"]\x00")
 		gl.Uniform1i(gl.GetUniformLocation(program, gl.Str("myTextureSampler["+idxS+"]\x00")), int32(newIdx))
@@ -217,6 +213,7 @@ func CreateBuffers() {
 
 	for idx, img := range aggregateImages {
 		bindAggregateImage(img, idx)
+
 	}
 
 }
