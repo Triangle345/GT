@@ -114,16 +114,16 @@ void main()
    ` + samplerIdxStr + `
 
     // Do we display textures or not?
-    if (int(modeOut) == 1) {
-        // mediump vec4 tex = texture2D( myTextureSampler[0], UV );
+    if (int(modeOut) == 0) {
+			tex = vec4(0.0);
+			tex.a = 1.0;
+		}
+    // mediump vec4 tex = texture2D( myTextureSampler[0], UV );
 
-        tex.a *= diffuseFragment[3];
-        // color = tex.rgba;
-        color =  tex + vec4(diffuseFragment[0], diffuseFragment[1], diffuseFragment[2], 1)*tex.a;
-    } else {
+    tex.a *= diffuseFragment[3];
+    // color = tex.rgba;
+    color =  tex + vec4(diffuseFragment[0], diffuseFragment[1], diffuseFragment[2], 1)*tex.a;
 
-        color =  vec4(diffuseFragment[0], diffuseFragment[1], diffuseFragment[2], 1);
-     }
 }
 ` + "\x00"
 }
