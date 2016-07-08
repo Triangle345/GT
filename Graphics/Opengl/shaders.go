@@ -9,7 +9,7 @@ const (
 
 func samplerIdx(idx int) string {
 	strIdx := strconv.Itoa(idx)
-	return `    
+	return `
     if (int(samplerIdxOut) == ` + strIdx + `) {
         tex = texture2D( myTextureSampler[` + strIdx + `], UV );
     }`
@@ -18,12 +18,12 @@ func samplerIdx(idx int) string {
 func VertexShader() string {
 	return `
 
-#version ` + OGL_VERSION + ` 
+#version ` + OGL_VERSION + `
 
 // Input vertex data, different for all executions of this shader.
 in vec3 vertexPosition_modelspace;
 
-in vec4 vertexColor;
+in vec4 diffuse;
 
 in vec2 vertexUV;
 
@@ -39,7 +39,7 @@ out float samplerIdxOut;
 out vec2 UV;
 
 // Output data ; will be interpolated for each fragment.
-out vec4 fragmentColor;
+out vec4 diffuseFragment;
 
 // Values that stay constant for the whole mesh.
 uniform mat4 MVP;
@@ -52,11 +52,11 @@ void main(){
 
     // The color of each vertex will be interpolated
     // to produce the color of each fragment
-    fragmentColor = vertexColor;
+    diffuseFragment = diffuse;
 
     // display uv textures?
     modeOut = mode;
-    
+
     // which sampler to use
     samplerIdxOut = samplerIdx;
 
@@ -80,11 +80,11 @@ func FragmentShader() string {
 	}
 
 	return `
-#version ` + OGL_VERSION + ` 
+#version ` + OGL_VERSION + `
 
 
 // Interpolated values from the vertex shaders
-in mediump vec4 fragmentColor;
+in mediump vec4 diffuseFragment;
 
 // Display uv?
 in mediump float modeOut;
@@ -108,21 +108,21 @@ void main()
 
     // Output color = color of the texture at the specified UV
     //color = texture2D( myTextureSampler, UV ).rgba;
-    
+
     mediump vec4 tex ;
-    
+
    ` + samplerIdxStr + `
 
     // Do we display textures or not?
     if (int(modeOut) == 1) {
         // mediump vec4 tex = texture2D( myTextureSampler[0], UV );
-    
-        tex.a *= fragmentColor[3];
+
+        tex.a *= diffuseFragment[3];
         // color = tex.rgba;
-        color =  tex + vec4(fragmentColor[0], fragmentColor[1], fragmentColor[2], 1)*tex.a;
+        color =  tex + vec4(diffuseFragment[0], diffuseFragment[1], diffuseFragment[2], 1)*tex.a;
     } else {
 
-        color =  vec4(fragmentColor[0], fragmentColor[1], fragmentColor[2], 1);
+        color =  vec4(diffuseFragment[0], diffuseFragment[1], diffuseFragment[2], 1);
      }
 }
 ` + "\x00"

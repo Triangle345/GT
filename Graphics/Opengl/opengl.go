@@ -262,7 +262,7 @@ func BindBuffers() { //vertexData *OpenGLVertexInfo) {
 	gl.EnableVertexAttribArray(positionAttrib)
 	gl.VertexAttribPointer(positionAttrib, 3, gl.FLOAT, false, 4*NUM_ATTRIBUTES, gl.PtrOffset(0))
 
-	colorAttrib := uint32(gl.GetAttribLocation(program, gl.Str("vertexColor\x00")))
+	colorAttrib := uint32(gl.GetAttribLocation(program, gl.Str("diffuseColor\x00")))
 	gl.EnableVertexAttribArray(colorAttrib)
 	gl.VertexAttribPointer(colorAttrib, 4, gl.FLOAT, false, 4*NUM_ATTRIBUTES, gl.PtrOffset(3*4))
 
