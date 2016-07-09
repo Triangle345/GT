@@ -14,8 +14,16 @@ import (
 	"strings"
 )
 
+// light
+var lightpositionID int32
+var lightintensitiesID int32
+var lightattenuationID int32
+var lightambientCoeficientID int32
+
+////////////////
+
 const (
-	NUM_ATTRIBUTES int32 = 11
+	NUM_ATTRIBUTES int32 = 17
 )
 
 var program uint32
@@ -27,7 +35,7 @@ var textures []uint32
 
 // texture units probed from video card
 var texUnits int
-var vertexDataTest OpenGLVertexInfo = OpenGLVertexInfo{Stride: 4, Elements: make([]uint32, 0, 9999999), vertexData: make([]float32, 0, 9999999)}
+var vertexDataTest OpenGLVertexInfo = OpenGLVertexInfo{vertexData: make([]float32, 0, 999999)}
 
 var aggregateImages []image.Image
 
@@ -191,6 +199,10 @@ func CreateBuffers() {
 	gl.BindFragDataLocation(program, 0, gl.Str("color\x00"))
 
 	MVPid = gl.GetUniformLocation(program, gl.Str("MVP\x00"))
+	lightpositionID = gl.GetUniformLocation(program, gl.Str("light.position\x00"))
+	lightintensitiesID = gl.GetUniformLocation(program, gl.Str("light.intensities\x00"))
+	lightattenuationID = gl.GetUniformLocation(program, gl.Str("light.attenuation\x00"))
+	lightambientCoeficientID = gl.GetUniformLocation(program, gl.Str("light.ambientCoeficient\x00"))
 
 	// View := mathgl.LookAt(0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0)
 
@@ -270,13 +282,21 @@ func BindBuffers() { //vertexData *OpenGLVertexInfo) {
 	gl.EnableVertexAttribArray(uvAttrib)
 	gl.VertexAttribPointer(uvAttrib, 2, gl.FLOAT, false, 4*NUM_ATTRIBUTES, gl.PtrOffset(7*4))
 
+	mNormAttrib := uint32(gl.GetAttribLocation(program, gl.Str("mNorm\x00")))
+	gl.EnableVertexAttribArray(mNormAttrib)
+	gl.VertexAttribPointer(mNormAttrib, 3, gl.FLOAT, false, 4*NUM_ATTRIBUTES, gl.PtrOffset(9*4))
+
+	wNormAttrib := uint32(gl.GetAttribLocation(program, gl.Str("wNorm\x00")))
+	gl.EnableVertexAttribArray(wNormAttrib)
+	gl.VertexAttribPointer(wNormAttrib, 3, gl.FLOAT, false, 4*NUM_ATTRIBUTES, gl.PtrOffset(12*4))
+
 	shaderMode := uint32(gl.GetAttribLocation(program, gl.Str("mode\x00")))
 	gl.EnableVertexAttribArray(shaderMode)
-	gl.VertexAttribPointer(shaderMode, 1, gl.FLOAT, false, 4*NUM_ATTRIBUTES, gl.PtrOffset(9*4))
+	gl.VertexAttribPointer(shaderMode, 1, gl.FLOAT, false, 4*NUM_ATTRIBUTES, gl.PtrOffset(15*4))
 
 	samplerIdx := uint32(gl.GetAttribLocation(program, gl.Str("samplerIdx\x00")))
 	gl.EnableVertexAttribArray(samplerIdx)
-	gl.VertexAttribPointer(samplerIdx, 1, gl.FLOAT, false, 4*NUM_ATTRIBUTES, gl.PtrOffset(10*4))
+	gl.VertexAttribPointer(samplerIdx, 1, gl.FLOAT, false, 4*NUM_ATTRIBUTES, gl.PtrOffset(16*4))
 
 	// gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, elementvbo)
 	// gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(vertexData.Elements)*4, gl.Ptr(vertexData.Elements), gl.STATIC_DRAW)
@@ -319,6 +339,11 @@ func Draw() {
 	MVP := projectionM.Mul4(viewM) //.Mul4(Model)
 
 	gl.UniformMatrix4fv(MVPid, 1, false, &MVP[0])
+
+	lightPos := mathgl.Vec3{0, 3, 0}
+	lightintensities := mathgl.Vec3{1, .4, .2}
+	gl.UniformMatrix3fv(lightpositionID, 1, false, &lightPos[0])
+	gl.UniformMatrix3fv(lightintensitiesID, 1, false, &lightintensities[0])
 
 	// vertexData.Print()
 	// gl.DrawElements(gl.TRIANGLES, int32(len(vertexData.Elements)), gl.UNSIGNED_INT, nil)

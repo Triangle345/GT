@@ -48,8 +48,11 @@ func (this *Mesh) VertexData() *Opengl.OpenGLVertexInfo {
 
 				}
 
+				// uvs
 				u := this.VTs[face.UV[idx]].U
 				v := this.VTs[face.UV[idx]].V
+
+				//normals
 
 				// x starts from left to right
 				locX := int(float32(imgSec.Bounds().Dx()) * u)
@@ -63,7 +66,17 @@ func (this *Mesh) VertexData() *Opengl.OpenGLVertexInfo {
 				newU, newV := Image.GetUVFromPosition(image.Point{locX, locY})
 
 				vertexData.SetUV(vdID, newU, newV)
+
 				vertexData.SetMode(vdID, Opengl.TEXTURED)
+
+				// set normals
+				nX := this.VNs[face.VN[idx]].X
+				nY := this.VNs[face.VN[idx]].Y
+				nZ := this.VNs[face.VN[idx]].Z
+
+				vertexData.SetMNormal(vdID, nX, nY, nZ)
+				vertexData.SetWNormal(vdID, nX, nY, nZ)
+
 			}
 		}
 	}

@@ -44,10 +44,19 @@ func (this *Renderer) Render(obj Opengl.RenderObject) {
 
 		vData.SetVertex(j, t[0], t[1], t[2])
 
+		// set color if we have one
 		if this.Color != nil {
 			c := this.Color
 			vData.SetColor(j, c.R, c.G, c.B, c.A)
 		}
+
+		// set normals for both model view and world (bump mapping and lighting)
+
+		// world normal
+		nX, nY, nZ := vData.GetWNormal(j)
+		normalMat := Model.Mat3().Inv().Transpose()
+		normal := normalMat.Mul3x1(mathgl.Vec3{nX, nY, nZ})
+		vData.SetWNormal(j, normal.X(), normal.Y(), normal.Z())
 
 	}
 

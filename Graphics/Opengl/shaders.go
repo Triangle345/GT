@@ -23,6 +23,12 @@ func VertexShader() string {
 // Input vertex data, different for all executions of this shader.
 in vec3 vertexPosition_modelspace;
 
+// model view normal
+in vec3 mNorm;
+
+// world normal
+in vec3 wNorm;
+
 in vec4 diffuse;
 
 in vec2 vertexUV;
@@ -43,6 +49,14 @@ out vec4 diffuseFragment;
 
 // Values that stay constant for the whole mesh.
 uniform mat4 MVP;
+
+uniform struct Light {
+   vec3 position;
+   vec3 intensities; //a.k.a the color of the light
+   float attenuation;
+   float ambientCoefficient;
+} light;
+
 
 void main(){
 

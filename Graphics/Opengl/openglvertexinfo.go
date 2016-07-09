@@ -4,11 +4,6 @@ import "fmt"
 
 type OpenGLVertexInfo struct {
 	vertexData []float32
-	Elements   []uint32
-
-	// TODO: make stride private and set it statically using new OpenGLVertexInfo2D or something
-	Stride      int
-	totalStride int
 }
 
 type RenderObject interface {
@@ -25,8 +20,46 @@ func (this *OpenGLVertexInfo) Clone() *OpenGLVertexInfo {
 }
 
 func (this *OpenGLVertexInfo) NewVertex(x, y, z float32) int {
-	this.vertexData = append(this.vertexData, x, y, z, 0, 0, 0, 1, 0, 0, TEXTURED, 0)
+	this.vertexData = append(this.vertexData,
+		x, y, z, // vertex
+		0, 0, 0, 1, // diffuse color
+		0, 0, // uv
+		0, 0, 0, //model view normal
+		0, 0, 0, //w worldNormal
+		TEXTURED, 0) // mode and sampler idx
 	return this.NumVerts() - 1
+}
+
+func (this *OpenGLVertexInfo) SetMNormal(vIdx int, x, y, z float32) {
+	this.vertexData[vIdx*int(NUM_ATTRIBUTES)+9] = x
+	this.vertexData[vIdx*int(NUM_ATTRIBUTES)+10] = y
+	this.vertexData[vIdx*int(NUM_ATTRIBUTES)+11] = z
+
+}
+
+func (this *OpenGLVertexInfo) GetMNormal(vIdx int) (x, y, z float32) {
+	x = this.vertexData[vIdx*int(NUM_ATTRIBUTES)+9]
+	y = this.vertexData[vIdx*int(NUM_ATTRIBUTES)+10]
+	z = this.vertexData[vIdx*int(NUM_ATTRIBUTES)+11]
+
+	return x, y, z
+
+}
+
+func (this *OpenGLVertexInfo) GetWNormal(vIdx int) (x, y, z float32) {
+	x = this.vertexData[vIdx*int(NUM_ATTRIBUTES)+12]
+	y = this.vertexData[vIdx*int(NUM_ATTRIBUTES)+13]
+	z = this.vertexData[vIdx*int(NUM_ATTRIBUTES)+14]
+
+	return x, y, z
+
+}
+
+func (this *OpenGLVertexInfo) SetWNormal(vIdx int, x, y, z float32) {
+	this.vertexData[vIdx*int(NUM_ATTRIBUTES)+12] = x
+	this.vertexData[vIdx*int(NUM_ATTRIBUTES)+13] = y
+	this.vertexData[vIdx*int(NUM_ATTRIBUTES)+14] = z
+
 }
 
 func (this *OpenGLVertexInfo) SetUV(vIdx int, u, v float32) {
@@ -35,7 +68,7 @@ func (this *OpenGLVertexInfo) SetUV(vIdx int, u, v float32) {
 }
 
 func (this *OpenGLVertexInfo) SetMode(vIdx int, m float32) {
-	this.vertexData[vIdx*int(NUM_ATTRIBUTES)+9] = m
+	this.vertexData[vIdx*int(NUM_ATTRIBUTES)+15] = m
 }
 
 func (this *OpenGLVertexInfo) SetColor(vIdx int, r, g, b, a float32) {
@@ -53,7 +86,7 @@ func (this *OpenGLVertexInfo) SetVertex(vIdx int, x, y, z float32) {
 
 func (this *OpenGLVertexInfo) SetAggregateId(vIdx, aId int) {
 	// add .1 to int and convert to float so we can round down in shader
-	this.vertexData[vIdx*int(NUM_ATTRIBUTES)+10] = float32(aId) + float32(0.1)
+	this.vertexData[vIdx*int(NUM_ATTRIBUTES)+16] = float32(aId) + float32(0.1)
 }
 
 func (this *OpenGLVertexInfo) GetVertex(vIdx int) (x, y, z float32) {
@@ -68,33 +101,15 @@ func (this *OpenGLVertexInfo) NumVerts() int {
 	return len(this.vertexData) / int(NUM_ATTRIBUTES)
 }
 
-// TODO: need to put this in as part of vertex info and into hashhash
-func (this *OpenGLVertexInfo) adjustElements(o *OpenGLVertexInfo) {
-
-	for k, _ := range o.Elements {
-		o.Elements[k] += uint32(this.totalStride)
-		// fmt.Println(i.Elements[k])
-	}
-
-	//TODO: add argument of stride to add stride of other vertexinfo
-	this.totalStride += o.Stride
-}
-
 func (i *OpenGLVertexInfo) append(o *OpenGLVertexInfo) {
-	i.adjustElements(o)
 
 	i.vertexData = append(i.vertexData, o.vertexData...)
-	i.Elements = append(i.Elements, o.Elements...)
-
-	//i.Stride += o.Stride
 
 }
 
 func (i *OpenGLVertexInfo) Clear() {
 
-	i.vertexData = make([]float32, 0, 1000000)
-	i.Elements = make([]uint32, 0, 1000000)
-	i.totalStride = 0
+	i.vertexData = make([]float32, 0, 100000)
 
 }
 
@@ -104,10 +119,5 @@ func (i OpenGLVertexInfo) Print() {
 		fmt.Printf("inside data:%f \n", v)
 	}
 	fmt.Printf("+++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
-	for _, v := range i.Elements {
-		fmt.Printf("inside element:%f \n", v)
-	}
-	fmt.Printf("stride %d \n", i.Stride)
-	fmt.Printf("Total stride %d \n", i.totalStride)
 
 }
