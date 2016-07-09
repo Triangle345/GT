@@ -35,7 +35,7 @@ var textures []uint32
 
 // texture units probed from video card
 var texUnits int
-var vertexDataTest OpenGLVertexInfo = OpenGLVertexInfo{vertexData: make([]float32, 0, 999999)}
+var vertexDataTest OpenGLVertexInfo = OpenGLVertexInfo{vertexData: []float32{}}
 
 var aggregateImages []image.Image
 
@@ -354,7 +354,6 @@ func Draw() {
 	gl.DrawArrays(gl.TRIANGLES, 0, numTriVerts)
 
 	ClearVertexData()
-
 }
 
 func Cleanup() {

@@ -91,39 +91,16 @@ func (this *TextRenderer) Update(delta float32) {
 	fInfo := truetype.Font(*Font.GetFont(this.font))
 
 	curTotWidth = float32(0.0)
-	// scale := float32(this.size) / 100.0
 
 	for idx, img := range this.runeImgs {
-		// vData := img.VertexData()
 		i := fInfo.Index(rune(this.text[idx]))
 
 		hmetric := fInfo.HMetric(100, i)
 		w := float32(hmetric.AdvanceWidth) //float32(img.Bounds().Dx())
-		// h := float32(img.runeImg.Bounds().Dy())
-
-		// for j := 0; j < vData.NumVerts(); j++ {
-		// 	x, y, z := vData.GetVertex(j)
-		// 	transformation := mathgl.Vec4{x, y, z, 1}
-
-		// 	// apply font transforms
-		// 	t := mathgl.Translate3D(totalWidth, 0, 0).Mul4x1(transformation)
-
-		// 	t = mathgl.Scale3D(scale, scale, 1).Mul4x1(t)
-
-		// 	t = Model.Mul4x1(t)
-
-		// 	// data = append(data, t[0], t[1], t[2], this.r, this.g, this.b, this.a, img.uvs[j*2+0], img.uvs[j*2+1], 1.0)
-		// 	// vData.SetVertex(j, t[0], t[1], t[3])
-		// 	// vData.SetColor(j, this.r, this.g, this.b, this.a)
-
-		// }
 
 		this.Render(img)
 
 		curTotWidth += w
-
-		// send OpenGLVertex info to Opengl module
-		// Opengl.AddVertexData(1, vData)
 
 	}
 

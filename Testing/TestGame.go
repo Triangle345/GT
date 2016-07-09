@@ -19,8 +19,6 @@ type TestGame struct {
 	*Graphics.BaseScene
 }
 
-
-
 func main() {
 
 	fmt.Println("starting")
@@ -33,20 +31,20 @@ func main() {
 	// 500 sprites does about 38 fps on my laptop
 	for i := 0; i < 500; i++ {
 		nodebak := Components.NewNode("Person")
-		nodebak.Transform().Translate(400, 400,0)
+		nodebak.Transform().Translate(400, 400, 0)
 		node := Components.NewNode("Person2")
 
-		node.Transform().Translate(100, 100,0)
+		node.Transform().Translate(100, 100, 0)
 		node.AddNode(nodebak)
 		rend := Components.NewSpriteRenderer()
 		rend.SetImage(GT.AssetsImages + "test.png")
-		nodebak.Transform().Rotate(20,0,0,1)
+		nodebak.Transform().Rotate(20, 0, 0, 1)
 		nodebak.AddComponent(rend)
 
 		rend2 := Components.NewSpriteRenderer()
 		rend2.SetSubImage(GT.AssetsImages+"smiley.png", image.Rectangle{image.Point{30, 30}, image.Point{50, 50}})
 		nodebak2 := Components.NewNode("Person")
-		nodebak2.Transform().Translate(50, 50,0)
+		nodebak2.Transform().Translate(50, 50, 0)
 		nodebak2.AddComponent(rend2)
 		// sr := nodebak2.GetComponent("SpriteRenderer")
 		// fmt.Println(sr)
