@@ -7,7 +7,13 @@ import (
 	"GT/Graphics"
 	"GT/Graphics/Components"
 	"fmt"
+	"math/rand"
 )
+
+func random(min, max int) float32 {
+	//srand.Seed(time.Now().Unix())
+	return float32(rand.Intn(max-min) + min)
+}
 
 type Spin struct {
 	Components.ScriptComponent
@@ -31,25 +37,38 @@ func main() {
 	GT.EngineStart()
 
 	simpleScene, _ := Graphics.New3DScene()
+
 	node := Components.NewNode("new_image")
 	node.AddComponent(&Spin{})
+	node.Transform().Translate(4, -3, 0)
 	// create a model based on obj file
 	rend := Components.NewModelRenderer()
 	rend.SetModel(GT.AssetsModels+"textured_box.obj", GT.AssetsModels+"textured_box.mtl")
 	node.AddComponent(rend)
 
-	node2 := Components.NewNode("new_image")
+	node2 := Components.NewNode("new_image2")
 	// node2.AddComponent(&Spin{})
 	// create a model based on obj file
 	rend2 := Components.NewModelRenderer()
 	rend2.SetModel(GT.AssetsModels+"walk.obj", GT.AssetsModels+"walk.mtl")
 	node2.AddComponent(rend2)
-	node2.Transform().Translate(3, -3, 0)
+	node2.Transform().Translate(4, 3, 0)
 	node2.Transform().Rotate(.3, 0, 1, 0)
+
+	node3 := Components.NewNode("new_image3")
+	node3.AddComponent(&Spin{})
+	// node2.AddComponent(&Spin{})
+	// create a model based on obj file
+	rend3 := Components.NewModelRenderer()
+	rend3.SetModel(GT.AssetsModels+"test.obj", GT.AssetsModels+"test.mtl")
+	node3.AddComponent(rend3)
+	node3.Transform().Translate(-4, -3, 0)
+	node3.Transform().Rotate(.3, 0, 1, 0)
 
 	// attach the node to our scene
 	simpleScene.RootNode.AddNode(node)
 	simpleScene.RootNode.AddNode(node2)
+	simpleScene.RootNode.AddNode(node3)
 
 	// start the scene to render our setup
 	simpleScene.Start()

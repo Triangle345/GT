@@ -22,12 +22,14 @@ func VertexShader() string {
 
 // Input vertex data, different for all executions of this shader.
 in vec3 vertexPosition_modelspace;
+out vec3 fragPos;
 
 // model view normal
 in vec3 mNorm;
 
 // world normal
 in vec3 wNorm;
+out vec3 wNormFrag;
 
 in vec4 diffuse;
 
@@ -50,12 +52,7 @@ out vec4 diffuseFragment;
 // Values that stay constant for the whole mesh.
 uniform mat4 MVP;
 
-uniform struct Light {
-   vec3 position;
-   vec3 intensities; //a.k.a the color of the light
-   float attenuation;
-   float ambientCoefficient;
-} light;
+
 
 
 void main(){
@@ -73,6 +70,12 @@ void main(){
 
     // which sampler to use
     samplerIdxOut = samplerIdx;
+
+		// pass the pos to fragment shader
+		fragPos = vertexPosition_modelspace;
+
+		// pass the world normal to fragment shader
+		wNormFrag = wNorm;
 
     // UV of the vertex. No special space for this one.
     UV = vertexUV;
@@ -97,8 +100,21 @@ func FragmentShader() string {
 #version ` + OGL_VERSION + `
 
 
+uniform struct Light {
+   vec3 position;
+   vec3 intensities; //a.k.a the color of the light
+   float attenuation;
+   float ambientCoefficient;
+} light;
+
 // Interpolated values from the vertex shaders
 in mediump vec4 diffuseFragment;
+
+// fragment position passed vertex position.. transformed already
+in mediump vec3 fragPos;
+
+// fragment world normal
+in mediump vec3 wNormFrag;
 
 // Display uv?
 in mediump float modeOut;
@@ -138,6 +154,15 @@ void main()
     // color = tex.rgba;
     color =  tex + vec4(diffuseFragment[0], diffuseFragment[1], diffuseFragment[2], 1)*tex.a;
 
+}
+
+vec3 linearLight() {
+	vec3 normal = wNormFrag;
+	vec3 surfacePos = fragPos;
+
+
+	vec3 surfaceToLight = normalize(light.position - surfacePos);
+	return vec3(3.0);
 }
 ` + "\x00"
 }
