@@ -5,11 +5,10 @@ package Graphics
 import (
 	"GT/Graphics/Components"
 	"GT/Graphics/Opengl"
+	"GT/Input"
 	"GT/Window"
 	"fmt"
 	"time"
-
-	"github.com/veandco/go-sdl2/sdl"
 )
 
 // BaseScene : object to contain nodes for rendering. TODO: implement more scene types from this base type
@@ -24,7 +23,7 @@ type BaseScene struct {
 	update    bool
 }
 
-// NewBasicScene : start a new simple scene of orthographic orientation
+// NewBasicScene : start a new simple 2D scene of orthographic orientation
 func NewBasicScene() (BaseScene, error) {
 
 	s := BaseScene{RootNode: Components.NewNode("RootNode"), window: &Window.MainWindow}
@@ -38,7 +37,7 @@ func NewBasicScene() (BaseScene, error) {
 	return s, nil
 }
 
-// NewBasicScene : start a new simple scene of orthographic orientation
+// New3DScene : start a new simple 3D scene of orthographic orientation
 func New3DScene() (BaseScene, error) {
 
 	s := BaseScene{RootNode: Components.NewNode("RootNode"), window: &Window.MainWindow}
@@ -63,23 +62,8 @@ func (s *BaseScene) Start() {
 	// continue to render the scene unless signalled for termination
 	for running {
 
-		// poll any current events and handle accordingly
-		// TODO: while implementing Issue #9 abstract this to an input handler
-		var event sdl.Event
-		for event = sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
-			switch t := event.(type) {
-			case *sdl.QuitEvent:
-				running = false
-			case *sdl.KeyDownEvent:
-				if t.Keysym.Sym == sdl.K_ESCAPE {
-					running = false
-				} else {
-					// fmt.Printf("[%d ms] Keyboard\ttype:%d\tsym:%c\tmodifiers:%d\tstate:%d\trepeat:%d\n",
-					// t.Timestamp, t.Type, t.Keysym.Sym, t.Keysym.Mod, t.State, t.Repeat)
-				}
-			default:
-				// fmt.Printf("Some event\n")
-			}
+		if GlobalInput.CheckForUpdates() {
+			running = !(GlobalInput.GetInputStatus("Esc") || GlobalInput.GetInputStatus("Quit"))
 		}
 
 		s.window.Clear()

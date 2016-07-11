@@ -46,24 +46,21 @@ func main() {
 
 	// create our renderer and our animation objects
 	rend := Components.NewSpriteRenderer()
-	// anim := Components.NewFrameAnimation()
-	// anim2 := Components.NewFrameAnimation()
-	// anim3 := Components.NewFrameAnimation()
 
 	anim := rend.SpliceAndSetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 4, 1)
+
+	// you can append other animations or images
 	anim.AppendAnimation(rend.SpliceAndSetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 6, 2))
 	anim.AppendAnimation(rend.SpliceAndSetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 5, 3))
 	anim.AppendAnimation(rend.SpliceAndSetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 4, 4))
 	anim.AppendAnimation(rend.SpliceAndSetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 3, 5))
 	anim.AppendAnimation(rend.SpliceAndSetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 4, 6))
 
+	anim.Append(GT.AssetsImages + "test.png")
+
 	// if you can make use of a full sprite sheet for one animation, then use the SpliceAndSetFullSheet method
 	//anim2.SpliceAndSetFullSheetAnimation(GT.AssetsImages+"tomatohead1.png", 12, 12)
 
-	// you can append other animations or images
-	// anim.AppendAnimation(anim2)
-	// anim.AppendAnimation(anim3)
-	anim.Append(GT.AssetsImages + "test.png")
 	anim.SetFrequency(0.25, false) // set frequency of toggle to every 1/4 second
 
 	// you can swap images in the animation, or remove them by number in the list
@@ -74,7 +71,7 @@ func main() {
 
 	rend.AnimationHandler.AddAnimation(anim, "dog_left_facing")
 	rend.AnimationHandler.SetCurrentAnimation("dog_left_facing") // script components can make use of this...
-	// simpleScene.SetFPS(30)
+	//simpleScene.SetFPS(30)
 
 	// attach the sprite to our node, and transform if desired
 	node.AddComponent(rend)
