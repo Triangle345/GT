@@ -7,8 +7,6 @@ import (
 	"GT/Logging"
 	"GT/Window"
 	"flag"
-	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 )
@@ -25,7 +23,7 @@ func getAbsPath(folder string) string {
 	path, _ := filepath.Abs(*Assets + folder)
 
 	if _, err := os.Stat(path); err != nil {
-		fmt.Println("Please specify the correct Assets path with the -Assets flag")
+		Logging.Info("Please specify the correct Assets path with the -Assets flag")
 		panic(err)
 	}
 
@@ -34,12 +32,6 @@ func getAbsPath(folder string) string {
 
 func readFlags() {
 	flag.Parse()
-
-	// eventually add log flags (filtering, naming, etc.)
-	logPath, _ := filepath.Abs(*Assets + "/Logs")
-	logPath += string(os.PathSeparator)
-	// logPath += inputFileNameFlag
-	Logging.Init(logPath, log.Ldate|log.Ltime|log.Lshortfile)
 
 	imgsPath := getAbsPath("/Images")
 

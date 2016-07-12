@@ -4,7 +4,7 @@ package Components
 import (
 	"GT/Graphics/Image"
 	"GT/Graphics/Opengl"
-	"fmt"
+	"GT/Logging"
 	"time"
 )
 
@@ -68,7 +68,7 @@ func (f *FrameAnimation) AppendAnimation(animIn *FrameAnimation) {
 func (f *FrameAnimation) Append(imageLoc string) {
 	img, err := Image.NewImage(imageLoc)
 	if err != nil {
-		fmt.Println("Cannot create image: " + err.Error())
+		Logging.Debug("Cannot create image: " + err.Error())
 	}
 	f.animationImages = append(f.animationImages, &img)
 }
@@ -83,7 +83,7 @@ func (f *FrameAnimation) Remove(imageIdx int) {
 		f.animationImages = append(f.animationImages[:imageIdx], f.animationImages[imageIdx+1:]...)
 		f.animationImages = f.animationImages[:len(f.animationImages)-1]
 	} else {
-		fmt.Printf("cant remove from animation, out of bounds...")
+		Logging.Debug("cant remove from animation, out of bounds...")
 	}
 }
 
@@ -102,7 +102,7 @@ func (f *FrameAnimation) Reorder(imageOneIdx int, imageTwoIdx int) {
 	}
 
 	if imageOneIdx == imageTwoIdx || higherIdx > listLength || lowerIdx < 0 {
-		fmt.Printf("invalid input, please ensure you are entering two unique dimensions within the list")
+		Logging.Debug("invalid input, please ensure you are entering two unique dimensions within the list")
 		return
 	}
 

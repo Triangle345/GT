@@ -92,8 +92,6 @@ func (s *BaseScene) Start() {
 func (s *BaseScene) Draw() {
 
 	if s.update {
-		fmt.Println("In update")
-
 		// TODO: remove hard coded resolution
 		// gl.BindTexture(gl.TEXTURE_2D, s.spriteSheet.textureId)
 		Opengl.BindBuffers()

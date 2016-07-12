@@ -13,6 +13,17 @@ var logfile *os.File
 var flogger *log.Logger
 var stdlogger *log.Logger
 
+// Note: this can be moved elsewhere but risks being coupled (i.e. Engine.go)
+func init() {
+	// TODO maybe add log flags (filtering, naming, etc.)
+	// for flagging may want / need to abstract Engine.go's flags to a flag package or Assets or something
+	path, _ := filepath.Abs("../Assets")
+	logPath, _ := filepath.Abs(path + "/Logs")
+	logPath += string(os.PathSeparator)
+	logPath += ""
+	Init(logPath, log.Ldate|log.Ltime|log.Lshortfile)
+}
+
 // Init creates a logger based on input from Engine.go (which parses flags and starts the engine)
 // this now means that the logger is coupled to the engine, but that can be reverted later if deemed necessary
 func Init(logFilePath string, loggerFlags int) {

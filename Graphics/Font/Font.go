@@ -2,7 +2,6 @@ package Font
 
 import (
 	"GT/Logging"
-	"fmt"
 	"image"
 	"image/draw"
 	"io/ioutil"
@@ -124,9 +123,9 @@ func (this FontInfo) GetImage() image.Image {
 
 	}
 
-	fmt.Print("Font ", this.Name())
-	fmt.Println("Max width: ", maxWidth)
-	fmt.Println("Max height: ", maxHeight)
+	Logging.Debug("Font ", this.Name())
+	Logging.Debug("Max width: ", maxWidth)
+	Logging.Debug("Max height: ", maxHeight)
 
 	// Draw the background and the guidelines.
 	fg, bg := image.Black, image.Transparent
@@ -196,7 +195,7 @@ func loadFont(fontFile string) FontInfo {
 
 func fileVisitor(path string, f os.FileInfo, err error) error {
 	if strings.Contains(path, ".ttf") {
-		fmt.Printf("Processing font: %s\n", path)
+		Logging.Info("Processing font: %s\n", path)
 		fInfo := loadFont(path)
 		fonts = append(fonts, &fInfo)
 

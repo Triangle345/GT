@@ -6,7 +6,7 @@ import (
 
 	"GT/Graphics/Image"
 	"GT/Graphics/Opengl"
-	"fmt"
+	"GT/Logging"
 
 	"GT/Graphics/Font"
 
@@ -60,7 +60,7 @@ func (this *TextRenderer) SetText(text string) {
 		img, err := Image.NewFontImage(this.font, t)
 
 		if err != nil {
-			fmt.Println("Cannot create image: " + err.Error())
+			Logging.Debug("Cannot create image: " + err.Error())
 		}
 
 		this.runeImgs = append(this.runeImgs, &img)

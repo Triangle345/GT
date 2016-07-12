@@ -5,7 +5,6 @@ import (
 	"GT/Graphics/G3D"
 	"GT/Graphics/Image"
 	"GT/Logging"
-	"fmt"
 	"image"
 	"io/ioutil"
 	"os"
@@ -26,12 +25,12 @@ func (a *AnimationManager) CurrentAnimation() *FrameAnimation {
 func (a *AnimationManager) SetCurrentAnimation(mappedAnimationName string) {
 	animationRetrieved, ok := a.animationsMap[mappedAnimationName]
 	if !ok {
-		fmt.Printf("couldn't find the animation: " + mappedAnimationName)
+		Logging.Debug("couldn't find the animation: " + mappedAnimationName)
 	}
 
 	a.currentAnimation = animationRetrieved
-	fmt.Println(mappedAnimationName, ":Set current anim to ", a.currentAnimation)
-	fmt.Println("Animation Map: ", a.animationsMap)
+	Logging.Info(mappedAnimationName, ":Set current anim to ", a.currentAnimation)
+	Logging.Info("Animation Map: ", a.animationsMap)
 }
 
 // AddAnimation maps a created animation inside the renderer
@@ -40,7 +39,7 @@ func (a *AnimationManager) AddAnimation(animationToAdd *FrameAnimation, nameToMa
 	if !ok {
 		a.animationsMap[nameToMap] = animationToAdd
 	} else {
-		fmt.Printf("the animation " + nameToMap + " already exists, please try a different name")
+		Logging.Info("the animation " + nameToMap + " already exists, please try a different name")
 	}
 }
 
@@ -48,7 +47,7 @@ func (a *AnimationManager) AddAnimation(animationToAdd *FrameAnimation, nameToMa
 func (a *AnimationManager) GetAnimation(mappedName string) *FrameAnimation {
 	animation, exists := a.animationsMap[mappedName]
 	if !exists {
-		fmt.Printf("the animation " + mappedName + " wasn't found, please try a different name")
+		Logging.Info("the animation " + mappedName + " wasn't found, please try a different name")
 	}
 	return animation
 }
@@ -80,17 +79,17 @@ func SpliceSpriteSheetAnimation(imageLoc string,
 
 	img, err := Image.NewImage(imageLoc)
 	if err != nil {
-		fmt.Println("Cannot create image: " + err.Error())
+		Logging.Debug("Cannot create image: " + err.Error())
 	}
 
 	// throw warnings for bad input
 	numOfRows := float32(img.Bounds().Dy() / frameHeight)
 	numOfColumns := float32(img.Bounds().Dx() / frameWidth)
 	if float32(noOfFrames) > numOfColumns || numOfColumns < 1 {
-		fmt.Println("WARNING: frames out of bounds")
+		Logging.Debug("WARNING: frames out of bounds")
 	}
 	if float32(rowNum) > numOfRows || numOfRows < 1 {
-		fmt.Println("WARNING: row desired out of bounds")
+		Logging.Debug("WARNING: row desired out of bounds")
 	}
 
 	for j := 0; j < img.Bounds().Dy(); j += frameHeight {
@@ -113,7 +112,7 @@ func SpliceSpriteSheetAnimation(imageLoc string,
 			spriteSheetPart, err := img.SubImage(b)
 
 			if err != nil {
-				fmt.Println("Cannot create sub image: " + err.Error())
+				Logging.Debug("Cannot create sub image: " + err.Error())
 			}
 			fa.animationImages = append(fa.animationImages, &spriteSheetPart)
 		}

@@ -4,7 +4,7 @@ package Components
 import (
 	"GT/Graphics/Image"
 	"GT/Graphics/Opengl"
-	"fmt"
+	"GT/Logging"
 	"image"
 )
 
@@ -33,7 +33,7 @@ func (s *SpriteRenderer) SetImage(imageLoc string) {
 	img, err := Image.NewImage(imageLoc)
 
 	if err != nil {
-		fmt.Println("Cannot create image: " + err.Error())
+		Logging.Debug("Cannot create image: " + err.Error())
 	}
 
 	s.img = &img
@@ -47,12 +47,12 @@ func (s *SpriteRenderer) SetSubImage(imageLoc string, bounds image.Rectangle) {
 	img, err := Image.NewImage(imageLoc)
 
 	if err != nil {
-		fmt.Println("Cannot create image: " + err.Error())
+		Logging.Debug("Cannot create image: " + err.Error())
 	}
 
 	img, err = img.SubImage(bounds)
 	if err != nil {
-		fmt.Println("Cannot create sub image: " + err.Error())
+		Logging.Debug("Cannot create sub image: " + err.Error())
 	}
 
 	s.img = &img
