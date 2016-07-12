@@ -39,6 +39,15 @@ func (a *AnimationManager) AddAnimation(animationToAdd *FrameAnimation, nameToMa
 	}
 }
 
+// GetAnimation grabs a mapped animation and returns it for the user to manipulate if desired
+func (a *AnimationManager) GetAnimation(mappedName string) *FrameAnimation {
+	animation, exists := a.animationsMap[mappedName]
+	if !exists {
+		fmt.Printf("the animation " + mappedName + " wasn't found, please try a different name")
+	}
+	return animation
+}
+
 // StopAnimation tells our current animation that it should not animate (to be used when scripting)
 func (a *AnimationManager) StopAnimation() {
 	a.currentAnimation.meta.shouldAnimate = false
