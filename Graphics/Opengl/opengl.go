@@ -20,7 +20,10 @@ var lightintensitiesID int32
 var lightattenuationID int32
 var lightambientCoeficientID int32
 
-////////////////
+// Camera
+var cameraPositionID int32
+
+var TotalAttributes int = 0
 
 const (
 	NUM_ATTRIBUTES int32 = 17
@@ -204,6 +207,8 @@ func CreateBuffers() {
 	lightattenuationID = gl.GetUniformLocation(program, gl.Str("light.attenuation\x00"))
 	lightambientCoeficientID = gl.GetUniformLocation(program, gl.Str("light.ambientCoeficient\x00"))
 
+	cameraPositionID = gl.GetUniformLocation(program, gl.Str("cameraPosition\x00"))
+
 	// View := mathgl.LookAt(0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0)
 
 	// viewM = View
@@ -340,10 +345,11 @@ func Draw() {
 
 	gl.UniformMatrix4fv(MVPid, 1, false, &MVP[0])
 
-	lightPos := mathgl.Vec3{0, 3, 0}
+	lightPos := mathgl.Vec3{0, 3, 10}
 	lightintensities := mathgl.Vec3{1, .4, .2}
-	gl.UniformMatrix3fv(lightpositionID, 1, false, &lightPos[0])
-	gl.UniformMatrix3fv(lightintensitiesID, 1, false, &lightintensities[0])
+	gl.Uniform3f(lightpositionID, lightPos[0], lightPos[1], lightPos[2])
+	gl.Uniform3f(lightintensitiesID, lightintensities[0], lightintensities[1], lightintensities[2])
+	gl.Uniform3f(cameraPositionID, 0.0, 1.0, -1.0)
 
 	// vertexData.Print()
 	// gl.DrawElements(gl.TRIANGLES, int32(len(vertexData.Elements)), gl.UNSIGNED_INT, nil)

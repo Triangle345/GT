@@ -40,7 +40,7 @@ func main() {
 
 	node := Components.NewNode("new_image")
 	node.AddComponent(&Spin{})
-	node.Transform().Translate(4, -3, 0)
+	node.Transform().Translate(-4, -3, 0)
 	// create a model based on obj file
 	rend := Components.NewModelRenderer()
 	rend.SetModel(GT.AssetsModels+"textured_box.obj", GT.AssetsModels+"textured_box.mtl")
@@ -52,7 +52,7 @@ func main() {
 	rend2 := Components.NewModelRenderer()
 	rend2.SetModel(GT.AssetsModels+"walk.obj", GT.AssetsModels+"walk.mtl")
 	node2.AddComponent(rend2)
-	node2.Transform().Translate(4, 3, 0)
+	node2.Transform().Translate(4, -3, 0)
 	node2.Transform().Rotate(.3, 0, 1, 0)
 
 	node3 := Components.NewNode("new_image3")
@@ -62,7 +62,7 @@ func main() {
 	rend3 := Components.NewModelRenderer()
 	rend3.SetModel(GT.AssetsModels+"test.obj", GT.AssetsModels+"test.mtl")
 	node3.AddComponent(rend3)
-	node3.Transform().Translate(-4, -3, 0)
+	node3.Transform().Translate(4, 3, 0)
 	node3.Transform().Rotate(.3, 0, 1, 0)
 
 	// attach the node to our scene

@@ -100,12 +100,15 @@ func FragmentShader() string {
 #version ` + OGL_VERSION + `
 
 
-uniform struct Light {
+struct Light {
    vec3 position;
    vec3 intensities; //a.k.a the color of the light
    float attenuation;
    float ambientCoefficient;
-} light;
+} ;
+
+uniform Light light;
+uniform vec3 cameraPosition;
 
 // Interpolated values from the vertex shaders
 in mediump vec4 diffuseFragment;
@@ -131,6 +134,34 @@ out mediump vec4 color;
 // Values that stay constant for the whole mesh.
 uniform sampler2D myTextureSampler[` + strTexUnits + `];
 
+vec3 linearLight(in vec4 surfaceColor) {
+	vec3 normal = wNormFrag;
+	vec3 surfacePos = fragPos;
+
+
+	vec3 surfaceToLight = normalize(light.position - surfacePos);
+	vec3 surfaceToCamera = normalize(cameraPosition - surfacePos);
+
+	//ambient
+	vec3 ambient = .2 * surfaceColor.rgb * light.intensities;
+
+	//diffuse
+	float diffuseCoefficient = max(0.0, dot(normal, surfaceToLight));
+	vec3 diffuse = diffuseCoefficient * surfaceColor.rgb * light.intensities;
+
+	//specular
+	float specularCoefficient = 0.0;
+	if(diffuseCoefficient > 0.0)
+			specularCoefficient = pow(max(0.0, dot(surfaceToCamera, reflect(-surfaceToLight, normal))), .5);
+	vec3 specular = specularCoefficient * vec3(.2,1,.2) * light.intensities;
+
+	//attenuation
+  float distanceToLight = length(light.position - surfacePos);
+  float attenuation = 1.0 / (1.0 + light.attenuation * pow(distanceToLight, 2));
+
+	return ambient + attenuation*(diffuse + specular);
+}
+
 void main()
 {
     // // Output color = red
@@ -152,18 +183,14 @@ void main()
 
     tex.a *= diffuseFragment[3];
     // color = tex.rgba;
-    color =  tex + vec4(diffuseFragment[0], diffuseFragment[1], diffuseFragment[2], 1)*tex.a;
+		vec4 surfaceColor = vec4(diffuseFragment[0], diffuseFragment[1], diffuseFragment[2], 1);
+    color =  tex + surfaceColor*tex.a;
 
+		vec3 gamma = vec3(1.0/2.2);
+		// color = vec4(pow(linearLight(tex),gamma),tex.a);
 }
 
-vec3 linearLight() {
-	vec3 normal = wNormFrag;
-	vec3 surfacePos = fragPos;
 
-
-	vec3 surfaceToLight = normalize(light.position - surfacePos);
-	return vec3(3.0);
-}
 ` + "\x00"
 }
 
