@@ -64,11 +64,11 @@ func main() {
 	anim.Reorder(1, 27) // one-based input
 	anim.Remove(1)      // remove test.png...
 
-	rend.AnimationManager.AddAnimation(anim, "dog_left_facing")
-	rend.AnimationManager.SetCurrentAnimation("dog_left_facing") // script components can make use of this...
+	manager.AddAnimation(anim, "dog_left_facing")
+	manager.SetCurrentAnimation("dog_left_facing") // script components can make use of this...
 
 	// animations can be retrieved for further configuration if desired
-	anim = rend.AnimationManager.GetAnimation("dog_left_facing")
+	anim = manager.GetAnimation("dog_left_facing")
 	anim.SetAsOneTimeOnly(true)
 	//simpleScene.SetFPS(30)
 
