@@ -65,10 +65,24 @@ func main() {
 	node3.Transform().Translate(4, 3, 0)
 	node3.Transform().Rotate(.3, 0, 1, 0)
 
+	node4 := Components.NewNode("new_image4")
+	node4.AddComponent(&Spin{})
+	rend4 := Components.NewModelRenderer()
+	node4.AddComponent(rend4)
+	// node2.AddComponent(&Spin{})
+	// create a model based on obj file
+	//node4.Transform().Translate(0, 0, 0)
+	node4.Transform().Rotate(.3, 0, 1, 0)
+	anim := Components.OBJAnimation(GT.AssetsModels + "SimpleAnimation")
+
+	rend4.AnimationManager.AddAnimation(anim, "anim1")
+	rend4.AnimationManager.SetCurrentAnimation("anim1")
+
 	// attach the node to our scene
 	simpleScene.RootNode.AddNode(node)
 	simpleScene.RootNode.AddNode(node2)
 	simpleScene.RootNode.AddNode(node3)
+	simpleScene.RootNode.AddNode(node4)
 
 	// start the scene to render our setup
 	simpleScene.Start()

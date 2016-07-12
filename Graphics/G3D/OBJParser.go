@@ -114,6 +114,7 @@ func parseFace(i *int, dat []string) face {
 	return f
 }
 
+// ParseOBJ parses an obj and mat file. Returns a Mesh
 func ParseOBJ(objLocation, matLocation string) (*Mesh, error) {
 	dat, _ := ioutil.ReadFile(objLocation)
 	strDat := string(dat)
@@ -150,27 +151,27 @@ func ParseOBJ(objLocation, matLocation string) (*Mesh, error) {
 
 		case "v":
 			v := parseVertex(&i, strArray)
-			fmt.Println("Parsed Vertex: ", v)
+			// fmt.Println("Parsed Vertex: ", v)
 			m.Vs = append(m.Vs, v)
 
 		case "vn":
 			vn := parseVertexNormal(&i, strArray)
-			fmt.Println("Parsed Vertex normal: ", vn)
+			// fmt.Println("Parsed Vertex normal: ", vn)
 			m.VNs = append(m.VNs, vn)
 
 		case "vt":
 			vt := parseVertexTexture(&i, strArray)
-			fmt.Println("Parsed Vertex texture: ", vt)
+			// fmt.Println("Parsed Vertex texture: ", vt)
 			m.VTs = append(m.VTs, vt)
 
 		case "usemtl":
 			usemtl := parseUseMtl(&i, strArray)
-			fmt.Println("Parsed usemtl: ", usemtl)
+			// fmt.Println("Parsed usemtl: ", usemtl)
 			currentMaterial = usemtl
 
 		case "f":
 			f := parseFace(&i, strArray)
-			fmt.Println("Parsed Face: ", f)
+			// fmt.Println("Parsed Face: ", f)
 			f.Material = currentMaterial
 			m.Faces = append(m.Faces, f)
 

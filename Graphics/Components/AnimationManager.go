@@ -2,9 +2,14 @@
 package Components
 
 import (
+	"GT/Graphics/G3D"
 	"GT/Graphics/Image"
+	"GT/Logging"
 	"fmt"
 	"image"
+	"io/ioutil"
+	"os"
+	"strings"
 )
 
 // AnimationManager contains a map of animations, and allows the user to interface with them
@@ -21,11 +26,11 @@ func (a *AnimationManager) CurrentAnimation() *FrameAnimation {
 func (a *AnimationManager) SetCurrentAnimation(mappedAnimationName string) {
 	animationRetrieved, ok := a.animationsMap[mappedAnimationName]
 	if !ok {
-		fmt.Printf("couldn't find the animation" + mappedAnimationName)
+		fmt.Printf("couldn't find the animation: " + mappedAnimationName)
 	}
 
 	a.currentAnimation = animationRetrieved
-	fmt.Println(mappedAnimationName, ":Set current anim to", a.currentAnimation)
+	fmt.Println(mappedAnimationName, ":Set current anim to ", a.currentAnimation)
 	fmt.Println("Animation Map: ", a.animationsMap)
 }
 
@@ -59,16 +64,16 @@ func (a *AnimationManager) StartAnimation() {
 }
 
 // SpliceFullSpriteSheetAnimation manually cuts up an entire sprite sheet based on user defined frame dimensions
-func (a *AnimationManager) SpliceFullSpriteSheetAnimation(imageLoc string, frameWidth int, frameHeight int) *FrameAnimation {
+func SpliceFullSpriteSheetAnimation(imageLoc string, frameWidth int, frameHeight int) *FrameAnimation {
 
 	// to set an entire sheet as an animation, set the Frames and Row Numbers to 0
-	fa := a.SpliceSpriteSheetAnimation(imageLoc, frameWidth, frameHeight, 0, 0)
+	fa := SpliceSpriteSheetAnimation(imageLoc, frameWidth, frameHeight, 0, 0)
 
 	return fa
 }
 
 // SpliceSpriteSheetAnimation manually cuts up a row of a sprite sheet based on user defined dimensions and sets it as the current animation
-func (a *AnimationManager) SpliceSpriteSheetAnimation(imageLoc string,
+func SpliceSpriteSheetAnimation(imageLoc string,
 	frameWidth, frameHeight, noOfFrames, rowNum int) *FrameAnimation {
 
 	fa := newFrameAnimation()
@@ -112,6 +117,40 @@ func (a *AnimationManager) SpliceSpriteSheetAnimation(imageLoc string,
 			}
 			fa.animationImages = append(fa.animationImages, &spriteSheetPart)
 		}
+	}
+
+	return fa
+}
+
+// OBJAnimation takes the folder to OBJ files and creates animation from
+// them
+func OBJAnimation(loc string) *FrameAnimation {
+	//TODO need to cache all models
+	files, err := ioutil.ReadDir(loc)
+	if err != nil {
+		Logging.Info(err)
+		return nil
+	}
+
+	fa := newFrameAnimation()
+
+	for _, file := range files {
+		// Logging.Info("Parsing anim OBJ: ", file.Name())
+		splitExt := strings.Split(file.Name(), ".")
+		if splitExt[1] == "obj" {
+			obj := loc + string(os.PathSeparator) + splitExt[0] + ".obj"
+			mtl := loc + string(os.PathSeparator) + splitExt[0] + ".mtl"
+			mesh, err := G3D.ParseOBJ(obj, mtl)
+
+			if err != nil {
+				Logging.Info(err)
+				continue
+			}
+
+			fa.animationImages = append(fa.animationImages, mesh)
+
+		}
+
 	}
 
 	return fa

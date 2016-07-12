@@ -2,7 +2,6 @@ package G3D
 
 import (
 	"GT/Logging"
-	"fmt"
 	"io/ioutil"
 	"regexp"
 	"strconv"
@@ -30,7 +29,7 @@ func parseMat(matLocation string) (map[string]*Material, error) {
 			m = &Material{}
 
 			mat := parseMtl(&i, strArray)
-			fmt.Println("Parsed material name: ", mat)
+			// fmt.Println("Parsed material name: ", mat)
 
 			m.File = matLocation
 			m.Name = mat
@@ -38,32 +37,30 @@ func parseMat(matLocation string) (map[string]*Material, error) {
 
 		case "Ka":
 			a := parseColor(&i, strArray)
-			fmt.Println("Parsed material ambient: ", a)
+			// fmt.Println("Parsed material ambient: ", a)
 			m.Ambient = a
 		case "Kd":
 			d := parseColor(&i, strArray)
-			fmt.Println("Parsed material diffuse: ", d)
+			// fmt.Println("Parsed material diffuse: ", d)
 			m.Diffuse = d
 
 		case "Ks":
 			s := parseColor(&i, strArray)
-			fmt.Println("Parsed material specular: ", s)
+			// fmt.Println("Parsed material specular: ", s)
 			m.Specular = s
 		case "Ke":
 			e := parseColor(&i, strArray)
-			fmt.Println("Parsed material emission: ", e)
+			// fmt.Println("Parsed material emission: ", e)
 			m.Emission = e
 
 		case "map_Kd":
 			t := parseTexture(&i, strArray)
-			fmt.Println("Parsed material texture diffuse: ", t)
+			// fmt.Println("Parsed material texture diffuse: ", t)
 			m.DiffuseTex = t
 		}
 
 	}
 
-	fmt.Println("Materisls 001 :", mats["Material.001"])
-	fmt.Println("Materisls 002 :", mats["Material.002"])
 	return mats, nil
 }
 

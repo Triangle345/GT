@@ -43,14 +43,14 @@ func main() {
 
 	manager := rend.AnimationManager // will be replaced by GetComponent(AnimationManager) when scripting etc.
 
-	anim := manager.SpliceSpriteSheetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 4, 1)
+	anim := Components.SpliceSpriteSheetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 4, 1)
 
 	// you can append other animations or images
-	anim.AppendAnimation(manager.SpliceSpriteSheetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 6, 2))
-	anim.AppendAnimation(manager.SpliceSpriteSheetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 5, 3))
-	anim.AppendAnimation(manager.SpliceSpriteSheetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 4, 4))
-	anim.AppendAnimation(manager.SpliceSpriteSheetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 3, 5))
-	anim.AppendAnimation(manager.SpliceSpriteSheetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 4, 6))
+	anim.AppendAnimation(Components.SpliceSpriteSheetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 6, 2))
+	anim.AppendAnimation(Components.SpliceSpriteSheetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 5, 3))
+	anim.AppendAnimation(Components.SpliceSpriteSheetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 4, 4))
+	anim.AppendAnimation(Components.SpliceSpriteSheetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 3, 5))
+	anim.AppendAnimation(Components.SpliceSpriteSheetAnimation(GT.AssetsImages+"Dog.png", 90, 58, 4, 6))
 
 	anim.Append(GT.AssetsImages + "test.png")
 

@@ -11,6 +11,7 @@ import (
 func NewModelRenderer() *modelRenderer {
 
 	model := modelRenderer{}
+	model.AnimationManager = &AnimationManager{animationsMap: map[string]*FrameAnimation{}}
 
 	return &model
 }
@@ -20,6 +21,9 @@ type modelRenderer struct {
 	Renderer
 
 	mesh Opengl.RenderObject
+
+	// holds our map of animations as well as actions necessary to control them
+	AnimationManager *AnimationManager
 
 	// uvs - store uvs for speed
 	uvs []float32
@@ -41,8 +45,22 @@ func (this *modelRenderer) SetModel(path string, mat string) {
 
 }
 
-// Update gets called every frame and accounts for all settings in the renderer as well as shifts animations
+// Update gets called every frame and accounts for all settings in
+// the renderer as well as shifts animations
 func (this *modelRenderer) Update(delta float32) {
+
+	// run the animation update (if applicable) and set our
+	// renderer mesh if the animation toggled
+	if this.AnimationManager.currentAnimation != nil {
+		// just care about updating the animation handler, thats it. We
+		// want current image always if available
+		this.AnimationManager.currentAnimation.update()
+		this.mesh = this.AnimationManager.CurrentAnimation().currentImage()
+	}
+
+	if this.mesh == nil {
+		return
+	}
 
 	this.Render(this.mesh)
 

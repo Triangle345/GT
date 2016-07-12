@@ -62,7 +62,6 @@ func (this *Mesh) VertexData() *Opengl.OpenGLVertexInfo {
 				locX += imgSec.Section.Min.X
 				locY += imgSec.Section.Min.Y
 
-				// TODO move GetUVFromPosition into maybe image aggregator
 				newU, newV := Image.GetUVFromPosition(image.Point{locX, locY})
 
 				vertexData.SetUV(vdID, newU, newV)
