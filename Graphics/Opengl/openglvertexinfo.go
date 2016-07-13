@@ -109,7 +109,9 @@ func (i *OpenGLVertexInfo) append(o *OpenGLVertexInfo) {
 
 func (i *OpenGLVertexInfo) Clear() {
 
-	i.vertexData = []float32{}
+	curLen := len(i.vertexData)
+	i.vertexData = nil
+	i.vertexData = make([]float32, 0, curLen)
 
 }
 

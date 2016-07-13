@@ -28,6 +28,7 @@ func (this *Renderer) CustomTransform(f func(mathgl.Vec4) mathgl.Vec4) {
 
 // Render writes vertex data of RenderObjects to opengl
 func (this *Renderer) Render(obj Opengl.RenderObject) {
+
 	Model := mathgl.Ident4()
 	Model = this.GetParent().transform.GetUpdatedModel()
 
@@ -58,12 +59,15 @@ func (this *Renderer) Render(obj Opengl.RenderObject) {
 		normal := normalMat.Mul3x1(mathgl.Vec3{nX, nY, nZ}).Normalize()
 		vData.SetWNormal(j, normal.X(), normal.Y(), normal.Z())
 
+		// fmt.Println("Adding vdata in rend: ", vData)
+
 	}
 
 	// fmt.Println("Vertex Data: ", vData)
 
 	// send OpenGLVertex info to Opengl module
-	Opengl.AddVertexData(1, vData)
+
+	Opengl.AddVertexData(vData)
 
 }
 

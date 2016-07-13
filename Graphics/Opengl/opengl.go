@@ -235,7 +235,7 @@ func CreateBuffers() {
 
 }
 
-func AddVertexData(id uint32, o *OpenGLVertexInfo) {
+func AddVertexData(o *OpenGLVertexInfo) {
 	// if val, ok := textureHash[id]; ok {
 	// 	// fmt.Println("ading to  layer")
 	// 	layers = append(layers, id)
@@ -336,7 +336,7 @@ func Draw() {
 	// vertexData.Print()
 	//gl.BufferSubData(gl.ARRAY_BUFFER, 0, len(vertexData.VertexData)*4, gl.Ptr(vertexData.VertexData))
 
-	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
+	// gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
 	gl.BufferData(gl.ARRAY_BUFFER, len(vertexData.vertexData)*4, gl.Ptr(vertexData.vertexData), gl.DYNAMIC_DRAW)
 	// gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, elementvbo)
 	// gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(vertexData.Elements)*4, gl.Ptr(vertexData.Elements), gl.DYNAMIC_DRAW)
