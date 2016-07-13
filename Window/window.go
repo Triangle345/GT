@@ -5,7 +5,7 @@ import (
 	// "GT/Graphics/Opengl"
 
 	"GT/Graphics/Opengl"
-	"fmt"
+	"GT/Logging"
 	"runtime"
 
 	"github.com/veandco/go-sdl2/sdl"
@@ -55,9 +55,9 @@ func NewWindowedWindow(title string, width, height int) Window {
 	w.init()
 	var current sdl.DisplayMode
 	if err := sdl.GetCurrentDisplayMode(0, &current); err != nil {
-		fmt.Println("COuld not get display mode: " + err.Error())
+		Logging.Debug("Could not get display mode: " + err.Error())
 	}
-	fmt.Printf("Display #%d: current display mode is %dx%dpx @ %dhz. \n", 0, current.W, current.H, current.RefreshRate)
+	Logging.Info("Display #%d: current display mode is %dx%dpx @ %dhz. \n", 0, current.W, current.H, current.RefreshRate)
 
 	return w
 }
@@ -69,7 +69,6 @@ func (w Window) init() error {
 	sdl.GL_SetAttribute(sdl.GL_GREEN_SIZE, 8)
 	sdl.GL_SetAttribute(sdl.GL_BLUE_SIZE, 8)
 	sdl.GL_SetAttribute(sdl.GL_ALPHA_SIZE, 8)
-
 
 	return nil
 }

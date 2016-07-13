@@ -1,7 +1,7 @@
 package Physics
 
 import (
-	"fmt"
+	"GT/Logging"
 	"math"
 )
 
@@ -76,7 +76,7 @@ func (this vector3) Normalize() vector3 {
 		return this.Scalar(1 / mag)
 	}
 
-	fmt.Println("Cannot normalize vector, magnitude 0")
+	Logging.Debug("Cannot normalize vector, magnitude 0")
 	return ZeroVector3()
 }
 

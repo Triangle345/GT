@@ -1,7 +1,7 @@
 package Components
 
 import (
-	"fmt"
+	"GT/Logging"
 	"reflect"
 )
 
@@ -77,7 +77,7 @@ func (this *Node) AddComponent(component Component) {
 
 		n.SetParent(this)
 	} else {
-		fmt.Printf("No parent to set for child component.\n")
+		Logging.Debug("No parent to set for child component.\n")
 	}
 
 	this.components = append(this.components, component)
@@ -87,8 +87,8 @@ func (this *Node) AddComponent(component Component) {
 
 func (this *Node) GetComponent(componentType string) Component {
 	for _, c := range this.components {
-		fmt.Println("type:")
-		fmt.Println(reflect.TypeOf(c).Elem().Name())
+		Logging.Info("type:")
+		Logging.Info(reflect.TypeOf(c).Elem().Name())
 
 		cType := reflect.TypeOf(c).Elem().Name()
 
@@ -102,6 +102,6 @@ func (this *Node) GetComponent(componentType string) Component {
 		}
 	}
 
-	fmt.Println("Cannot find component: " + componentType)
+	Logging.Info("Cannot find component: " + componentType)
 	return nil
 }
