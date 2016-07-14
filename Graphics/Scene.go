@@ -56,35 +56,40 @@ func (s *BaseScene) Start() {
 
 	running := true
 	s.update = true
-	drawStart := int(time.Now().Unix())
-	drawEnd := int(time.Now().Unix())
+	drawStart := int32(time.Now().UnixNano())
+	drawEnd := int32(time.Now().UnixNano())
+	delta := 0
+	onesec := int32(time.Second.Nanoseconds())
+	desiredFps := int32(s.targetFps)
 
 	// continue to render the scene unless signalled for termination
 	for running {
+
+		drawStart = int32(time.Now().UnixNano())
 
 		if GlobalInput.CheckForUpdates() {
 			running = !(GlobalInput.GetInputStatus("Esc") || GlobalInput.GetInputStatus("Quit"))
 		}
 
 		s.window.Clear()
-		drawEnd = int(time.Now().Unix())
 
-		// TODO: implement or store this data. Implement this with the fps limiting mentioned below
-		delta := float32(drawEnd - drawStart)
-		s.RootNode.Update(delta)
-		drawStart = int(time.Now().Unix())
+		s.RootNode.Update(float32(delta))
 		s.Draw()
+		s.window.Refresh()
+
+		drawEnd = int32(time.Now().UnixNano())
+
+		delta := drawEnd - drawStart
 
 		// fps limitation is optional, sleep for at least 1 ns to smooth rendering
-		if s.targetFps > 0 {
-			if delta < float32(time.Second/time.Duration(s.targetFps)) {
-				// (1 second / n frames - time elapsed) = leftover sleep needed to reach target fps
-				time.Sleep((time.Second/time.Duration(s.targetFps) - time.Duration(delta)))
+		if desiredFps > 0 {
+			// (1 second in ns / n frames - time elapsed in ns) = leftover sleep in ns needed to reach target fps
+			if delta < onesec/desiredFps {
+				time.Sleep(time.Duration(onesec/desiredFps - delta))
 			}
 		} else {
 			time.Sleep(time.Nanosecond)
 		}
-		s.window.Refresh()
 	}
 }
 

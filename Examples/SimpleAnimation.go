@@ -70,7 +70,7 @@ func main() {
 	// animations can be retrieved for further configuration if desired
 	anim = manager.GetAnimation("dog_left_facing")
 	anim.SetAsOneTimeOnly(true)
-	//simpleScene.SetFPS(30)
+	simpleScene.SetFPS(30)
 
 	// attach the sprite to our node, and transform if desired
 	node.AddComponent(rend)
